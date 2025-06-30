@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ตารางสอน Real-time (ปรับปรุง)</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Kanit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,14 +15,16 @@
         }
         .timetable-grid {
             display: grid;
-            grid-template-columns: 60px repeat(13, minmax(70px, 1fr)); /* Add 1 more column for 12-13h */
+            /* === CHANGED: Updated to 12 columns for 6 AM to 6 PM === */
+            grid-template-columns: 60px repeat(12, minmax(70px, 1fr));
             grid-template-rows: 40px repeat(7, minmax(90px, auto));
             gap: 2px;
             position: relative;
         }
         @media (min-width: 768px) {
             .timetable-grid {
-                grid-template-columns: 80px repeat(13, 1fr);
+                /* === CHANGED: Updated to 12 columns for 6 AM to 6 PM === */
+                grid-template-columns: 80px repeat(12, 1fr);
                 grid-template-rows: 50px repeat(7, minmax(100px, auto));
             }
         }
@@ -42,10 +42,8 @@
         
         .class-block {
             border-radius: 0.5rem;
-            /* === CHANGED: Adjusted padding and added border === */
             padding: 8px 8px 8px 12px;
             border-left: 5px solid transparent;
-            /* =============================================== */
             color: white;
             font-size: 0.8rem;
             line-height: 1.3;
@@ -93,11 +91,7 @@
         .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
         .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
         
-        @keyframes pulse {
-            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7); }
-            70% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 10px 15px rgba(245, 130, 32, 0); }
-            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245, 130, 32, 0); }
-        }
+        /* === REMOVED: pulse animation keyframes === */
         
         #real-time-indicator {
             position: absolute;
@@ -123,7 +117,8 @@
             background-color: #F58220;
             border-radius: 9999px;
             border: 3px solid white;
-            animation: pulse 2.5s infinite;
+            /* === REMOVED: Animation property to stop blinking === */
+            transform: translateX(-50%);
         }
         
         .sticky-day { position: sticky; left: 0; z-index: 15; }
@@ -150,20 +145,24 @@
         #modal-body {
              padding-top: 0;
         }
+        /* === ADDED: Style for topic list === */
+        #modal-topics-list {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            color: #475569;
+        }
     </style>
 </head>
 <body class="p-4 md:p-6 flex flex-col min-h-screen">
 
     <main class="flex-grow">
         <div class="max-w-7xl w-full mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-gray-200">
-            <!-- Header -->
             <div class="text-center mb-4">
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h1>
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800">ตารางเรียนวิศวกรรมสาขาคอมพิวเตอร์เทคโนโลยี</h1>
                 <p class="text-sm sm:text-base text-slate-500">ภาคการศึกษา 1 ปีการศึกษา 2568</p>
                 <p id="current-time-display" class="mt-2 text-base sm:text-lg font-semibold" style="color: #F58220;"></p>
             </div>
             
-            <!-- Current Status Display -->
             <div id="status-bar" class="text-center mb-6 p-3 rounded-lg font-semibold text-white transition-colors duration-500">
                 กำลังโหลดสถานะ...
             </div>
@@ -176,13 +175,11 @@
         </div>
     </main>
 
-    <!-- Footer for Credit -->
     <footer class="text-center p-4 mt-8 text-slate-500 text-sm">
         <p>พัฒนาโดย: วสุรัชต์ สมเด็จ</p>
         <p>นักศึกษาสถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
     </footer>
 
-    <!-- Modal (Popup) HTML -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-content">
             <button id="modal-close-btn" aria-label="Close modal">&times;</button>
@@ -192,15 +189,16 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // === ADDED: Learning topics to each subject ===
             const initialSchedule = [
-                 { day: 1, start: '08:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076120', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#ef4444', description: 'ศึกษาหลักการและแนวคิดของระบบฐานข้อมูล การออกแบบ แบบจำลองข้อมูล ภาษาสอบถาม SQL และการจัดการฐานข้อมูลเบื้องต้น', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1974&auto=format&fit=crop' },
-                { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'ภาควิชาครุศาสตร์อุตสาหกรรม', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeOaue8DOOaMsM0QzgEGhq_aOATJnYsbsyfQ&usqp=CAU' },
-                { day: 2, start: '09:00', end: '12:00', name: 'EDUCATIONAL FOUNDATION', code: '01086107', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารกรมหลวงฯ', color: '#3b82f6', description: 'เรียนรู้เกี่ยวกับรากฐานและปรัชญาการศึกษา พัฒนาการของวิชาชีพครู คุณธรรมและจริยธรรมสำหรับความเป็นครู', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOb-k02k86XK8KR2E8Ve4EEgESPxgjXcexy4gZ6wg-OgdWKMK5Qf3we8hC&s=10' },
-                { day: 2, start: '13:00', end: '16:00', name: 'EDUCATIONAL PSYCHOLOGY', code: '01086108', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารกรมหลวงฯ', color: '#2563eb', description: 'สำรวจหลักการทางจิตวิทยาที่เกี่ยวข้องกับการเรียนรู้ พัฒนาการของผู้เรียน การสร้างแรงจูงใจ และการจัดการชั้นเรียน', image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop' },
-                { day: 3, start: '08:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076117', section: '3(2-2)', room: 'IE 3313', instructor: 'ไม่มีข้อมูล', color: '#a855f7', description: 'เรียนรู้โครงสร้างและสถาปัตยกรรมของระบบคอมพิวเตอร์ หน่วยประมวลผลกลาง หน่วยความจำ และอุปกรณ์อินพุต/เอาท์พุต', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzf1en3EFNhSk1Fyvus1huhpQZQKRYr6JMU-irYK9KimZQSpDn_PQlhMY&s=10' },
-                { day: 3, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN & DEV', code: '01076116', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#10b981', description: 'หลักการออกแบบและพัฒนาซอฟต์แวร์ กระบวนการทางวิศวกรรมซอฟต์แวร์ การสร้างแบบจำลอง และการประยุกต์ใช้เครื่องมือ', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop' },
-                { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารกรมหลวงฯ', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOg0V9hOONBloQE4zPyp6_M1YLWiAA15_ryw&usqp=CAU' },
-                { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop' }
+                 { day: 1, start: '08:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076120', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#ef4444', description: 'ศึกษาหลักการและแนวคิดของระบบฐานข้อมูล การออกแบบ แบบจำลองข้อมูล ภาษาสอบถาม SQL และการจัดการฐานข้อมูลเบื้องต้น', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1974&auto=format&fit=crop', topics: ['แบบจำลองข้อมูล (Data Models)', 'การออกแบบฐานข้อมูลเชิงสัมพันธ์', 'ภาษาสอบถาม SQL', 'การทำ Normalization', 'การจัดการ Transaction'] },
+                { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'ภาควิชาครุศาสตร์อุตสาหกรรม', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeOaue8DOOaMsM0QzgEGhq_aOATJnYsbsyfQ&usqp=CAU', topics: ['คุณสมบัติและการใช้งานไดโอด', 'ทรานซิสเตอร์ (BJT และ MOSFET)', 'วงจรขยายสัญญาณด้วย Op-Amp', 'วงจรกรองความถี่ (Filters)', 'การประยุกต์ใช้งานในวงจรจริง'] },
+                { day: 2, start: '09:00', end: '12:00', name: 'EDUCATIONAL FOUNDATION', code: '01086107', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารกรมหลวงฯ', color: '#3b82f6', description: 'เรียนรู้เกี่ยวกับรากฐานและปรัชญาการศึกษา พัฒนาการของวิชาชีพครู คุณธรรมและจริยธรรมสำหรับความเป็นครู', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOb-k02k86XK8KR2E8Ve4EEgESPxgjXcexy4gZ6wg-OgdWKMK5Qf3we8hC&s=10', topics: ['ปรัชญาการศึกษาพื้นฐาน', 'ประวัติและพัฒนาการของวิชาชีพครู', 'กฎหมายและจรรยาบรรณวิชาชีพครู', 'สังคมและวัฒนธรรมกับการศึกษา', 'แนวโน้มการศึกษาในอนาคต'] },
+                { day: 2, start: '13:00', end: '16:00', name: 'EDUCATIONAL PSYCHOLOGY', code: '01086108', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารกรมหลวงฯ', color: '#2563eb', description: 'สำรวจหลักการทางจิตวิทยาที่เกี่ยวข้องกับการเรียนรู้ พัฒนาการของผู้เรียน การสร้างแรงจูงใจ และการจัดการชั้นเรียน', image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop', topics: ['ทฤษฎีการเรียนรู้และพัฒนาการ', 'จิตวิทยาพัฒนาการของผู้เรียน', 'การสร้างแรงจูงใจในการเรียน', 'การจัดการชั้นเรียนเชิงบวก', 'การวัดและประเมินผลการเรียนรู้'] },
+                { day: 3, start: '08:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076117', section: '3(2-2)', room: 'IE 3313', instructor: 'ไม่มีข้อมูล', color: '#a855f7', description: 'เรียนรู้โครงสร้างและสถาปัตยกรรมของระบบคอมพิวเตอร์ หน่วยประมวลผลกลาง หน่วยความจำ และอุปกรณ์อินพุต/เอาท์พุต', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzf1en3EFNhSk1Fyvus1huhpQZQKRYr6JMU-irYK9KimZQSpDn_PQlhMY&s=10', topics: ['สถาปัตยกรรมคอมพิวเตอร์พื้นฐาน', 'การทำงานของหน่วยประมวลผลกลาง (CPU)', 'ลำดับชั้นของหน่วยความจำ (Memory Hierarchy)', 'ระบบบัสและอุปกรณ์ I/O', 'ภาษาระดับเครื่องและการประกอบ'] },
+                { day: 3, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN & DEV', code: '01076116', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#10b981', description: 'หลักการออกแบบและพัฒนาซอฟต์แวร์ กระบวนการทางวิศวกรรมซอฟต์แวร์ การสร้างแบบจำลอง และการประยุกต์ใช้เครื่องมือ', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop', topics: ['กระบวนการพัฒนาซอฟต์แวร์ (SDLC)', 'การออกแบบเชิงวัตถุ (Object-Oriented Design)', 'UML และการสร้างแบบจำลอง', 'รูปแบบการออกแบบ (Design Patterns)', 'หลักการทดสอบซอฟต์แวร์'] },
+                { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารกรมหลวงฯ', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOg0V9hOONBloQE4zPyp6_M1YLWiAA15_ryw&usqp=CAU', topics: ['หลักการอาชีวอนามัยและความปลอดภัย', 'การประเมินและจัดการความเสี่ยง', 'การป้องกันอุบัติเหตุในที่ทำงาน', 'กฎหมายความปลอดภัยและอาชีวอนามัย', 'การปฐมพยาบาลเบื้องต้น'] },
+                { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop', topics: ['การสนทนาในชีวิตประจำวัน', 'การเขียนอีเมลและจดหมายธุรกิจ', 'การนำเสนอผลงานเป็นภาษาอังกฤษ', 'ทักษะการอ่านจับใจความ', 'การฟังและสรุปประเด็น'] }
             ];
             
             for (let i = 1; i <= 5; i++) {
@@ -213,8 +211,10 @@
             const timeDisplay = document.getElementById('current-time-display');
             const statusBar = document.getElementById('status-bar');
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-            const timetableStartHour = 8;
-            const timetableEndHour = 21;
+            
+            // === CHANGED: Timetable hours ===
+            const timetableStartHour = 6;
+            const timetableEndHour = 18;
 
             const timeToMinutes = (timeStr) => {
                 const [hours, minutes] = timeStr.split(':').map(Number);
@@ -251,17 +251,18 @@
                     const endMinutes = timeToMinutes(cls.end);
                     const startCol = ((startMinutes - timetableStartHour * 60) / 60) + 2;
                     const endCol = ((endMinutes - timetableStartHour * 60) / 60) + 2;
+                    
+                    if (startCol < 2 || endCol > 14) return; // Do not render classes outside the new time range
+
                     const classBlock = document.createElement('div');
                     classBlock.className = 'class-block';
                     
                     if (cls.type === 'break') {
                         classBlock.style.backgroundColor = cls.color;
-                        // === CHANGED: Ensure break time has no border ===
                         classBlock.style.borderLeft = 'none'; 
                         classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
                     } else {
                         classBlock.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${cls.image}')`;
-                        // === CHANGED: Set the border color from schedule data ===
                         classBlock.style.borderLeftColor = cls.color;
                         classBlock.innerHTML = `
                             <div class="flex flex-col h-full z-10">
@@ -374,8 +375,23 @@
             const modal = document.getElementById('class-modal');
             const modalBody = document.getElementById('modal-body');
             const modalCloseBtn = document.getElementById('modal-close-btn');
+            
+            // === UPDATED: openModal function to display topics ===
             const openModal = (cls) => {
                 if (cls.type === 'break') return;
+
+                let topicsHtml = '';
+                if (cls.topics && cls.topics.length > 0) {
+                    const topicsList = cls.topics.map(topic => `<li>${topic}</li>`).join('');
+                    topicsHtml = `
+                        <div class="border-t border-slate-200 my-3"></div>
+                        <div>
+                            <strong class="text-slate-600">หัวข้อการเรียนหลัก:</strong>
+                            <ul id="modal-topics-list" class="text-slate-500 mt-1 text-sm">${topicsList}</ul>
+                        </div>
+                    `;
+                }
+
                 modalBody.innerHTML = `
                     <div class="relative -mx-6 -mt-6">
                          <img src="${cls.image}" alt="รูปภาพประกอบวิชา ${cls.name}" class="w-full h-40 object-cover rounded-t-lg">
@@ -394,6 +410,7 @@
                             <strong class="text-slate-600">คำอธิบายรายวิชา:</strong>
                             <p class="text-slate-500 mt-1 text-sm">${cls.description}</p>
                         </div>
+                        ${topicsHtml}
                     </div>
                 `;
                 modal.classList.add('visible');
