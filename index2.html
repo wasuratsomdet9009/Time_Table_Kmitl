@@ -182,7 +182,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // === UPDATED: Course names and activities updated as per user request ===
+            // === UPDATED: Separated Wednesday activities (GENIUS/Scouts) ===
             const initialSchedule = [
                 // Monday (จันทร์)
                 { day: 1, start: '10:10', end: '11:50', name: 'เทคโนโลยีสารสนเทศกับโลกอนาคต', code: 'ว31293', section: '4/5', room: 'Com1', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#10b981', description: 'รายวิชาเทคโนโลยีสารสนเทศกับโลกอนาคตสำหรับนักเรียนระดับชั้น ม.4', topics: ['แนวคิดเชิงคำนวณ', 'การแก้ปัญหาด้วยโปรแกรม', 'ข้อมูลและการประมวลผล'] },
@@ -197,7 +197,8 @@
 
                 // Wednesday (พุธ)
                 { day: 3, start: '08:30', end: '10:10', name: 'เทคโนโลยีสารสนเทศกับโลกอนาคต', code: 'ว31293', section: '4/5', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#10b981', description: 'รายวิชาเทคโนโลยีสารสนเทศกับโลกอนาคตสำหรับนักเรียนระดับชั้น ม.4', topics: ['แนวคิดเชิงคำนวณ', 'การแก้ปัญหาด้วยโปรแกรม', 'ข้อมูลและการประมวลผล'] },
-                { day: 3, start: '12:40', end: '14:20', name: 'ประชุม GENIUS / ลูกเสือ', code: 'กิจกรรม', section: 'GENIUS/ลูกเสือ', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ec4899', description: 'ประชุมกรรมการ GENIUS / ลูกเสือเนตรนารี ยุวกาชาด', topics: [] },
+                { day: 3, start: '12:40', end: '13:30', name: 'ประชุม GENIUS', code: 'กิจกรรม', section: 'GENIUS', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ec4899', description: 'ประชุมกรรมการ GENIUS', topics: [] },
+                { day: 3, start: '13:30', end: '14:20', name: 'ลูกเสือ', code: 'กิจกรรม', section: 'ลูกเสือ', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#a855f7', description: 'กิจกรรมลูกเสือเนตรนารี ยุวกาชาด', topics: [] },
                 { day: 3, start: '14:20', end: '15:10', name: 'PLC', code: 'PLC', section: '-', room: 'พักครู', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#64748b', description: 'กิจกรรมชุมชนแห่งการเรียนรู้ทางวิชาชีพ', topics: [] },
 
                 // Thursday (พฤหัสบดี)
@@ -327,12 +328,13 @@
                         classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
                     } else {
                         classBlock.style.backgroundColor = cls.color;
+                        // === UPDATED: Removed 'truncate' class for better readability of long course names ===
                         classBlock.innerHTML = `
                             <div class="flex flex-col h-full z-10">
                                 <div>
                                     <div class="flex justify-between items-start">
-                                        <strong class="text-sm truncate pr-2">${cls.name}</strong>
-                                        <span class="class-room-tag">${cls.room}</span>
+                                        <strong class="text-sm font-semibold" style="word-break: break-word;">${cls.name}</strong>
+                                        <span class="class-room-tag ml-2">${cls.room}</span>
                                     </div>
                                     <p class="text-xs opacity-80 mt-1">${cls.code}</p>
                                 </div>
