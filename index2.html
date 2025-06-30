@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางสอน Real-time (อ.นงวรรณิสา)</title>
+    <title>ตารางสอน Real-time (ครูกิ๊ฟ)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,17 +15,17 @@
         }
         .timetable-grid {
             display: grid;
-            /* Grid from 8 AM to 5 PM (9 hours), 54 columns for 10-min intervals */
-            grid-template-columns: 60px repeat(54, minmax(15px, 1fr));
-            grid-template-rows: 50px repeat(7, minmax(90px, auto)); /* Header row height adjusted */
+            /* === UPDATED: Made timetable wider and more compact === */
+            grid-template-columns: 60px repeat(54, 22px);
+            grid-template-rows: 50px repeat(7, minmax(50px, auto)); 
             gap: 2px;
             position: relative;
         }
         @media (min-width: 768px) {
             .timetable-grid {
-                /* Wider day column, 54 columns for 10-min intervals */
-                grid-template-columns: 80px repeat(54, 1fr);
-                grid-template-rows: 60px repeat(7, minmax(100px, auto)); /* Header row height adjusted */
+                /* === UPDATED: Made timetable wider and more compact for desktop === */
+                grid-template-columns: 80px repeat(54, 28px);
+                grid-template-rows: 60px repeat(7, minmax(60px, auto));
             }
         }
         .grid-header {
@@ -39,13 +39,13 @@
             color: #475569;
         }
         @media (min-width: 768px) { .grid-header { font-size: 0.875rem; } }
-        
+         
         .class-block {
             border-radius: 0.5rem;
-            padding: 8px 8px 8px 12px;
+            padding: 6px 8px; /* Reduced vertical padding */
             border-left: 5px solid transparent; 
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Slightly smaller font for compact view */
             line-height: 1.3;
             overflow: hidden;
             display: flex;
@@ -62,7 +62,7 @@
 
         .class-block:hover { transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         .class-block.current { transform: scale(1.05); z-index: 10; border: 2px solid #FFD700; }
-        
+         
         .class-room-tag {
             font-size: 0.7rem;
             font-weight: 600;
@@ -71,7 +71,7 @@
             border-radius: 9999px;
             flex-shrink: 0;
         }
-        
+         
         .class-status-overlay {
             position: absolute;
             inset: 0;
@@ -88,7 +88,7 @@
 
         .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
         .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
-        
+         
         #real-time-indicator {
             position: absolute;
             top: 50px; 
@@ -115,10 +115,10 @@
             border: 3px solid white;
             transform: translateX(-50%);
         }
-        
+         
         .sticky-day { position: sticky; left: 0; z-index: 15; }
         .sticky-corner { position: sticky; left: 0; top: 0; z-index: 16; background-color: #f1f5f9; }
-        
+         
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
@@ -156,11 +156,11 @@
                 <p class="text-sm sm:text-base text-slate-500">ภาคการศึกษา 1 ปีการศึกษา 2568 - โรงเรียนเทพศิรินทร์พุแค สระบุรี</p>
                 <p id="current-time-display" class="mt-2 text-base sm:text-lg font-semibold" style="color: #F58220;"></p>
             </div>
-            
+             
             <div id="status-bar" class="text-center mb-6 p-3 rounded-lg font-semibold text-white transition-colors duration-500">
                 กำลังโหลดสถานะ...
             </div>
-    
+     
             <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
                 <div id="timetable-container" class="timetable-grid">
                     <div id="real-time-indicator" class="hidden"></div>
@@ -182,7 +182,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // === UPDATED: Separated Wednesday activities (GENIUS/Scouts) ===
+            // Data for the schedule
             const initialSchedule = [
                 // Monday (จันทร์)
                 { day: 1, start: '10:10', end: '11:50', name: 'เทคโนโลยีสารสนเทศกับโลกอนาคต', code: 'ว31293', section: '4/5', room: 'Com1', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#10b981', description: 'รายวิชาเทคโนโลยีสารสนเทศกับโลกอนาคตสำหรับนักเรียนระดับชั้น ม.4', topics: ['แนวคิดเชิงคำนวณ', 'การแก้ปัญหาด้วยโปรแกรม', 'ข้อมูลและการประมวลผล'] },
@@ -197,12 +197,12 @@
 
                 // Wednesday (พุธ)
                 { day: 3, start: '08:30', end: '10:10', name: 'เทคโนโลยีสารสนเทศกับโลกอนาคต', code: 'ว31293', section: '4/5', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#10b981', description: 'รายวิชาเทคโนโลยีสารสนเทศกับโลกอนาคตสำหรับนักเรียนระดับชั้น ม.4', topics: ['แนวคิดเชิงคำนวณ', 'การแก้ปัญหาด้วยโปรแกรม', 'ข้อมูลและการประมวลผล'] },
-                { day: 3, start: '12:40', end: '13:30', name: 'ประชุม GENIUS', code: 'กิจกรรม', section: 'GENIUS', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ec4899', description: 'ประชุมกรรมการ GENIUS', topics: [] },
+                { day: 3, start: '12:40', end: '13:30', name: 'GENIUS', code: 'กิจกรรม', section: 'GENIUS', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ec4899', description: 'ประชุมกรรมการ GENIUS', topics: [] },
                 { day: 3, start: '13:30', end: '14:20', name: 'ลูกเสือ', code: 'กิจกรรม', section: 'ลูกเสือ', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#a855f7', description: 'กิจกรรมลูกเสือเนตรนารี ยุวกาชาด', topics: [] },
                 { day: 3, start: '14:20', end: '15:10', name: 'PLC', code: 'PLC', section: '-', room: 'พักครู', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#64748b', description: 'กิจกรรมชุมชนแห่งการเรียนรู้ทางวิชาชีพ', topics: [] },
 
                 // Thursday (พฤหัสบดี)
-                { day: 4, start: '08:30', end: '09:20', name: 'กิจกรรมระดับชั้น', code: 'กิจกรรม', section: 'ม.4', room: 'ตามประกาศ', instructor: 'ครูที่ปรึกษา', color: '#ec4899', description: 'กิจกรรมระดับชั้น ม.4', topics: [] },
+                { day: 4, start: '08:30', end: '09:20', name: 'คาบระดับชั้น', code: 'กิจกรรม', section: 'ม.4', room: 'ตามประกาศ', instructor: 'ครูที่ปรึกษา', color: '#ec4899', description: 'กิจกรรมระดับชั้น ม.4', topics: [] },
                 { day: 4, start: '09:20', end: '10:10', name: 'ต้านทุจริต', code: 'ส30224', section: '-', room: 'ตามตาราง', instructor: 'ตามตาราง', color: '#84cc16', description: 'รายวิชาต้านทุจริต', topics: [] },
                 { day: 4, start: '10:10', end: '11:50', name: 'เทคโนโลยีสารสนเทศ', code: 'ว30283', section: '5/2', room: 'Com3', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาเทคโนโลยีสารสนเทศสำหรับนักเรียนระดับชั้น ม.5', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
                 { day: 4, start: '13:30', end: '14:20', name: 'วิทยาการคำนวณ', code: 'ว32181', section: '5/4', room: 'Com6', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#3b82f6', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.5', topics: ['วิทยาการข้อมูล', 'ปัญญาประดิษฐ์ (AI)', 'โครงสร้างข้อมูล'] },
@@ -215,19 +215,19 @@
                 { day: 5, start: '14:20', end: '15:10', name: 'เทคโนโลยีสารสนเทศ', code: 'ว30283', section: '5/5', room: 'Com6', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาเทคโนโลยีสารสนเทศสำหรับนักเรียนระดับชั้น ม.5', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
                 { day: 5, start: '15:10', end: '16:00', name: 'PLC', code: 'PLC', section: '-', room: 'พักครู', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#64748b', description: 'กิจกรรมชุมชนแห่งการเรียนรู้ทางวิชาชีพ', topics: [] },
             ];
-            
+             
             // Add lunch breaks for weekdays
             for (let i = 1; i <= 5; i++) {
                 initialSchedule.push({ day: i, start: '11:50', end: '12:40', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' });
             }
-            
+             
             const schedule = initialSchedule;
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
             const timeDisplay = document.getElementById('current-time-display');
             const statusBar = document.getElementById('status-bar');
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-            
+             
             const timetableStartHour = 8;
             const timetableEndHour = 17;
 
@@ -266,7 +266,7 @@
 
                     // Calculate position and span on the 10-minute interval grid
                     const startOffsetMinutes = startMinutes - (timetableStartHour * 60);
-                    
+                     
                     if (startOffsetMinutes < 0 || durationMinutes <= 0) return;
 
                     const startCol = Math.floor(startOffsetMinutes / 10) + 2;
@@ -276,9 +276,9 @@
 
                     const periodHeader = document.createElement('div');
                     periodHeader.className = 'grid-header text-center flex-col';
-                    
+                     
                     const periodText = period.text ? period.text : `คาบที่ ${period.number}`;
-                    
+                     
                     periodHeader.innerHTML = `
                         <span class="font-semibold">${periodText}</span>
                         <span class="text-xs opacity-80">${period.start}-${period.end}</span>
@@ -304,33 +304,35 @@
             };
 
             const renderClasses = () => {
+                // Clear existing class blocks before rendering new ones
+                timetableGrid.querySelectorAll('.class-block').forEach(block => block.remove());
+                
                 schedule.forEach((cls, index) => {
                     const startMinutes = timeToMinutes(cls.start);
                     const endMinutes = timeToMinutes(cls.end);
-                    
+                     
                     const intervalMinutes = 10;
                     const totalMinutesInView = (timetableEndHour - timetableStartHour) * 60;
 
                     const startOffsetMinutes = startMinutes - (timetableStartHour * 60);
                     const endOffsetMinutes = endMinutes - (timetableStartHour * 60);
-                    
+                     
                     if (endOffsetMinutes <= 0 || startOffsetMinutes >= totalMinutesInView) return;
 
                     const startCol = (startOffsetMinutes / intervalMinutes) + 2;
                     const endCol = (endOffsetMinutes / intervalMinutes) + 2;
-                    
+                     
                     const classBlock = document.createElement('div');
                     classBlock.className = 'class-block';
-                    
+                     
                     if (cls.type === 'break') {
                         classBlock.style.backgroundColor = cls.color;
                         classBlock.style.borderLeft = 'none'; 
                         classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
                     } else {
                         classBlock.style.backgroundColor = cls.color;
-                        // === UPDATED: Removed 'truncate' class for better readability of long course names ===
                         classBlock.innerHTML = `
-                            <div class="flex flex-col h-full z-10">
+                            <div class="flex flex-col h-full z-10 justify-between"> <!-- Use justify-between -->
                                 <div>
                                     <div class="flex justify-between items-start">
                                         <strong class="text-sm font-semibold" style="word-break: break-word;">${cls.name}</strong>
@@ -338,27 +340,27 @@
                                     </div>
                                     <p class="text-xs opacity-80 mt-1">${cls.code}</p>
                                 </div>
-                                <div class="mt-auto text-center text-xs opacity-70 pt-1">
+                                <div class="text-center text-xs opacity-70 pt-1">
                                     กดเพื่อดูรายละเอียด
                                 </div>
                             </div>
                             <div class="class-status-overlay"></div>
                         `;
                     }
-                    
+                     
                     classBlock.style.gridRow = `${cls.day + 2}`;
                     classBlock.style.gridColumn = `${startCol} / ${endCol}`;
                     classBlock.dataset.index = index;
                     timetableGrid.appendChild(classBlock);
                 });
             };
-            
+             
             const updateRealTime = () => {
                 const now = new Date();
                 const currentDay = now.getDay();
                 const currentMinutes = now.getHours() * 60 + now.getMinutes();
                 timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH')}`;
-                
+                 
                 const dayColumnWidth = window.innerWidth < 768 ? 60 : 80;
                 const gridContentWidth = timetableGrid.scrollWidth - dayColumnWidth;
                 const minutesSinceStart = currentMinutes - (timetableStartHour * 60);
@@ -375,7 +377,7 @@
 
                 const currentClass = schedule.find(cls => cls.day === currentDay && currentMinutes >= timeToMinutes(cls.start) && currentMinutes < timeToMinutes(cls.end));
                 const nextClass = schedule.find(cls => cls.day === currentDay && timeToMinutes(cls.start) > currentMinutes && cls.type !== 'break');
-                
+                 
                 if (currentClass) {
                     if (currentClass.type === 'break') {
                         statusBar.textContent = 'พักกลางวัน';
@@ -408,7 +410,7 @@
                 document.querySelectorAll('.class-block').forEach(block => {
                     const cls = schedule[parseInt(block.dataset.index)];
                     if(!cls) return;
-                    
+                     
                     const startMinutes = timeToMinutes(cls.start);
                     const endMinutes = timeToMinutes(cls.end);
                     const overlay = block.querySelector('.class-status-overlay');
@@ -424,7 +426,7 @@
                             }
                         }
                     }
-                    
+                     
                     if (cls === nextClass) {
                         const timeToNext = startMinutes - currentMinutes;
                         if (timeToNext > 0 && timeToNext <= 15) {
@@ -441,7 +443,7 @@
             const modal = document.getElementById('class-modal');
             const modalBody = document.getElementById('modal-body');
             const modalCloseBtn = document.getElementById('modal-close-btn');
-            
+             
             const openModal = (cls) => {
                 if (cls.type === 'break' || cls.name === 'PLC') return;
 
@@ -456,7 +458,7 @@
                         </div>
                     `;
                 }
-                
+                 
                 modalBody.innerHTML = `
                     <div class="pt-4">
                         <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
@@ -495,14 +497,14 @@
             updateRealTime();
             // Update every second
             setInterval(updateRealTime, 1000);
-            
-            // Re-render on resize to adjust layout
+             
+            // === UPDATED: Correctly redraw the grid on resize to prevent duplicating elements ===
             window.addEventListener('resize', () => {
                 setupGrid();
-                renderClasses();
-                updateRealTime();
+                renderClasses(); 
+                updateRealTime(); 
             });
         });
     </script>
 </body>
-</html>
+</ht
