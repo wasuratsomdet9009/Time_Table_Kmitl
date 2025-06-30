@@ -11,13 +11,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ใช้ฟอนต์ Kanit เป็นหลัก */
         body {
             font-family: 'Kanit', sans-serif;
             background-color: #f1f5f9; /* slate-100 */
         }
-
-        /* คอนเทนเนอร์หลักของตาราง */
         .timetable-grid {
             display: grid;
             grid-template-columns: 60px repeat(12, minmax(70px, 1fr));
@@ -25,16 +22,12 @@
             gap: 2px;
             position: relative;
         }
-
-        /* ปรับขนาดสำหรับจอใหญ่ (Tablet/Desktop) */
         @media (min-width: 768px) {
             .timetable-grid {
                 grid-template-columns: 80px repeat(12, 1fr);
                 grid-template-rows: 50px repeat(7, minmax(100px, auto));
             }
         }
-
-        /* สไตล์หัวตาราง: เวลาและวัน */
         .grid-header {
             display: flex;
             align-items: center;
@@ -45,13 +38,8 @@
             background-color: #e2e8f0;
             color: #475569;
         }
-        @media (min-width: 768px) {
-            .grid-header {
-                font-size: 0.875rem;
-            }
-        }
+        @media (min-width: 768px) { .grid-header { font-size: 0.875rem; } }
         
-        /* สไตล์บล็อกรายวิชา */
         .class-block {
             border-radius: 0.5rem;
             padding: 8px;
@@ -64,146 +52,100 @@
             transition: all 0.2s ease-in-out;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             cursor: pointer;
+            position: relative; /* Needed for overlay */
             animation: fadeIn 0.4s ease-out forwards;
             opacity: 0;
             transform: translateY(8px);
         }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .class-block:hover {
-            transform: scale(1.03);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-        }
-
-        .class-block.current {
-            box-shadow: 0 0 15px 5px rgba(255, 223, 0, 0.7);
-            transform: scale(1.05);
-            z-index: 10;
-            border: 2px solid #FFD700;
+        .class-block:hover { transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .class-block.current { transform: scale(1.05); z-index: 10; border: 2px solid #FFD700; }
+        
+        .class-room-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background-color: rgba(255, 255, 255, 0.25);
+            padding: 2px 8px;
+            border-radius: 9999px;
+            flex-shrink: 0;
         }
         
-        /* --- START: UPDATED REAL-TIME INDICATOR STYLES --- */
+        .class-status-overlay {
+            position: absolute;
+            inset: 0;
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 4px;
+            animation: status-fade-in 0.5s;
+        }
+        @keyframes status-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Keyframes สำหรับอนิเมชันการกระพริบของวงกลม */
+        .finishing-soon .class-status-overlay {
+            display: flex;
+            background-color: rgba(220, 38, 38, 0.75); /* red-600 with 75% opacity */
+        }
+        .prepare-next .class-status-overlay {
+            display: flex;
+            background-color: rgba(59, 130, 246, 0.75); /* blue-500 with 75% opacity */
+        }
+        
         @keyframes pulse {
-            0% {
-                transform: translateX(-50%) scale(1);
-                box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7);
-            }
-            70% {
-                transform: translateX(-50%) scale(1.1);
-                box-shadow: 0 0 10px 15px rgba(245, 130, 32, 0);
-            }
-            100% {
-                transform: translateX(-50%) scale(1);
-                box-shadow: 0 0 0 0 rgba(245, 130, 32, 0);
-            }
+            0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7); }
+            70% { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 10px 15px rgba(245, 130, 32, 0); }
+            100% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245, 130, 32, 0); }
         }
         
-        /* เส้นเวลาปัจจุบัน (สไตล์ใหม่) */
         #real-time-indicator {
             position: absolute;
             top: 40px; 
             bottom: 0;
-            width: 4px; /* ทำให้เส้นหนาขึ้น */
-            /* ใช้ Gradient สีส้มแสดของ KMITL */
+            width: 4px;
             background: linear-gradient(to bottom, #F58220, #D46A1A);
             z-index: 20;
             pointer-events: none;
             transition: all 1s linear;
-            box-shadow: 0 0 10px 2px #F58220; /* เพิ่มเงาเรืองแสง */
+            box-shadow: 0 0 10px 2px #F58220;
             border-radius: 2px;
         }
-         @media (min-width: 768px) {
-            #real-time-indicator {
-                top: 50px;
-            }
-        }
+         @media (min-width: 768px) { #real-time-indicator { top: 50px; } }
 
-        /* วงกลมบนเส้นเวลา (สไตล์ใหม่) */
         #real-time-indicator::before {
             content: '';
             position: absolute;
-            top: -9px; /* ปรับตำแหน่งให้พอดี */
+            top: -9px;
             left: 50%;
-            /* transform ถูกย้ายไปใน keyframes */
-            width: 18px; /* ขยายวงกลม */
+            width: 18px;
             height: 18px;
-            background-color: #F58220; /* สีส้ม KMITL */
+            background-color: #F58220;
             border-radius: 9999px;
-            border: 3px solid white; /* ขอบขาวหนาขึ้น */
-            animation: pulse 2.5s infinite; /* เพิ่มอนิเมชันการกระพริบ */
+            border: 3px solid white;
+            animation: pulse 2.5s infinite;
         }
         
-        /* --- END: UPDATED REAL-TIME INDICATOR STYLES --- */
+        .sticky-day { position: sticky; left: 0; z-index: 15; }
+        .sticky-corner { position: sticky; left: 0; top: 0; z-index: 16; background-color: #f1f5f9; }
         
-        /* Sticky Header: ทำให้หัวตารางตรึงอยู่กับที่เมื่อเลื่อน */
-        .sticky-day {
-            position: sticky;
-            left: 0;
-            z-index: 15;
-        }
-        .sticky-corner {
-            position: sticky;
-            left: 0;
-            top: 0;
-            z-index: 16;
-            background-color: #f1f5f9;
-        }
-        
-        /* Modal (Popup) Styles */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
         }
-        .modal-overlay.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
         .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-            transform: scale(0.95);
-            transition: transform 0.3s ease;
+            background: white; padding: 2rem; border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            position: relative; transform: scale(0.95); transition: transform 0.3s ease;
         }
-        .modal-overlay.visible .modal-content {
-            transform: scale(1);
-        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
         .modal-close-btn {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background: #e2e8f0;
-            border: none;
-            border-radius: 9999px;
-            width: 2rem;
-            height: 2rem;
-            font-size: 1.5rem;
-            line-height: 1;
-            cursor: pointer;
-            color: #64748b;
+            position: absolute; top: 0.75rem; right: 0.75rem; background: #e2e8f0;
+            border: none; border-radius: 9999px; width: 2rem; height: 2rem;
+            font-size: 1.5rem; line-height: 1; cursor: pointer; color: #64748b;
         }
     </style>
 </head>
@@ -212,15 +154,13 @@
     <div class="max-w-7xl w-full mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-gray-200">
         <!-- Header -->
         <div class="text-center mb-6">
-            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800">ตารางเรียนสาขาเทคโนโลยีคอมพิวเตอร์ SECTIONS 2</h1>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h1>
             <p class="text-sm sm:text-base text-slate-500">ภาคการศึกษา 1 ปีการศึกษา 2568</p>
             <p id="current-time-display" class="mt-2 text-base sm:text-lg font-semibold" style="color: #F58220;"></p>
         </div>
 
-        <!-- Timetable Container with horizontal scroll -->
         <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
             <div id="timetable-container" class="timetable-grid">
-                <!-- เนื้อหาตารางจะถูกสร้างโดย JavaScript -->
                 <div id="real-time-indicator" class="hidden"></div>
             </div>
         </div>
@@ -230,15 +170,12 @@
     <div id="class-modal" class="modal-overlay">
         <div class="modal-content">
             <button id="modal-close-btn" aria-label="Close modal">&times;</button>
-            <div id="modal-body" class="space-y-3">
-                <!-- รายละเอียดวิชาจะถูกใส่ที่นี่โดย JavaScript -->
-            </div>
+            <div id="modal-body" class="space-y-3"></div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // --- ข้อมูลตารางเรียน (เพิ่มคำอธิบายรายวิชา) ---
             const schedule = [
                  { day: 1, start: '08:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076120', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#ef4444', description: 'ศึกษาหลักการและแนวคิดของระบบฐานข้อมูล การออกแบบ แบบจำลองข้อมูล ภาษาสอบถาม SQL และการจัดการฐานข้อมูลเบื้องต้น' },
                 { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'ภาควิชาครุศาสตร์อุตสาหกรรม', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ' },
@@ -247,11 +184,9 @@
                 { day: 3, start: '08:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076117', section: '3(2-2)', room: 'IE 3313', instructor: 'ไม่มีข้อมูล', color: '#a855f7', description: 'เรียนรู้โครงสร้างและสถาปัตยกรรมของระบบคอมพิวเตอร์ หน่วยประมวลผลกลาง หน่วยความจำ และอุปกรณ์อินพุต/เอาท์พุต' },
                 { day: 3, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN & DEV', code: '01076116', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#10b981', description: 'หลักการออกแบบและพัฒนาซอฟต์แวร์ กระบวนการทางวิศวกรรมซอฟต์แวร์ การสร้างแบบจำลอง และการประยุกต์ใช้เครื่องมือ' },
                 { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารกรมหลวงฯ', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง' },
-                { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online via MS Team', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ' }
+                { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ' }
             ];
 
-
-            // --- ตัวแปรและค่าคงที่ ---
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
             const timeDisplay = document.getElementById('current-time-display');
@@ -259,7 +194,13 @@
             const timetableStartHour = 8;
             const timetableEndHour = 20;
 
-            // --- ฟังก์ชันสร้างตาราง ---
+            const timeToMinutes = (timeStr) => {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
+
             const setupGrid = () => {
                 timetableGrid.innerHTML = '';
                 const cornerCell = document.createElement('div');
@@ -282,7 +223,6 @@
                 timetableGrid.appendChild(timeIndicator);
             };
 
-            // --- ฟังก์ชันแสดงผลรายวิชา ---
             const renderClasses = () => {
                 schedule.forEach((cls, index) => {
                     const startMinutes = timeToMinutes(cls.start);
@@ -294,25 +234,32 @@
                     classBlock.style.backgroundColor = cls.color;
                     classBlock.style.gridRow = `${cls.day + 2}`;
                     classBlock.style.gridColumn = `${startCol} / ${endCol}`;
-                    classBlock.style.animationDelay = `${index * 0.03}s`;
                     classBlock.dataset.index = index;
                     classBlock.innerHTML = `
-                        <strong class="text-sm truncate">${cls.name}</strong>
-                        <div class="text-xs opacity-80 mt-1">
-                            <p>${cls.code}</p>
-                            <p>${cls.start} - ${cls.end}</p>
+                        <div class="flex flex-col h-full">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <strong class="text-sm truncate pr-2">${cls.name}</strong>
+                                    <span class="class-room-tag">${cls.room}</span>
+                                </div>
+                                <p class="text-xs opacity-80 mt-1">${cls.code}</p>
+                            </div>
+                            <div class="mt-auto text-center text-xs opacity-70 pt-1">
+                                กดเพื่อดูรายละเอียด
+                            </div>
                         </div>
+                        <div class="class-status-overlay"></div>
                     `;
                     timetableGrid.appendChild(classBlock);
                 });
             };
             
-            // --- ฟังก์ชันอัปเดตเวลาและเส้นบอกเวลา ---
             const updateRealTime = () => {
                 const now = new Date();
                 const currentDay = now.getDay();
                 const currentMinutes = now.getHours() * 60 + now.getMinutes();
                 timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH')}`;
+                
                 const dayColumnWidth = window.innerWidth < 768 ? 60 : 80;
                 const gridContentWidth = timetableGrid.scrollWidth - dayColumnWidth;
                 const minutesSinceStart = currentMinutes - (timetableStartHour * 60);
@@ -325,21 +272,53 @@
                 } else {
                     timeIndicator.classList.add('hidden');
                 }
-                document.querySelectorAll('.class-block').forEach(block => {
+
+                const allBlocks = document.querySelectorAll('.class-block');
+                const nextClass = schedule.find(cls => cls.day === currentDay && timeToMinutes(cls.start) > currentMinutes);
+
+                allBlocks.forEach(block => {
+                    block.classList.remove('current', 'finishing-soon', 'prepare-next');
+                    const overlay = block.querySelector('.class-status-overlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
+                        overlay.textContent = '';
+                    }
+                });
+
+                allBlocks.forEach(block => {
                     const cls = schedule[parseInt(block.dataset.index)];
-                    if (cls.day === currentDay && currentMinutes >= timeToMinutes(cls.start) && currentMinutes < timeToMinutes(cls.end)) {
+                    const startMinutes = timeToMinutes(cls.start);
+                    const endMinutes = timeToMinutes(cls.end);
+                    const overlay = block.querySelector('.class-status-overlay');
+
+                    if (cls.day === currentDay && currentMinutes >= startMinutes && currentMinutes < endMinutes) {
                         block.classList.add('current');
-                    } else {
-                        block.classList.remove('current');
+                        const timeLeft = endMinutes - currentMinutes;
+                        if (timeLeft <= 15) {
+                            block.classList.add('finishing-soon');
+                            if(overlay) {
+                                overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
+                                overlay.style.display = 'flex';
+                            }
+                        }
+                    }
+                    
+                    if (nextClass && cls.code === nextClass.code && cls.start === nextClass.start && cls.day === nextClass.day) {
+                        const timeToNext = timeToMinutes(nextClass.start) - currentMinutes;
+                        if (timeToNext > 0 && timeToNext <= 15) {
+                            block.classList.add('prepare-next');
+                            if(overlay) {
+                                overlay.textContent = `เตรียมตัวเรียน (${timeToNext} นาที)`;
+                                overlay.style.display = 'flex';
+                            }
+                        }
                     }
                 });
             };
 
-            // --- ฟังก์ชันจัดการ Modal (Popup) ---
             const modal = document.getElementById('class-modal');
             const modalBody = document.getElementById('modal-body');
             const modalCloseBtn = document.getElementById('modal-close-btn');
-
             const openModal = (cls) => {
                 modalBody.innerHTML = `
                     <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
@@ -360,26 +339,13 @@
             };
             const closeModal = () => modal.classList.remove('visible');
 
-            // --- Event Listeners ---
             timetableGrid.addEventListener('click', (e) => {
                 const classBlock = e.target.closest('.class-block');
-                if (classBlock) {
-                    const index = parseInt(classBlock.dataset.index);
-                    openModal(schedule[index]);
-                }
+                if (classBlock) { openModal(schedule[parseInt(classBlock.dataset.index)]); }
             });
             modalCloseBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) closeModal();
-            });
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
-            // --- ฟังก์ชันช่วย ---
-            const timeToMinutes = (timeStr) => {
-                const [hours, minutes] = timeStr.split(':').map(Number);
-                return hours * 60 + minutes;
-            };
-
-            // --- เริ่มการทำงาน ---
             setupGrid();
             renderClasses();
             updateRealTime();
