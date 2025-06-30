@@ -1,1 +1,477 @@
-.
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางสอน Real-time (อ.นงวรรณิสา)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .timetable-grid {
+            display: grid;
+            /* === CHANGED: Grid from 8 AM to 5 PM (9 hours), 54 columns for 10-min intervals === */
+            grid-template-columns: 60px repeat(54, minmax(15px, 1fr));
+            grid-template-rows: 40px repeat(7, minmax(90px, auto));
+            gap: 2px;
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .timetable-grid {
+                 /* === CHANGED: Wider day column, 54 columns for 10-min intervals === */
+                grid-template-columns: 80px repeat(54, 1fr);
+                grid-template-rows: 50px repeat(7, minmax(100px, auto));
+            }
+        }
+        .grid-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 0.75rem;
+            border-radius: 0.375rem;
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+        @media (min-width: 768px) { .grid-header { font-size: 0.875rem; } }
+        
+        .class-block {
+            border-radius: 0.5rem;
+            padding: 8px 8px 8px 12px;
+            border-left: 5px solid transparent;
+            color: white;
+            font-size: 0.8rem;
+            line-height: 1.3;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(8px);
+            background-size: cover;
+            background-position: center;
+        }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        .class-block:hover { transform: scale(1.02); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .class-block.current { transform: scale(1.05); z-index: 10; border: 2px solid #FFD700; }
+        
+        .class-room-tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 9999px;
+            flex-shrink: 0;
+        }
+        
+        .class-status-overlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            padding: 4px;
+            animation: status-fade-in 0.5s;
+        }
+        @keyframes status-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+        .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
+        .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
+        
+        #real-time-indicator {
+            position: absolute;
+            top: 40px; 
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #F58220, #D46A1A);
+            z-index: 20;
+            pointer-events: none;
+            transition: all 1s linear;
+            box-shadow: 0 0 10px 2px #F58220;
+            border-radius: 2px;
+        }
+         @media (min-width: 768px) { #real-time-indicator { top: 50px; } }
+
+        #real-time-indicator::before {
+            content: '';
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            width: 18px;
+            height: 18px;
+            background-color: #F58220;
+            border-radius: 9999px;
+            border: 3px solid white;
+            transform: translateX(-50%);
+        }
+        
+        .sticky-day { position: sticky; left: 0; z-index: 15; }
+        .sticky-corner { position: sticky; left: 0; top: 0; z-index: 16; background-color: #f1f5f9; }
+        
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: white; padding: 1.5rem; border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 500px;
+            position: relative; transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-close-btn {
+            position: absolute; top: 0.75rem; right: 0.75rem; background: #e2e8f0;
+            border: none; border-radius: 9999px; width: 2rem; height: 2rem;
+            font-size: 1.5rem; line-height: 1; cursor: pointer; color: #64748b;
+            z-index: 10;
+        }
+        #modal-body {
+             padding-top: 0;
+        }
+        #modal-topics-list {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            color: #475569;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 flex flex-col min-h-screen">
+
+    <main class="flex-grow">
+        <div class="max-w-7xl w-full mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-gray-200">
+            <div class="text-center mb-4">
+                <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800">ตารางสอน อ.นงวรรณิสา สุขสวัสดิ์</h1>
+                <p class="text-sm sm:text-base text-slate-500">ภาคการศึกษา 1 ปีการศึกษา 2568 - โรงเรียนเทพศิรินทร์พุแฮ สระบุรี</p>
+                <p id="current-time-display" class="mt-2 text-base sm:text-lg font-semibold" style="color: #F58220;"></p>
+            </div>
+            
+            <div id="status-bar" class="text-center mb-6 p-3 rounded-lg font-semibold text-white transition-colors duration-500">
+                กำลังโหลดสถานะ...
+            </div>
+    
+            <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
+                <div id="timetable-container" class="timetable-grid">
+                    <div id="real-time-indicator" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center p-4 mt-8 text-slate-500 text-sm">
+        <p>พัฒนาโดย: วสุรัชต์ สมเด็จ (ปรับปรุงตามข้อมูล)</p>
+    </footer>
+
+    <div id="class-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="modal-close-btn" aria-label="Close modal">&times;</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const initialSchedule = [
+                // Monday
+                { day: 1, start: '10:10', end: '11:50', name: 'วิทยาการคำนวณ', code: 'ว31293', section: '4/5', room: 'Com1', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#10b981', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.4', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop', topics: ['แนวคิดเชิงคำนวณ', 'การแก้ปัญหาด้วยโปรแกรม', 'ข้อมูลและการประมวลผล'] },
+                { day: 1, start: '13:30', end: '15:10', name: 'ออกแบบและเทคโนโลยี', code: 'ว32291', section: '5/5', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#f97316', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1555949963-ff98c87082da?q=80&w=1974&auto=format&fit=crop', topics: ['ระบบทางเทคโนโลยี', 'การออกแบบเชิงวิศวกรรม', 'วัสดุและเครื่องมือ'] },
+                { day: 1, start: '15:10', end: '16:00', name: 'กิจกรรมชุมนุม', code: 'กิจกรรม', section: 'ชุมนุม', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#8b5cf6', description: 'กิจกรรมพัฒนาผู้เรียนตามความสนใจ', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070&auto=format&fit=crop', topics: [] },
+                { day: 1, start: '16:00', end: '17:00', name: 'PLC', code: 'PLC', section: '-', room: 'พักครู', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#64748b', description: 'กิจกรรมชุมชนแห่งการเรียนรู้ทางวิชาชีพ', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop', topics: [] },
+
+                // Tuesday
+                { day: 2, start: '08:30', end: '09:20', name: 'วิทยาการคำนวณ', code: 'ว32181', section: '5/3', room: 'Com3', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#3b82f6', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop', topics: ['วิทยาการข้อมูล', 'ปัญญาประดิษฐ์ (AI)', 'โครงสร้างข้อมูล'] },
+                { day: 2, start: '09:20', end: '10:10', name: 'ออกแบบและเทคโนโลยี', code: 'ว30283', section: '5/3', room: 'Com3', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1955&auto=format&fit=crop', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
+                { day: 2, start: '10:10', end: '11:50', name: 'ออกแบบและเทคโนโลยี', code: 'ว32291', section: '5/5', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#f97316', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1555949963-ff98c87082da?q=80&w=1974&auto=format&fit=crop', topics: ['ระบบทางเทคโนโลยี', 'การออกแบบเชิงวิศวกรรม', 'วัสดุและเครื่องมือ'] },
+
+                // Wednesday
+                { day: 3, start: '08:30', end: '10:10', name: 'วิทยาการคำนวณ', code: 'ว31293', section: '4/5', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#10b981', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.4', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop', topics: ['แนวคิดเชิงคำนวณ', 'การแก้ปัญหาด้วยโปรแกรม', 'ข้อมูลและการประมวลผล'] },
+                { day: 3, start: '12:40', end: '14:20', name: 'ประชุม/กิจกรรมพิเศษ', code: 'กิจกรรม', section: '-', room: 'ตามประกาศ', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ec4899', description: 'ประชุมกรรมการ GENIUS / ลูกเสือเนตรนารี ยุวกาชาด', image: 'https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?q=80&w=1974&auto=format&fit=crop', topics: [] },
+                { day: 3, start: '14:20', end: '15:20', name: 'PLC', code: 'PLC', section: '-', room: 'พักครู', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#64748b', description: 'กิจกรรมชุมชนแห่งการเรียนรู้ทางวิชาชีพ', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop', topics: [] },
+
+                // Thursday
+                { day: 4, start: '08:30', end: '09:20', name: 'กิจกรรมระดับชั้น', code: 'กิจกรรม', section: 'ม.4', room: 'ตามประกาศ', instructor: 'ครูที่ปรึกษา', color: '#ec4899', description: 'กิจกรรมระดับชั้น ม.4', image: 'https://images.unsplash.com/photo-1596496050827-8299e0231633?q=80&w=2070&auto=format&fit=crop', topics: [] },
+                { day: 4, start: '09:20', end: '10:10', name: 'ภาษาอังกฤษ', code: 'อ30224', section: '-', room: 'ตามประกาศ', instructor: 'ตามตาราง', color: '#84cc16', description: 'รายวิชาภาษาอังกฤษเพื่อการสื่อสาร', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop', topics: [] },
+                { day: 4, start: '10:10', end: '11:50', name: 'ออกแบบและเทคโนโลยี', code: 'ว30283', section: '5/2', room: 'Com3', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1955&auto=format&fit=crop', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
+                { day: 4, start: '13:30', end: '14:20', name: 'วิทยาการคำนวณ', code: 'ว32181', section: '5/4', room: 'Com6', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#3b82f6', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop', topics: ['วิทยาการข้อมูล', 'ปัญญาประดิษฐ์ (AI)', 'โครงสร้างข้อมูล'] },
+                { day: 4, start: '14:20', end: '15:10', name: 'ออกแบบและเทคโนโลยี', code: 'ว30283', section: '5/4', room: 'Com6', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1955&auto=format&fit=crop', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
+
+                // Friday
+                { day: 5, start: '10:10', end: '11:00', name: 'วิทยาการคำนวณ', code: 'ว32181', section: '5/1', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#3b82f6', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop', topics: ['วิทยาการข้อมูล', 'ปัญญาประดิษฐ์ (AI)', 'โครงสร้างข้อมูล'] },
+                { day: 5, start: '11:00', end: '11:50', name: 'ออกแบบและเทคโนโลยี', code: 'ว30283', section: '5/1', room: 'Com5', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1955&auto=format&fit=crop', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
+                { day: 5, start: '13:30', end: '14:20', name: 'วิทยาการคำนวณ', code: 'ว32181', section: '5/5', room: 'Com6', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#3b82f6', description: 'รายวิชาวิทยาการคำนวณสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop', topics: ['วิทยาการข้อมูล', 'ปัญญาประดิษฐ์ (AI)', 'โครงสร้างข้อมูล'] },
+                { day: 5, start: '14:20', end: '15:10', name: 'ออกแบบและเทคโนโลยี', code: 'ว30283', section: '5/5', room: 'Com6', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#ef4444', description: 'รายวิชาการออกแบบและเทคโนโลยีสำหรับนักเรียนระดับชั้น ม.5', image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?q=80&w=1955&auto=format&fit=crop', topics: ['ทรัพย์สินทางปัญญา', 'นวัตกรรมและเทคโนโลยี', 'การนำเสนอผลงาน'] },
+                { day: 5, start: '15:10', end: '16:10', name: 'PLC', code: 'PLC', section: '-', room: 'พักครู', instructor: 'อ.นงวรรณิสา สุขสวัสดิ์', color: '#64748b', description: 'กิจกรรมชุมชนแห่งการเรียนรู้ทางวิชาชีพ', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070&auto=format&fit=crop', topics: [] },
+            ];
+            
+            // Add lunch breaks for weekdays
+            for (let i = 1; i <= 5; i++) {
+                initialSchedule.push({ day: i, start: '11:50', end: '12:40', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' });
+            }
+            
+            const schedule = initialSchedule;
+            const timetableGrid = document.getElementById('timetable-container');
+            const timeIndicator = document.getElementById('real-time-indicator');
+            const timeDisplay = document.getElementById('current-time-display');
+            const statusBar = document.getElementById('status-bar');
+            const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            
+            // === CHANGED: Timetable hours from 8 AM to 5 PM ===
+            const timetableStartHour = 8;
+            const timetableEndHour = 17;
+
+            const timeToMinutes = (timeStr) => {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
+
+            // === CHANGED: Setup grid for 10-minute intervals ===
+            const setupGrid = () => {
+                timetableGrid.innerHTML = '';
+                const cornerCell = document.createElement('div');
+                cornerCell.className = 'sticky-corner';
+                timetableGrid.appendChild(cornerCell);
+                
+                // Create hourly time headers spanning 6 columns (for 10-min intervals)
+                for (let i = timetableStartHour; i < timetableEndHour; i++) {
+                    const timeHeader = document.createElement('div');
+                    timeHeader.className = 'grid-header';
+                    timeHeader.textContent = `${String(i).padStart(2, '0')}:00`;
+                    const startCol = (i - timetableStartHour) * 6 + 2;
+                    timeHeader.style.gridColumn = `${startCol} / span 6`;
+                    timetableGrid.appendChild(timeHeader);
+                }
+                
+                // Create day headers
+                thaiDays.forEach((day, index) => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'grid-header sticky-day';
+                    dayHeader.textContent = day;
+                    dayHeader.style.gridRow = `${index + 2}`;
+                    dayHeader.style.gridColumn = '1';
+                    timetableGrid.appendChild(dayHeader);
+                });
+                timetableGrid.appendChild(timeIndicator);
+            };
+
+            // === CHANGED: Render classes based on 10-minute intervals ===
+            const renderClasses = () => {
+                schedule.forEach((cls, index) => {
+                    const startMinutes = timeToMinutes(cls.start);
+                    const endMinutes = timeToMinutes(cls.end);
+                    
+                    const intervalMinutes = 10;
+                    const totalMinutesInView = (timetableEndHour - timetableStartHour) * 60;
+
+                    const startOffsetMinutes = startMinutes - (timetableStartHour * 60);
+                    const endOffsetMinutes = endMinutes - (timetableStartHour * 60);
+                    
+                    if (endOffsetMinutes <= 0 || startOffsetMinutes >= totalMinutesInView) return;
+
+                    const startCol = (startOffsetMinutes / intervalMinutes) + 2;
+                    const endCol = (endOffsetMinutes / intervalMinutes) + 2;
+                    
+                    const classBlock = document.createElement('div');
+                    classBlock.className = 'class-block';
+                    
+                    if (cls.type === 'break') {
+                        classBlock.style.backgroundColor = cls.color;
+                        classBlock.style.borderLeft = 'none'; 
+                        classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
+                    } else {
+                        classBlock.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${cls.image}')`;
+                        classBlock.style.borderLeftColor = cls.color;
+                        classBlock.innerHTML = `
+                            <div class="flex flex-col h-full z-10">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <strong class="text-sm truncate pr-2">${cls.name}</strong>
+                                        <span class="class-room-tag">${cls.room}</span>
+                                    </div>
+                                    <p class="text-xs opacity-80 mt-1">${cls.code}</p>
+                                </div>
+                                <div class="mt-auto text-center text-xs opacity-70 pt-1">
+                                    กดเพื่อดูรายละเอียด
+                                </div>
+                            </div>
+                            <div class="class-status-overlay"></div>
+                        `;
+                    }
+                    
+                    classBlock.style.gridRow = `${cls.day + 2}`;
+                    classBlock.style.gridColumn = `${startCol} / ${endCol}`;
+                    classBlock.dataset.index = index;
+                    timetableGrid.appendChild(classBlock);
+                });
+            };
+            
+            const updateRealTime = () => {
+                const now = new Date();
+                const currentDay = now.getDay();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH')}`;
+                
+                const dayColumnWidth = window.innerWidth < 768 ? 60 : 80;
+                const gridContentWidth = timetableGrid.scrollWidth - dayColumnWidth;
+                const minutesSinceStart = currentMinutes - (timetableStartHour * 60);
+                const totalMinutesInView = (timetableEndHour - timetableStartHour) * 60;
+
+                if (minutesSinceStart >= 0 && minutesSinceStart < totalMinutesInView) {
+                    const percentage = (minutesSinceStart / totalMinutesInView);
+                    timeIndicator.style.left = `calc(${dayColumnWidth}px + ${percentage * gridContentWidth}px)`;
+                    timeIndicator.style.gridRow = `${currentDay + 2}`;
+                    timeIndicator.classList.remove('hidden');
+                } else {
+                    timeIndicator.classList.add('hidden');
+                }
+
+                const currentClass = schedule.find(cls => cls.day === currentDay && currentMinutes >= timeToMinutes(cls.start) && currentMinutes < timeToMinutes(cls.end));
+                const nextClass = schedule.find(cls => cls.day === currentDay && timeToMinutes(cls.start) > currentMinutes && cls.type !== 'break');
+                
+                if (currentClass) {
+                    if (currentClass.type === 'break') {
+                        statusBar.textContent = 'พักกลางวัน';
+                        statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-slate-500';
+                    } else {
+                        statusBar.textContent = `กำลังเรียน: ${currentClass.name}`;
+                        statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-green-500';
+                    }
+                } else if (nextClass) {
+                    statusBar.textContent = `กำลังว่าง | คาบต่อไป: ${nextClass.name} เวลา ${nextClass.start}`;
+                    statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-sky-500';
+                } else {
+                    if (currentDay === 0 || currentDay === 6) {
+                        statusBar.textContent = 'วันนี้เป็นวันหยุด';
+                    } else {
+                        statusBar.textContent = 'หมดคาบเรียนสำหรับวันนี้แล้ว';
+                    }
+                    statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-gray-400';
+                }
+
+                document.querySelectorAll('.class-block').forEach(block => {
+                    block.classList.remove('current', 'finishing-soon', 'prepare-next');
+                    const overlay = block.querySelector('.class-status-overlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
+                        overlay.textContent = '';
+                    }
+                });
+
+                document.querySelectorAll('.class-block').forEach(block => {
+                    const cls = schedule[parseInt(block.dataset.index)];
+                    if(!cls) return;
+                    
+                    const startMinutes = timeToMinutes(cls.start);
+                    const endMinutes = timeToMinutes(cls.end);
+                    const overlay = block.querySelector('.class-status-overlay');
+
+                    if (cls === currentClass && cls.type !== 'break') {
+                        block.classList.add('current');
+                        const timeLeft = endMinutes - currentMinutes;
+                        if (timeLeft <= 15) {
+                            block.classList.add('finishing-soon');
+                            if(overlay) {
+                                overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
+                                overlay.style.display = 'flex';
+                            }
+                        }
+                    }
+                    
+                    if (cls === nextClass) {
+                        const timeToNext = startMinutes - currentMinutes;
+                        if (timeToNext > 0 && timeToNext <= 15) {
+                            block.classList.add('prepare-next');
+                            if(overlay) {
+                                overlay.textContent = `เตรียมตัวเรียน (${timeToNext} นาที)`;
+                                overlay.style.display = 'flex';
+                            }
+                        }
+                    }
+                });
+            };
+
+            const modal = document.getElementById('class-modal');
+            const modalBody = document.getElementById('modal-body');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            
+            const openModal = (cls) => {
+                if (cls.type === 'break' || cls.name === 'PLC') return;
+
+                let topicsHtml = '';
+                if (cls.topics && cls.topics.length > 0) {
+                    const topicsList = cls.topics.map(topic => `<li>${topic}</li>`).join('');
+                    topicsHtml = `
+                        <div class="border-t border-slate-200 my-3"></div>
+                        <div>
+                            <strong class="text-slate-600">หัวข้อการเรียนหลัก:</strong>
+                            <ul id="modal-topics-list" class="text-slate-500 mt-1 text-sm">${topicsList}</ul>
+                        </div>
+                    `;
+                }
+
+                modalBody.innerHTML = `
+                    <div class="relative -mx-6 -mt-6">
+                         <img src="${cls.image}" alt="รูปภาพประกอบวิชา ${cls.name}" class="w-full h-40 object-cover rounded-t-lg" onerror="this.style.display='none'">
+                    </div>
+                    <div class="pt-4">
+                        <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
+                        <div class="border-t border-slate-200 my-3"></div>
+                        <p><strong class="text-slate-600 w-28 inline-block">รหัสวิชา:</strong> ${cls.code}</p>
+                        <p><strong class="text-slate-600 w-28 inline-block">กลุ่มเรียน:</strong> ${cls.section}</p>
+                        <p><strong class="text-slate-600 w-28 inline-block">อาจารย์ผู้สอน:</strong> ${cls.instructor}</p>
+                        <p><strong class="text-slate-600 w-28 inline-block">เวลา:</strong> ${cls.start} - ${cls.end}</p>
+                        <p><strong class="text-slate-600 w-28 inline-block">วัน:</strong> ${thaiDays[cls.day]}</p>
+                        <p><strong class="text-slate-600 w-28 inline-block">ห้องเรียน:</strong> ${cls.room}</p>
+                        <div class="border-t border-slate-200 my-3"></div>
+                        <div>
+                            <strong class="text-slate-600">คำอธิบายรายวิชา:</strong>
+                            <p class="text-slate-500 mt-1 text-sm">${cls.description}</p>
+                        </div>
+                        ${topicsHtml}
+                    </div>
+                `;
+                modal.classList.add('visible');
+            };
+            const closeModal = () => modal.classList.remove('visible');
+
+            timetableGrid.addEventListener('click', (e) => {
+                const classBlock = e.target.closest('.class-block');
+                if (classBlock) {
+                    const cls = schedule[parseInt(classBlock.dataset.index)];
+                    if (cls) openModal(cls);
+                }
+            });
+            modalCloseBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            // Initial setup
+            setupGrid();
+            renderClasses();
+            updateRealTime();
+            // Update every second
+            setInterval(updateRealTime, 1000);
+            
+            // Re-render on resize to adjust layout
+            window.addEventListener('resize', () => {
+                setupGrid();
+                renderClasses();
+                updateRealTime();
+            });
+        });
+    </script>
+</body>
+</html>
