@@ -3,95 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางสอน Real-time KMITL</title>
+    <title>ตารางสอน Real-time KMITL (ปรับปรุง)</title>
+    <!-- Tailwind CSS for utility classes -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Kanit for Thai, Inter for general UI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base styles for the body, using Kanit for Thai text, Inter for numbers/English */
         body {
-            font-family: 'Kanit', sans-serif;
+            font-family: 'Kanit', 'Inter', sans-serif;
             background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
         }
+
+        /* Main container for the timetable grid */
         .timetable-grid {
-            /* Grid layout for the timetable. 8th column is 8:00, 20th is 20:00 */
             display: grid;
-            grid-template-columns: 80px repeat(12, 1fr); /* 1 column for day names, 12 for hours */
-            grid-template-rows: 50px repeat(7, minmax(100px, auto)); /* 1 row for time headers, 7 for days */
-            gap: 2px;
-            position: relative;
+            /* Responsive grid template columns:
+               - Fixed width for day names (80px for mobile, 100px for larger screens)
+               - Flexible columns for hours (1fr each)
+            */
+            grid-template-columns: 80px repeat(12, 1fr);
+            /* Responsive grid template rows:
+               - Fixed height for time headers (50px)
+               - Flexible height for day rows (minmax ensures minimum height for content)
+            */
+            grid-template-rows: 50px repeat(7, minmax(100px, auto));
+            gap: 2px; /* Small gap between grid cells */
+            position: relative; /* Needed for positioning the real-time indicator */
+            overflow-x: auto; /* Enable horizontal scrolling on small screens */
         }
+
+        /* Media queries for larger screens (tablet and desktop) */
+        @media (min-width: 768px) { /* md breakpoint */
+            .timetable-grid {
+                grid-template-columns: 100px repeat(12, 1fr); /* Wider day column for desktop */
+                grid-template-rows: 60px repeat(7, minmax(120px, auto)); /* Taller rows */
+            }
+        }
+
+        /* Styling for time headers (e.g., 08:00, 09:00) */
         .time-header {
             grid-column: span 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #555;
+            background-color: #e2e8f0; /* Light blue-gray background */
+            border-radius: 8px; /* Rounded corners */
+            padding: 4px;
+            font-size: 0.9rem;
         }
+
+        /* Styling for day headers (e.g., จันทร์, อังคาร) */
         .day-header {
             grid-row: span 1;
-        }
-        .class-block {
-            /* Basic styling for a class block */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #4a5568; /* Darker gray text */
+            background-color: #cbd5e1; /* Medium blue-gray background */
             border-radius: 8px;
-            padding: 8px;
+            padding: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Base styling for a class block (individual class entry) */
+        .class-block {
+            border-radius: 12px; /* More rounded corners */
+            padding: 8px 12px; /* Increased padding */
             color: white;
-            font-size: 0.8rem;
-            line-height: 1.2;
+            font-size: 0.85rem;
+            line-height: 1.3;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease-in-out; /* Smooth transitions for hover and current state */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* Stronger shadow */
+            cursor: pointer; /* Indicate interactivity */
+            position: relative; /* For potential future tooltips/modals */
+            animation: fadeIn 0.5s ease-out forwards; /* Fade-in animation on load */
+            opacity: 0; /* Start hidden for animation */
+            transform: translateY(10px); /* Start slightly below for animation */
         }
+
+        /* Animation for fade-in on load */
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Styling for the currently active class block */
         .class-block.current {
-            /* Style for the currently active class */
-            box-shadow: 0 0 15px 5px rgba(255, 255, 0, 0.8);
-            transform: scale(1.02);
+            box-shadow: 0 0 20px 8px rgba(255, 223, 0, 0.8); /* Brighter, more prominent glow */
+            transform: scale(1.03) translateY(-5px); /* Slightly larger, lifted effect */
             z-index: 10;
+            border: 2px solid #FFD700; /* Gold border */
         }
+
+        /* Hover effect for class blocks */
+        .class-block:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Styling for the real-time indicator line */
         .real-time-indicator {
-            /* The vertical line indicating the current time */
             position: absolute;
-            top: 50px; /* Start below the time header */
+            top: 50px; /* Start below the time header (adjust for responsive rows) */
             bottom: 0;
-            width: 3px;
-            background-color: rgba(255, 0, 0, 0.7);
+            width: 4px; /* Slightly thicker line */
+            background-color: rgba(255, 50, 50, 0.8); /* More vibrant red */
             z-index: 20;
-            pointer-events: none;
-            transition: left 1s linear; /* Smooth movement */
+            pointer-events: none; /* Allows clicks to pass through */
+            transition: left 1s ease-in-out; /* Smooth movement for the indicator */
         }
+        /* Adjust indicator top position for larger screens */
+        @media (min-width: 768px) {
+            .real-time-indicator {
+                top: 60px; /* Adjust for taller rows */
+            }
+        }
+
+        /* Styling for the circle on top of the indicator line */
         .real-time-indicator::before {
-            /* The circle on top of the line */
             content: '';
             position: absolute;
-            top: -7px;
+            top: -10px; /* Adjust to sit on top of the grid line */
             left: 50%;
             transform: translateX(-50%);
-            width: 15px;
-            height: 15px;
-            background-color: red;
+            width: 20px; /* Larger circle */
+            height: 20px;
+            background-color: #ff3232; /* Match line color */
             border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            border: 3px solid white; /* Thicker white border */
+            box-shadow: 0 0 8px rgba(0,0,0,0.6); /* More prominent shadow */
         }
+
+        /* Styling for the class name within the block */
         .class-name {
-            font-weight: 600;
+            font-weight: 700; /* Bolder font */
+            font-size: 0.95rem; /* Slightly larger text */
         }
+
+        /* Styling for class details (code, section, time) */
         .class-details {
-            font-size: 0.75rem;
+            font-size: 0.75rem; /* Standard text size */
+            opacity: 0.9; /* Slightly transparent for less visual clutter */
+        }
+
+        /* Utility class to hide elements */
+        .hidden {
+            display: none;
+        }
+
+        /* Sticky header for horizontal scrolling on small screens */
+        .day-header, .time-header:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 30; /* Ensure it stays on top */
+        }
+        /* Ensure the first time header is also sticky for alignment */
+        .time-header:nth-child(1) { /* Corresponds to the 08:00 header initially */
+            position: sticky;
+            left: 80px; /* Needs to be offset by the width of the day column */
+            z-index: 30;
+        }
+        @media (min-width: 768px) {
+            .time-header:nth-child(1) {
+                left: 100px; /* Adjust for wider day column on desktop */
+            }
+        }
+
+        /* Specific styling for the top-left empty cell */
+        .empty-cell {
+            grid-column: 1;
+            grid-row: 1;
+            background-color: #f8fafc; /* Lighter background for empty corner */
+            border-radius: 8px;
+            z-index: 40; /* Ensure it's on top of sticky elements */
+            position: sticky;
+            left: 0;
+            top: 0;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8 bg-gray-100 min-h-screen flex items-start justify-center">
 
-    <div class="max-w-7xl mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-lg">
+    <div class="max-w-7xl w-full mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-3xl shadow-xl border border-gray-200">
         <!-- Header Section -->
-        <div class="text-center mb-6 p-4 rounded-lg bg-orange-500 text-white">
-            <h1 class="text-2xl md:text-3xl font-bold">ตารางเรียนคณะครุศาสตร์อุตสาหกรรมและเทคโนโลยี</h1>
-            <p class="text-md md:text-lg">สาขาวิชาวิศวกรรมคอมพิวเตอร์ ประจำภาคการศึกษา 1 ปีการศึกษา 2568</p>
-            <p id="current-time-display" class="mt-2 text-xl font-semibold"></p>
+        <div class="text-center mb-8 p-6 rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-md transform transition-transform duration-300 hover:scale-[1.01]">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">ตารางเรียนคณะครุศาสตร์อุตสาหกรรมและเทคโนโลยี</h1>
+            <p class="text-md sm:text-lg lg:text-xl font-light">สาขาวิชาวิศวกรรมคอมพิวเตอร์ ประจำภาคการศึกษา 1 ปีการศึกษา 2568</p>
+            <p id="current-time-display" class="mt-4 text-xl sm:text-2xl font-semibold opacity-90"></p>
         </div>
 
         <!-- Timetable Grid -->
         <div id="timetable-container" class="timetable-grid">
+            <!-- Empty cell at top-left corner -->
+            <div class="empty-cell"></div>
             <!-- Time Headers will be generated by JS -->
             <!-- Day Headers will be generated by JS -->
             <!-- Class Blocks will be generated by JS -->
@@ -104,72 +222,94 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // --- DATA ---
-            // Class schedule data derived from the provided image
+            // Class schedule data
             const schedule = [
-                { day: 1, start: '08:00', end: '10:00', name: 'DATABASE SYSTEM', code: '01076032', section: 'Section 3 (i)', color: '#ef4444' },
-                { day: 1, start: '10:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076032', section: 'Section 4 (ii)', color: '#ef4444' },
-                { day: 1, start: '13:00', end: '15:00', name: 'FUNDAMENTAL OF ANALOG DEVICES AND CIRCUITS', code: '01076303', section: 'Section 3 (ii)', color: '#f97316' },
-                { day: 1, start: '15:00', end: '17:00', name: 'FUNDAMENTAL OF ANALOG DEVICES AND CIRCUITS', code: '01076303', section: 'Section 4 (ii)', color: '#f97316' },
+                { day: 1, start: '08:00', end: '10:00', name: 'DATABASE SYSTEM', code: '01076032', section: 'Section 3 (i)', color: '#ef4444' }, // Red
+                { day: 1, start: '10:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076032', section: 'Section 4 (ii)', color: '#dc2626' }, // Darker Red
+                { day: 1, start: '13:00', end: '15:00', name: 'FUNDAMENTAL OF ANALOG DEVICES AND CIRCUITS', code: '01076303', section: 'Section 3 (ii)', color: '#f97316' }, // Orange
+                { day: 1, start: '15:00', end: '17:00', name: 'FUNDAMENTAL OF ANALOG DEVICES AND CIRCUITS', code: '01076303', section: 'Section 4 (ii)', color: '#ea580c' }, // Darker Orange
 
-                { day: 2, start: '09:00', end: '12:00', name: 'Educational Foundation for Teacher Profession', code: '01086002', section: 'Section 3 (ii)', color: '#3b82f6' },
-                { day: 2, start: '13:00', end: '16:00', name: 'Educational Psychology for Learner Development', code: '01086003', section: 'Section 3 (ii)', color: '#f97316' },
+                { day: 2, start: '09:00', end: '12:00', name: 'Educational Foundation for Teacher Profession', code: '01086002', section: 'Section 3 (ii)', color: '#3b82f6' }, // Blue
+                { day: 2, start: '13:00', end: '16:00', name: 'Educational Psychology for Learner Development', code: '01086003', section: 'Section 3 (ii)', color: '#2563eb' }, // Darker Blue
 
-                { day: 3, start: '08:00', end: '10:00', name: 'COMPUTER SYSTEMS', code: '01076xxx', section: 'Section 3 (ii)', color: '#a855f7' },
-                { day: 3, start: '10:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076xxx', section: 'Section 4 (ii)', color: '#a855f7' },
-                { day: 3, start: '13:00', end: '15:00', name: 'PRINCIPLE OF SOFTWARE DESIGN AND DEVELOPMENT', code: '01076032', section: 'Section 3 (ii)', color: '#10b981' },
-                { day: 3, start: '15:00', end: '17:00', name: 'PRINCIPLE OF SOFTWARE DESIGN AND DEVELOPMENT', code: '01076032', section: 'Section 4 (ii)', color: '#10b981' },
+                { day: 3, start: '08:00', end: '10:00', name: 'COMPUTER SYSTEMS', code: '01076xxx', section: 'Section 3 (ii)', color: '#a855f7' }, // Purple
+                { day: 3, start: '10:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076xxx', section: 'Section 4 (ii)', color: '#9333ea' }, // Darker Purple
+                { day: 3, start: '13:00', end: '15:00', name: 'PRINCIPLE OF SOFTWARE DESIGN AND DEVELOPMENT', code: '01076032', section: 'Section 3 (ii)', color: '#10b981' }, // Green
+                { day: 3, start: '15:00', end: '17:00', name: 'PRINCIPLE OF SOFTWARE DESIGN AND DEVELOPMENT', code: '01076032', section: 'Section 4 (ii)', color: '#059669' }, // Darker Green
                 
-                { day: 5, start: '13:00', end: '16:00', name: 'OCCUPATIONAL HEALTH AND SAFETY', code: '01076207', section: 'Section 3 (ii)', color: '#ec4899' },
+                { day: 5, start: '13:00', end: '16:00', name: 'OCCUPATIONAL HEALTH AND SAFETY', code: '01076207', section: 'Section 3 (ii)', color: '#ec4899' }, // Pink
                 
-                { day: 0, start: '09:00', end: '12:00', name: 'INTRODUCTION TO ENGLISH COMMUNICATION SKILLS', code: 'xxxx', section: 'Section - (i)', color: '#84cc16' }
+                { day: 0, start: '09:00', end: '12:00', name: 'INTRODUCTION TO ENGLISH COMMUNICATION SKILLS', code: 'xxxx', section: 'Section - (i)', color: '#84cc16' } // Lime Green
             ];
 
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
             const timeDisplay = document.getElementById('current-time-display');
 
+            // Day names in English and Thai
             const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-            const timetableStartHour = 8;
-            const timetableEndHour = 20;
+            const timetableStartHour = 8; // Timetable starts at 08:00
+            const timetableEndHour = 20; // Timetable ends at 20:00
 
-            // --- FUNCTIONS ---
+            // --- HELPER FUNCTIONS ---
 
-            // Function to convert "HH:MM" string to total minutes from midnight
+            // Converts a "HH:MM" time string to total minutes from midnight.
             const timeToMinutes = (timeStr) => {
                 const [hours, minutes] = timeStr.split(':').map(Number);
                 return hours * 60 + minutes;
             };
 
-            // Function to generate the grid headers (time and days)
+            // Calculates the width of the day column based on screen size for responsive positioning.
+            const getDayColumnWidth = () => {
+                return window.innerWidth < 768 ? 80 : 100; // 80px for mobile, 100px for desktop
+            };
+
+            // --- GRID SETUP ---
+
+            // Generates the time headers (e.g., 08:00, 09:00, ...) and day headers (Mon, Tue, ...)
             const setupGrid = () => {
+                // Clear existing headers before re-rendering (important for resize)
+                // Remove all children except the empty-cell and real-time-indicator
+                Array.from(timetableGrid.children).forEach(child => {
+                    if (!child.classList.contains('empty-cell') && !child.classList.contains('real-time-indicator')) {
+                        child.remove();
+                    }
+                });
+
                 // Time headers (08:00, 09:00, ...)
                 for (let i = timetableStartHour; i < timetableEndHour; i++) {
                     const timeHeader = document.createElement('div');
-                    timeHeader.className = 'time-header text-center font-semibold text-gray-600';
+                    timeHeader.className = 'time-header text-center font-semibold text-gray-600 rounded-lg p-2 transition-colors duration-200';
                     timeHeader.textContent = `${String(i).padStart(2, '0')}:00`;
-                    timeHeader.style.gridColumn = `${(i - timetableStartHour) + 2}`;
+                    timeHeader.style.gridColumn = `${(i - timetableStartHour) + 2}`; // +2 because first column is empty, second is day names
                     timetableGrid.appendChild(timeHeader);
                 }
 
                 // Day headers (Mon, Tue, ...)
-                days.forEach((day, index) => {
+                thaiDays.forEach((day, index) => {
                     const dayHeader = document.createElement('div');
-                    dayHeader.className = 'day-header flex items-center justify-center font-bold text-gray-700 bg-gray-100 rounded-lg';
+                    dayHeader.className = 'day-header flex items-center justify-center font-bold text-gray-700 bg-gray-200 rounded-lg p-2 transition-colors duration-200';
                     dayHeader.textContent = thaiDays[index];
-                    dayHeader.style.gridRow = `${index + 2}`;
+                    dayHeader.style.gridRow = `${index + 2}`; // +2 because first row is time headers
                     timetableGrid.appendChild(dayHeader);
                 });
             };
 
-            // Function to render the class blocks onto the grid
+            // --- CLASS RENDERING ---
+
+            // Renders the class blocks onto the grid based on the schedule data.
             const renderClasses = () => {
-                schedule.forEach(cls => {
+                // Remove existing class blocks before re-rendering
+                document.querySelectorAll('.class-block').forEach(block => block.remove());
+
+                schedule.forEach((cls, index) => {
                     const classBlock = document.createElement('div');
                     classBlock.className = 'class-block';
                     classBlock.style.backgroundColor = cls.color;
+                    classBlock.style.animationDelay = `${index * 0.05}s`; // Staggered animation
 
-                    // Set unique data attributes for identification
+                    // Set data attributes for easy access
                     classBlock.dataset.day = cls.day;
                     classBlock.dataset.start = cls.start;
                     classBlock.dataset.end = cls.end;
@@ -179,14 +319,16 @@
                     const endMinutes = timeToMinutes(cls.end);
                     const durationMinutes = endMinutes - startMinutes;
 
-                    const gridRow = cls.day + 2; // +1 for time header, +1 for 0-index
+                    const gridRow = cls.day + 2; // +1 for time header, +1 for 0-index day
+                    // Calculate start position relative to the timetable start hour (08:00)
                     const startPosition = ((startMinutes - timetableStartHour * 60) / 60);
                     const durationHours = durationMinutes / 60;
                     
                     classBlock.style.gridRow = `${gridRow}`;
+                    // gridColumn starts from 2 (after empty cell and day names)
                     classBlock.style.gridColumn = `${startPosition + 2} / span ${durationHours}`;
                     
-                    // Create internal content
+                    // Create internal content for the class block
                     const name = document.createElement('div');
                     name.className = 'class-name';
                     name.textContent = cls.name;
@@ -205,37 +347,40 @@
                 });
             };
 
-            // Function to update the real-time indicator and current class highlight
+            // --- REAL-TIME UPDATE ---
+
+            // Updates the real-time indicator's position and highlights the current class.
             const updateRealTime = () => {
                 const now = new Date();
-                // To test, you can manually set the date and time:
-                // const now = new Date("2025-06-30T14:30:00"); // Monday 14:30
+                // For testing purposes, uncomment and adjust the line below:
+                // const now = new Date("2025-06-30T14:30:00"); // Example: Monday 14:30
                 
                 const currentDay = now.getDay(); // Sunday = 0, Monday = 1, ...
                 const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-                // Update time display
-                timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH')}`;
+                // Update the current time display in the header
+                timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
 
-                // --- Indicator Position ---
+                // Calculate indicator position
                 const timetableStartMinutes = timetableStartHour * 60;
                 const timetableDurationMinutes = (timetableEndHour - timetableStartHour) * 60;
                 
-                // Check if current time is within the timetable's range
-                if (currentMinutes >= timetableStartMinutes && currentMinutes < timetableStartHour * 60 + timetableDurationMinutes) {
+                // Check if current time is within the timetable's visible range
+                if (currentMinutes >= timetableStartMinutes && currentMinutes < timetableEndHour * 60) {
                     const minutesFromStart = currentMinutes - timetableStartMinutes;
                     const percentage = (minutesFromStart / timetableDurationMinutes) * 100;
                     
-                    // The indicator's left position is based on percentage across the time columns
-                    const gridStartTime = 80; // Width of the day column in px
+                    const gridStartTime = getDayColumnWidth(); // Get dynamic day column width
                     const gridWidth = timetableGrid.clientWidth - gridStartTime;
+                    
+                    // Position the indicator
                     timeIndicator.style.left = `calc(${gridStartTime}px + ${percentage}%)`;
-                    timeIndicator.classList.remove('hidden');
+                    timeIndicator.classList.remove('hidden'); // Show indicator
                 } else {
-                    timeIndicator.classList.add('hidden');
+                    timeIndicator.classList.add('hidden'); // Hide indicator if outside hours
                 }
 
-                // --- Highlight Current Class ---
+                // Highlight the currently active class block
                 const allClassBlocks = document.querySelectorAll('.class-block');
                 allClassBlocks.forEach(block => {
                     const day = parseInt(block.dataset.day);
@@ -243,21 +388,29 @@
                     const endMinutes = timeToMinutes(block.dataset.end);
 
                     if (day === currentDay && currentMinutes >= startMinutes && currentMinutes < endMinutes) {
-                        block.classList.add('current');
+                        block.classList.add('current'); // Add 'current' class for highlighting
                     } else {
-                        block.classList.remove('current');
+                        block.classList.remove('current'); // Remove 'current' class
                     }
                 });
             };
 
             // --- INITIALIZATION ---
+
+            // Initial setup and rendering when the page loads
             setupGrid();
             renderClasses();
-            updateRealTime(); // Initial call
-            setInterval(updateRealTime, 1000); // Update every second
+            updateRealTime(); // Initial call to set indicator and highlight
 
-            // Handle window resizing
-            window.addEventListener('resize', updateRealTime);
+            // Update real-time indicator and class highlight every second
+            setInterval(updateRealTime, 1000);
+
+            // Re-render and update on window resize to ensure responsiveness
+            window.addEventListener('resize', () => {
+                setupGrid(); // Re-setup grid to adjust column widths if necessary
+                renderClasses(); // Re-render classes to fit new grid
+                updateRealTime(); // Update indicator position
+            });
         });
     </script>
 </body>
