@@ -17,14 +17,14 @@
         }
         .timetable-grid {
             display: grid;
-            grid-template-columns: 60px repeat(12, minmax(70px, 1fr));
+            grid-template-columns: 60px repeat(13, minmax(70px, 1fr)); /* Add 1 more column for 12-13h */
             grid-template-rows: 40px repeat(7, minmax(90px, auto));
             gap: 2px;
             position: relative;
         }
         @media (min-width: 768px) {
             .timetable-grid {
-                grid-template-columns: 80px repeat(12, 1fr);
+                grid-template-columns: 80px repeat(13, 1fr);
                 grid-template-rows: 50px repeat(7, minmax(100px, auto));
             }
         }
@@ -74,7 +74,7 @@
         .class-status-overlay {
             position: absolute;
             inset: 0;
-            display: none; /* Hidden by default */
+            display: none;
             align-items: center;
             justify-content: center;
             text-align: center;
@@ -85,14 +85,8 @@
         }
         @keyframes status-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
-        .finishing-soon .class-status-overlay {
-            display: flex;
-            background-color: rgba(220, 38, 38, 0.75); /* red-600 with 75% opacity */
-        }
-        .prepare-next .class-status-overlay {
-            display: flex;
-            background-color: rgba(59, 130, 246, 0.75); /* blue-500 with 75% opacity */
-        }
+        .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
+        .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
         
         @keyframes pulse {
             0% { transform: translateX(-50%) scale(1); box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7); }
@@ -153,10 +147,15 @@
 
     <div class="max-w-7xl w-full mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-gray-200">
         <!-- Header -->
-        <div class="text-center mb-6">
+        <div class="text-center mb-4">
             <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h1>
             <p class="text-sm sm:text-base text-slate-500">ภาคการศึกษา 1 ปีการศึกษา 2568</p>
             <p id="current-time-display" class="mt-2 text-base sm:text-lg font-semibold" style="color: #F58220;"></p>
+        </div>
+        
+        <!-- Current Status Display -->
+        <div id="status-bar" class="text-center mb-6 p-3 rounded-lg font-semibold text-white transition-colors duration-500">
+            กำลังโหลดสถานะ...
         </div>
 
         <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
@@ -176,7 +175,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const schedule = [
+            const initialSchedule = [
                  { day: 1, start: '08:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076120', section: '3(2-2)', room: 'IE 1602', instructor: 'ไม่มีข้อมูล', color: '#ef4444', description: 'ศึกษาหลักการและแนวคิดของระบบฐานข้อมูล การออกแบบ แบบจำลองข้อมูล ภาษาสอบถาม SQL และการจัดการฐานข้อมูลเบื้องต้น' },
                 { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'ภาควิชาครุศาสตร์อุตสาหกรรม', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ' },
                 { day: 2, start: '09:00', end: '12:00', name: 'EDUCATIONAL FOUNDATION', code: '01086107', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารกรมหลวงฯ', color: '#3b82f6', description: 'เรียนรู้เกี่ยวกับรากฐานและปรัชญาการศึกษา พัฒนาการของวิชาชีพครู คุณธรรมและจริยธรรมสำหรับความเป็นครู' },
@@ -186,13 +185,20 @@
                 { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารกรมหลวงฯ', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง' },
                 { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ' }
             ];
-
+            
+            // Add lunch break for weekdays
+            for (let i = 1; i <= 5; i++) {
+                initialSchedule.push({ day: i, start: '12:00', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#64748b', room: 'Anywhere' });
+            }
+            
+            const schedule = initialSchedule;
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
             const timeDisplay = document.getElementById('current-time-display');
+            const statusBar = document.getElementById('status-bar');
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
             const timetableStartHour = 8;
-            const timetableEndHour = 20;
+            const timetableEndHour = 21; // Extend to 21:00
 
             const timeToMinutes = (timeStr) => {
                 const [hours, minutes] = timeStr.split(':').map(Number);
@@ -235,21 +241,26 @@
                     classBlock.style.gridRow = `${cls.day + 2}`;
                     classBlock.style.gridColumn = `${startCol} / ${endCol}`;
                     classBlock.dataset.index = index;
-                    classBlock.innerHTML = `
-                        <div class="flex flex-col h-full">
-                            <div>
-                                <div class="flex justify-between items-start">
-                                    <strong class="text-sm truncate pr-2">${cls.name}</strong>
-                                    <span class="class-room-tag">${cls.room}</span>
+
+                    if (cls.type === 'break') {
+                         classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
+                    } else {
+                        classBlock.innerHTML = `
+                            <div class="flex flex-col h-full">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <strong class="text-sm truncate pr-2">${cls.name}</strong>
+                                        <span class="class-room-tag">${cls.room}</span>
+                                    </div>
+                                    <p class="text-xs opacity-80 mt-1">${cls.code}</p>
                                 </div>
-                                <p class="text-xs opacity-80 mt-1">${cls.code}</p>
+                                <div class="mt-auto text-center text-xs opacity-70 pt-1">
+                                    กดเพื่อดูรายละเอียด
+                                </div>
                             </div>
-                            <div class="mt-auto text-center text-xs opacity-70 pt-1">
-                                กดเพื่อดูรายละเอียด
-                            </div>
-                        </div>
-                        <div class="class-status-overlay"></div>
-                    `;
+                            <div class="class-status-overlay"></div>
+                        `;
+                    }
                     timetableGrid.appendChild(classBlock);
                 });
             };
@@ -274,8 +285,31 @@
                 }
 
                 const allBlocks = document.querySelectorAll('.class-block');
-                const nextClass = schedule.find(cls => cls.day === currentDay && timeToMinutes(cls.start) > currentMinutes);
+                const currentClass = schedule.find(cls => cls.day === currentDay && currentMinutes >= timeToMinutes(cls.start) && currentMinutes < timeToMinutes(cls.end));
+                const nextClass = schedule.find(cls => cls.day === currentDay && timeToMinutes(cls.start) > currentMinutes && cls.type !== 'break');
+                
+                // Update status bar
+                if (currentClass) {
+                    if (currentClass.type === 'break') {
+                        statusBar.textContent = 'พักกลางวัน';
+                        statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-slate-500';
+                    } else {
+                        statusBar.textContent = `กำลังเรียน: ${currentClass.name}`;
+                         statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-green-500';
+                    }
+                } else if (nextClass) {
+                    statusBar.textContent = `กำลังว่าง | คาบต่อไป: ${nextClass.name} เวลา ${nextClass.start}`;
+                    statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-sky-500';
+                } else {
+                    if (currentDay === 0 || currentDay === 6) {
+                        statusBar.textContent = 'วันนี้ไม่มีเรียน';
+                    } else {
+                        statusBar.textContent = 'หมดคาบเรียนสำหรับวันนี้แล้ว';
+                    }
+                     statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-gray-400';
+                }
 
+                // Update class block overlays
                 allBlocks.forEach(block => {
                     block.classList.remove('current', 'finishing-soon', 'prepare-next');
                     const overlay = block.querySelector('.class-status-overlay');
@@ -287,11 +321,13 @@
 
                 allBlocks.forEach(block => {
                     const cls = schedule[parseInt(block.dataset.index)];
+                    if(!cls) return;
+                    
                     const startMinutes = timeToMinutes(cls.start);
                     const endMinutes = timeToMinutes(cls.end);
                     const overlay = block.querySelector('.class-status-overlay');
 
-                    if (cls.day === currentDay && currentMinutes >= startMinutes && currentMinutes < endMinutes) {
+                    if (cls === currentClass && cls.type !== 'break') {
                         block.classList.add('current');
                         const timeLeft = endMinutes - currentMinutes;
                         if (timeLeft <= 15) {
@@ -303,8 +339,8 @@
                         }
                     }
                     
-                    if (nextClass && cls.code === nextClass.code && cls.start === nextClass.start && cls.day === nextClass.day) {
-                        const timeToNext = timeToMinutes(nextClass.start) - currentMinutes;
+                    if (cls === nextClass) {
+                        const timeToNext = startMinutes - currentMinutes;
                         if (timeToNext > 0 && timeToNext <= 15) {
                             block.classList.add('prepare-next');
                             if(overlay) {
@@ -320,6 +356,7 @@
             const modalBody = document.getElementById('modal-body');
             const modalCloseBtn = document.getElementById('modal-close-btn');
             const openModal = (cls) => {
+                if (cls.type === 'break') return;
                 modalBody.innerHTML = `
                     <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
                     <div class="border-t border-slate-200 my-3"></div>
@@ -341,7 +378,10 @@
 
             timetableGrid.addEventListener('click', (e) => {
                 const classBlock = e.target.closest('.class-block');
-                if (classBlock) { openModal(schedule[parseInt(classBlock.dataset.index)]); }
+                if (classBlock) {
+                    const cls = schedule[parseInt(classBlock.dataset.index)];
+                    if (cls) openModal(cls);
+                }
             });
             modalCloseBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
