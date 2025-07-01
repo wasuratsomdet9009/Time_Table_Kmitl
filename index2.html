@@ -340,13 +340,13 @@
                 const nextClass = schedule.find(c => c.day === currentDay && timeToMinutes(c.start) > currentMinutes && c.type !== 'break');
                 
                 if (currentClass) {
-                    statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน' : `กำลังเรียน: ${currentClass.name}`;
+                    statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน' : `กำลังสอน: ${currentClass.name}`;
                     statusBar.className = `text-center mb-4 p-2 rounded-lg font-semibold text-white text-sm ${currentClass.type === 'break' ? 'bg-slate-500' : 'bg-green-500'}`;
                 } else if (nextClass) {
                     statusBar.textContent = `กำลังว่าง | คาบต่อไป: ${nextClass.name} (${nextClass.start})`;
                     statusBar.className = 'text-center mb-4 p-2 rounded-lg font-semibold text-white text-sm bg-sky-500';
                 } else {
-                    statusBar.textContent = (currentDay === 0 || currentDay === 6) ? 'วันนี้เป็นวันหยุด' : 'หมดคาบเรียนสำหรับวันนี้แล้ว';
+                    statusBar.textContent = (currentDay === 0 || currentDay === 6) ? 'วันนี้เป็นวันหยุด' : 'หมดคาบสอนสำหรับวันนี้แล้ว';
                     statusBar.className = 'text-center mb-4 p-2 rounded-lg font-semibold text-white text-sm bg-gray-400';
                 }
 
