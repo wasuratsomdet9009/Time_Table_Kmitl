@@ -13,23 +13,30 @@
         body {
             font-family: 'Kanit', sans-serif;
             background-color: #f1f5f9; /* slate-100 */
+            transition: background-color 0.3s ease;
+        }
+
+        /* === NEW: Add background and padding on large screens for centering effect === */
+        @media (min-width: 1024px) { /* lg breakpoint */
+            body {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+                background-color: #e2e8f0; /* slate-200 */
+            }
         }
 
         /* Timetable grid layout for mobile-first */
         .timetable-grid {
             display: grid;
-            /* 50px for day headers + 54 columns (10min intervals) at a smaller width */
             grid-template-columns: 50px repeat(54, 16px);
-            /* 40px for time headers + 7 rows for days with a compact min-height */
             grid-template-rows: 40px repeat(7, minmax(45px, auto));
-            gap: 1px; /* Reduced gap for a tighter layout */
+            gap: 1px;
             position: relative;
         }
 
         /* Media query for larger screens (tablets and desktops) */
         @media (min-width: 768px) {
             .timetable-grid {
-                /* Wider day headers and columns for better readability on larger screens */
                 grid-template-columns: 70px repeat(54, 24px);
                 grid-template-rows: 50px repeat(7, minmax(55px, auto));
             }
@@ -41,7 +48,7 @@
             align-items: center;
             justify-content: center;
             font-weight: 500;
-            font-size: 0.65rem; /* Smaller font for headers */
+            font-size: 0.65rem;
             border-radius: 0.25rem;
             background-color: #e2e8f0; /* slate-200 */
             color: #475569; /* slate-600 */
@@ -52,11 +59,11 @@
 
         /* Styling for individual class blocks */
         .class-block {
-            border-radius: 0.375rem; /* 6px */
+            border-radius: 0.375rem;
             padding: 4px 6px;
             border-left: 4px solid transparent;
             color: white;
-            font-size: 0.7rem; /* Compact font size */
+            font-size: 0.7rem;
             line-height: 1.25;
             overflow: hidden;
             display: flex;
@@ -76,10 +83,9 @@
         .class-block.current {
             transform: scale(1.04);
             z-index: 10;
-            border: 2px solid #FFD700; /* Gold border for current class */
+            border: 2px solid #FFD700;
         }
         
-        /* Tag for the classroom number */
         .class-room-tag {
             font-size: 0.6rem;
             font-weight: 600;
@@ -90,7 +96,6 @@
             margin-left: 4px;
         }
 
-        /* Overlay for status messages like "Finishing Soon" */
         .class-status-overlay {
             position: absolute;
             inset: 0;
@@ -105,10 +110,9 @@
         .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
         .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
 
-        /* The vertical line indicating the current time */
         #real-time-indicator {
             position: absolute;
-            top: 40px; /* Aligns with the bottom of the time header */
+            top: 40px;
             bottom: 0;
             width: 3px;
             background: linear-gradient(to bottom, #F58220, #D46A1A);
@@ -120,7 +124,6 @@
         }
         @media (min-width: 768px) { #real-time-indicator { top: 50px; } }
 
-        /* The circle on top of the time indicator */
         #real-time-indicator::before {
             content: '';
             position: absolute;
@@ -134,11 +137,9 @@
             transform: translateX(-50%);
         }
 
-        /* Sticky positioning for headers to stay visible on scroll */
         .sticky-day { position: sticky; left: 0; z-index: 15; }
         .sticky-corner { position: sticky; left: 0; top: 0; z-index: 16; background-color: #f1f5f9; }
         
-        /* Modal styles */
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
@@ -161,18 +162,18 @@
 <body class="p-2 md:p-4 flex flex-col min-h-screen">
 
     <main class="flex-grow">
-        <!-- === UPDATED: Added min-w-0 to the main container to fix overflow issues on mobile === -->
-        <div class="max-w-full w-full mx-auto bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow-lg border border-gray-200 min-w-0">
+        <!-- === UPDATED: Added lg:max-w-7xl to center the container on large screens === -->
+        <div class="w-full lg:max-w-7xl mx-auto bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow-lg border border-gray-200 min-w-0">
             <div class="text-center mb-4">
                 <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-slate-800">ตารางสอน นางสาววรรนิสา สุขสวัสดิ์</h1>
                 <p class="text-xs sm:text-sm text-slate-500">ภาคการศึกษา 1 ปีการศึกษา 2568 - โรงเรียนเทพศิรินทร์พุแค สระบุรี</p>
                 <p id="current-time-display" class="mt-2 text-sm sm:text-base font-semibold" style="color: #F58220;"></p>
             </div>
-             
+            
             <div id="status-bar" class="text-center mb-4 p-2 rounded-lg font-semibold text-white transition-colors duration-500 text-sm">
                 กำลังโหลดสถานะ...
             </div>
-     
+    
             <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
                 <div id="timetable-container" class="timetable-grid">
                     <div id="real-time-indicator" class="hidden"></div>
@@ -239,9 +240,11 @@
             schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
 
             const setupGrid = () => {
-                timetableGrid.innerHTML = ''; // Clear grid before setup
+                timetableGrid.innerHTML = ''; // Clear grid
                 const cornerCell = document.createElement('div');
                 cornerCell.className = 'sticky-corner';
+                cornerCell.style.gridRow = '1';
+                cornerCell.style.gridColumn = '1';
                 timetableGrid.appendChild(cornerCell);
 
                 const periods = [
@@ -276,7 +279,7 @@
                     timetableGrid.appendChild(dayHeader);
                 });
 
-                timetableGrid.appendChild(timeIndicator); // Re-add time indicator
+                timetableGrid.appendChild(timeIndicator);
             };
 
             const renderClasses = () => {
@@ -298,7 +301,6 @@
                     if (cls.type === 'break') {
                         classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
                     } else {
-                        // === UPDATED: Added 'break-words' class for better text wrapping ===
                         classBlock.innerHTML = `
                             <div class="flex flex-col h-full z-10 justify-between">
                                 <div>
@@ -416,8 +418,8 @@
             setupGrid();
             renderClasses();
             updateRealTime();
-            setInterval(updateRealTime, 1000); // Update every second
-            window.addEventListener('resize', () => { // Redraw on resize
+            setInterval(updateRealTime, 1000);
+            window.addEventListener('resize', () => {
                 setupGrid();
                 renderClasses();
                 updateRealTime();
