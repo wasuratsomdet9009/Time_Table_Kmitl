@@ -15,7 +15,6 @@
         }
         .timetable-grid {
             display: grid;
-            /* === CHANGED: Updated to 12 columns for 6 AM to 6 PM === */
             grid-template-columns: 60px repeat(12, minmax(70px, 1fr));
             grid-template-rows: 40px repeat(7, minmax(90px, auto));
             gap: 2px;
@@ -23,7 +22,6 @@
         }
         @media (min-width: 768px) {
             .timetable-grid {
-                /* === CHANGED: Updated to 12 columns for 6 AM to 6 PM === */
                 grid-template-columns: 80px repeat(12, 1fr);
                 grid-template-rows: 50px repeat(7, minmax(100px, auto));
             }
@@ -91,8 +89,6 @@
         .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
         .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
         
-        /* === REMOVED: pulse animation keyframes === */
-        
         #real-time-indicator {
             position: absolute;
             top: 40px; 
@@ -117,7 +113,6 @@
             background-color: #F58220;
             border-radius: 9999px;
             border: 3px solid white;
-            /* === REMOVED: Animation property to stop blinking === */
             transform: translateX(-50%);
         }
         
@@ -143,14 +138,75 @@
             z-index: 10;
         }
         #modal-body {
-             padding-top: 0;
+            padding-top: 0;
+            max-height: 70vh;
+            overflow-y: auto;
         }
-        /* === ADDED: Style for topic list === */
         #modal-topics-list {
             list-style-type: disc;
             padding-left: 1.5rem;
             color: #475569;
         }
+        
+        /* Styles for List View */
+        .list-view-day-header {
+            font-size: 1.25rem; font-weight: 600; color: #1e293b;
+            margin-top: 1.5rem; margin-bottom: 1rem; padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .list-view-item {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .list-view-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .list-view-item.current {
+             box-shadow: 0 0 0 3px #F58220;
+             transform: translateY(-2px);
+        }
+
+        /* === ADDED: Styles for Image Modal === */
+        .image-modal-content {
+            position: relative;
+            background: white;
+            padding: 10px;
+            border-radius: 0.5rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .image-modal-content img {
+            max-width: 100%;
+            max-height: calc(90vh - 20px);
+            object-fit: contain;
+        }
+        .image-modal-close-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            color: white;
+            background-color: #1f2937; /* gray-800 */
+            border-radius: 9999px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            border: 2px solid white;
+            transition: transform 0.2s ease;
+        }
+        .image-modal-close-btn:hover {
+            transform: scale(1.1);
+        }
+
     </style>
 </head>
 <body class="p-4 md:p-6 flex flex-col min-h-screen">
@@ -163,42 +219,65 @@
                 <p id="current-time-display" class="mt-2 text-base sm:text-lg font-semibold" style="color: #F58220;"></p>
             </div>
             
+            <div class="flex flex-wrap justify-center gap-4 mb-6">
+                <button id="toggle-view-btn" class="px-5 py-2 bg-sky-500 text-white rounded-full shadow-md hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all duration-300 ease-in-out">
+                    แสดงแบบรายการ
+                </button>
+                <!-- MODIFIED: Removed onclick attribute -->
+                <button id="toggle-image-btn" class="px-5 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 ease-in-out">
+                    รูปภาพตารางเรียน
+                </button>
+            </div>
+
             <div id="status-bar" class="text-center mb-6 p-3 rounded-lg font-semibold text-white transition-colors duration-500">
                 กำลังโหลดสถานะ...
             </div>
     
-            <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
-                <div id="timetable-container" class="timetable-grid">
-                    <div id="real-time-indicator" class="hidden"></div>
+            <div class="relative">
+                <div class="overflow-x-auto shadow-inner rounded-lg bg-slate-50">
+                    <div id="timetable-container" class="timetable-grid">
+                        <div id="real-time-indicator" class="hidden"></div>
+                    </div>
+                </div>
+                <div id="list-view-container" class="hidden">
                 </div>
             </div>
         </div>
     </main>
 
     <footer class="text-center p-4 mt-8 text-slate-500 text-sm">
-        <p>พัฒนาโดย: วสุรัชต์ สมเด็จ</p>
+        <p>พัฒนาโดย:section 2 สาขาเทคโนโลยีคอมพิวเตอร์</p>
         <p>นักศึกษาสถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
     </footer>
 
+    <!-- Modal for Class Details -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-content">
-            <button id="modal-close-btn" aria-label="Close modal">&times;</button>
+            <button id="modal-close-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
             <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- ADDED: Modal for Schedule Image -->
+    <div id="image-modal" class="modal-overlay">
+        <div class="image-modal-content">
+            <button class="image-modal-close-btn" aria-label="Close image modal">&times;</button>
+            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEinZ_z9UpLJQGIKuqpiRxhZHenQd91TLXEu3oFR8gYB1RQZ62Re3grUvx0oG3VL_xpQXUI19GEStpezAAeHDF3THxwE8_vip-V-MmJBUbjs-ruEOGGjiozfva-0QKEWZ6Lsf-RRVw3bflRyaEeE2fRQyPjDfu-gEf1QcpO1dwrXDQX7MNeM_auS_krR-pQ" alt="ตารางเรียน">
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // === ADDED: Learning topics to each subject ===
+            // --- Data and Constants ---
             const initialSchedule = [
                  { day: 1, start: '08:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076120', section: '3(2-2)', room: 'IE 1602', instructor: 'ตึกนวัตกรรมการเรียนรู้ MicroBit LAB ชั้น6', color: '#ef4444', description: 'ศึกษาหลักการและแนวคิดของระบบฐานข้อมูล การออกแบบ แบบจำลองข้อมูล ภาษาสอบถาม SQL และการจัดการฐานข้อมูลเบื้องต้น', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1974&auto=format&fit=crop', topics: ['แบบจำลองข้อมูล (Data Models)', 'การออกแบบฐานข้อมูลเชิงสัมพันธ์', 'ภาษาสอบถาม SQL', 'การทำ Normalization', 'การจัดการ Transaction'] },
-                { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'อาคารภาควิชาวิศวกรรมอุตสาหกรรม ห้องปฎิบัติการไฟฟ้า 1 ชั้น3', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeOaue8DOOaMsM0QzgEGhq_aOATJnYsbsyfQ&usqp=CAU', topics: ['คุณสมบัติและการใช้งานไดโอด', 'ทรานซิสเตอร์ (BJT และ MOSFET)', 'วงจรขยายสัญญาณด้วย Op-Amp', 'วงจรกรองความถี่ (Filters)', 'การประยุกต์ใช้งานในวงจรจริง'] },
-                { day: 2, start: '09:00', end: '12:00', name: 'EDUCATIONAL FOUNDATION', code: '01086107', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารจอมไตร', color: '#3b82f6', description: 'เรียนรู้เกี่ยวกับรากฐานและปรัชญาการศึกษา พัฒนาการของวิชาชีพครู คุณธรรมและจริยธรรมสำหรับความเป็นครู', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOb-k02k86XK8KR2E8Ve4EEgESPxgjXcexy4gZ6wg-OgdWKMK5Qf3we8hC&s=10', topics: ['ปรัชญาการศึกษาพื้นฐาน', 'ประวัติและพัฒนาการของวิชาชีพครู', 'กฎหมายและจรรยาบรรณวิชาชีพครู', 'สังคมและวัฒนธรรมกับการศึกษา', 'แนวโน้มการศึกษาในอนาคต'] },
-                { day: 2, start: '13:00', end: '16:00', name: 'EDUCATIONAL PSYCHOLOGY', code: '01086108', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารจอมไตร', color: '#2563eb', description: 'สำรวจหลักการทางจิตวิทยาที่เกี่ยวข้องกับการเรียนรู้ พัฒนาการของผู้เรียน การสร้างแรงจูงใจ และการจัดการชั้นเรียน', image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop', topics: ['ทฤษฎีการเรียนรู้และพัฒนาการ', 'จิตวิทยาพัฒนาการของผู้เรียน', 'การสร้างแรงจูงใจในการเรียน', 'การจัดการชั้นเรียนเชิงบวก', 'การวัดและประเมินผลการเรียนรู้'] },
-                { day: 3, start: '08:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076117', section: '3(2-2)', room: 'IE 3313', instructor: 'อาคารจอมไตร', color: '#a855f7', description: 'เรียนรู้โครงสร้างและสถาปัตยกรรมของระบบคอมพิวเตอร์ หน่วยประมวลผลกลาง หน่วยความจำ และอุปกรณ์อินพุต/เอาท์พุต', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzf1en3EFNhSk1Fyvus1huhpQZQKRYr6JMU-irYK9KimZQSpDn_PQlhMY&s=10', topics: ['สถาปัตยกรรมคอมพิวเตอร์พื้นฐาน', 'การทำงานของหน่วยประมวลผลกลาง (CPU)', 'ลำดับชั้นของหน่วยความจำ (Memory Hierarchy)', 'ระบบบัสและอุปกรณ์ I/O', 'ภาษาระดับเครื่องและการประกอบ'] },
-                { day: 3, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN & DEV', code: '01076116', section: '3(2-2)', room: 'IE 1602', instructor: 'ตึกนวัตกรรมารเรียนรู้', color: '#10b981', description: 'หลักการออกแบบและพัฒนาซอฟต์แวร์ กระบวนการทางวิศวกรรมซอฟต์แวร์ การสร้างแบบจำลอง และการประยุกต์ใช้เครื่องมือ', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop', topics: ['กระบวนการพัฒนาซอฟต์แวร์ (SDLC)', 'การออกแบบเชิงวัตถุ (Object-Oriented Design)', 'UML และการสร้างแบบจำลอง', 'รูปแบบการออกแบบ (Design Patterns)', 'หลักการทดสอบซอฟต์แวร์'] },
-                { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารภาควิชาวิศวกรรมอุตสาหกรรม', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOg0V9hOONBloQE4zPyp6_M1YLWiAA15_ryw&usqp=CAU', topics: ['หลักการอาชีวอนามัยและความปลอดภัย', 'การประเมินและจัดการความเสี่ยง', 'การป้องกันอุบัติเหตุในที่ทำงาน', 'กฎหมายความปลอดภัยและอาชีวอนามัย', 'การปฐมพยาบาลเบื้องต้น'] },
-                { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop', topics: ['การสนทนาในชีวิตประจำวัน', 'การเขียนอีเมลและจดหมายธุรกิจ', 'การนำเสนอผลงานเป็นภาษาอังกฤษ', 'ทักษะการอ่านจับใจความ', 'การฟังและสรุปประเด็น'] }
+                 { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'อาคารภาควิชาวิศวกรรมอุตสาหกรรม ห้องปฎิบัติการไฟฟ้า 1 ชั้น3', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeOaue8DOOaMsM0QzgEGhq_aOATJnYsbsyfQ&usqp=CAU', topics: ['คุณสมบัติและการใช้งานไดโอด', 'ทรานซิสเตอร์ (BJT และ MOSFET)', 'วงจรขยายสัญญาณด้วย Op-Amp', 'วงจรกรองความถี่ (Filters)', 'การประยุกต์ใช้งานในวงจรจริง'] },
+                 { day: 2, start: '09:00', end: '12:00', name: 'EDUCATIONAL FOUNDATION', code: '01086107', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารจอมไตร', color: '#3b82f6', description: 'เรียนรู้เกี่ยวกับรากฐานและปรัชญาการศึกษา พัฒนาการของวิชาชีพครู คุณธรรมและจริยธรรมสำหรับความเป็นครู', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOb-k02k86XK8KR2E8Ve4EEgESPxgjXcexy4gZ6wg-OgdWKMK5Qf3we8hC&s=10', topics: ['ปรัชญาการศึกษาพื้นฐาน', 'ประวัติและพัฒนาการของวิชาชีพครู', 'กฎหมายและจรรยาบรรณวิชาชีพครู', 'สังคมและวัฒนธรรมกับการศึกษา', 'แนวโน้มการศึกษาในอนาคต'] },
+                 { day: 2, start: '13:00', end: '16:00', name: 'EDUCATIONAL PSYCHOLOGY', code: '01086108', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารจอมไตร', color: '#2563eb', description: 'สำรวจหลักการทางจิตวิทยาที่เกี่ยวข้องกับการเรียนรู้ พัฒนาการของผู้เรียน การสร้างแรงจูงใจ และการจัดการชั้นเรียน', image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop', topics: ['ทฤษฎีการเรียนรู้และพัฒนาการ', 'จิตวิทยาพัฒนาการของผู้เรียน', 'การสร้างแรงจูงใจในการเรียน', 'การจัดการชั้นเรียนเชิงบวก', 'การวัดและประเมินผลการเรียนรู้'] },
+                 { day: 3, start: '08:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076117', section: '3(2-2)', room: 'IE 3313', instructor: 'อาคารจอมไตร', color: '#a855f7', description: 'เรียนรู้โครงสร้างและสถาปัตยกรรมของระบบคอมพิวเตอร์ หน่วยประมวลผลกลาง หน่วยความจำ และอุปกรณ์อินพุต/เอาท์พุต', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzf1en3EFNhSk1Fyvus1huhpQZQKRYr6JMU-irYK9KimZQSpDn_PQlhMY&s=10', topics: ['สถาปัตยกรรมคอมพิวเตอร์พื้นฐาน', 'การทำงานของหน่วยประมวลผลกลาง (CPU)', 'ลำดับชั้นของหน่วยความจำ (Memory Hierarchy)', 'ระบบบัสและอุปกรณ์ I/O', 'ภาษาระดับเครื่องและการประกอบ'] },
+                 { day: 3, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN & DEV', code: '01076116', section: '3(2-2)', room: 'IE 1602', instructor: 'ตึกนวัตกรรมารเรียนรู้', color: '#10b981', description: 'หลักการออกแบบและพัฒนาซอฟต์แวร์ กระบวนการทางวิศวกรรมซอฟต์แวร์ การสร้างแบบจำลอง และการประยุกต์ใช้เครื่องมือ', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop', topics: ['กระบวนการพัฒนาซอฟต์แวร์ (SDLC)', 'การออกแบบเชิงวัตถุ (Object-Oriented Design)', 'UML และการสร้างแบบจำลอง', 'รูปแบบการออกแบบ (Design Patterns)', 'หลักการทดสอบซอฟต์แวร์'] },
+                 { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารภาควิชาวิศวกรรมอุตสาหกรรม', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOg0V9hOONBloQE4zPyp6_M1YLWiAA15_ryw&usqp=CAU', topics: ['หลักการอาชีวอนามัยและความปลอดภัย', 'การประเมินและจัดการความเสี่ยง', 'การป้องกันอุบัติเหตุในที่ทำงาน', 'กฎหมายความปลอดภัยและอาชีวอนามัย', 'การปฐมพยาบาลเบื้องต้น'] },
+                 { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop', topics: ['การสนทนาในชีวิตประจำวัน', 'การเขียนอีเมลและจดหมายธุรกิจ', 'การนำเสนอผลงานเป็นภาษาอังกฤษ', 'ทักษะการอ่านจับใจความ', 'การฟังและสรุปประเด็น'] }
             ];
             
             for (let i = 1; i <= 5; i++) {
@@ -212,10 +291,15 @@
             const statusBar = document.getElementById('status-bar');
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
             
-            // === CHANGED: Timetable hours ===
+            const toggleBtn = document.getElementById('toggle-view-btn');
+            const gridView = document.getElementById('timetable-container').parentElement;
+            const listView = document.getElementById('list-view-container');
+            let isGridView = true;
+            
             const timetableStartHour = 6;
             const timetableEndHour = 18;
 
+            // --- Utility Functions ---
             const timeToMinutes = (timeStr) => {
                 const [hours, minutes] = timeStr.split(':').map(Number);
                 return hours * 60 + minutes;
@@ -223,17 +307,20 @@
 
             schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
 
+            // --- Rendering Functions ---
             const setupGrid = () => {
                 timetableGrid.innerHTML = '';
                 const cornerCell = document.createElement('div');
                 cornerCell.className = 'sticky-corner';
                 timetableGrid.appendChild(cornerCell);
+
                 for (let i = timetableStartHour; i < timetableEndHour; i++) {
                     const timeHeader = document.createElement('div');
                     timeHeader.className = 'grid-header';
                     timeHeader.textContent = `${String(i).padStart(2, '0')}:00`;
                     timetableGrid.appendChild(timeHeader);
                 }
+
                 thaiDays.forEach((day, index) => {
                     const dayHeader = document.createElement('div');
                     dayHeader.className = 'grid-header sticky-day';
@@ -252,7 +339,7 @@
                     const startCol = ((startMinutes - timetableStartHour * 60) / 60) + 2;
                     const endCol = ((endMinutes - timetableStartHour * 60) / 60) + 2;
                     
-                    if (startCol < 2 || endCol > 14) return; // Do not render classes outside the new time range
+                    if (startCol < 2 || endCol > 14) return;
 
                     const classBlock = document.createElement('div');
                     classBlock.className = 'class-block';
@@ -287,7 +374,58 @@
                     timetableGrid.appendChild(classBlock);
                 });
             };
+
+            const renderListView = () => {
+                listView.innerHTML = '';
+                const groupedSchedule = schedule.reduce((acc, cls) => {
+                    if (cls.type === 'break') return acc;
+                    (acc[cls.day] = acc[cls.day] || []).push(cls);
+                    return acc;
+                }, {});
+
+                const sortedDays = Object.keys(groupedSchedule).sort((a, b) => a - b);
+
+                if (sortedDays.length === 0) {
+                    listView.innerHTML = `<p class="text-center text-slate-500 mt-8">ไม่มีตารางเรียน</p>`;
+                    return;
+                }
+
+                sortedDays.forEach(dayIndex => {
+                    const dayName = thaiDays[dayIndex];
+                    const dayHeader = document.createElement('h2');
+                    dayHeader.className = 'list-view-day-header';
+                    dayHeader.textContent = dayName;
+                    listView.appendChild(dayHeader);
+
+                    const classesForDay = groupedSchedule[dayIndex];
+                    classesForDay.forEach(cls => {
+                        const originalIndex = schedule.findIndex(item => item === cls);
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'list-view-item bg-white p-4 rounded-lg shadow border-l-8 mb-3 flex items-center gap-4 cursor-pointer';
+                        itemDiv.style.borderColor = cls.color;
+                        itemDiv.dataset.index = originalIndex;
+
+                        itemDiv.innerHTML = `
+                            <div class="flex-shrink-0 text-center w-20">
+                                <p class="font-semibold text-slate-700 text-lg">${cls.start}</p>
+                                <p class="text-xs text-slate-500">ถึง</p>
+                                <p class="font-semibold text-slate-700 text-lg">${cls.end}</p>
+                            </div>
+                            <div class="flex-grow border-l border-slate-200 pl-4">
+                                <h3 class="font-bold text-lg" style="color:${cls.color};">${cls.name}</h3>
+                                <p class="text-sm text-slate-600">${cls.code}</p>
+                                <p class="text-sm text-slate-500 mt-1"><strong>ห้อง:</strong> ${cls.room}</p>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                            </div>
+                        `;
+                        listView.appendChild(itemDiv);
+                    });
+                });
+            };
             
+            // --- Real-time Update Logic ---
             const updateRealTime = () => {
                 const now = new Date();
                 const currentDay = now.getDay();
@@ -298,7 +436,7 @@
                 const gridContentWidth = timetableGrid.scrollWidth - dayColumnWidth;
                 const minutesSinceStart = currentMinutes - (timetableStartHour * 60);
                 const totalMinutesInView = (timetableEndHour - timetableStartHour) * 60;
-                if (minutesSinceStart >= 0 && minutesSinceStart < totalMinutesInView) {
+                if (minutesSinceStart >= 0 && minutesSinceStart < totalMinutesInView && isGridView) {
                     const percentage = (minutesSinceStart / totalMinutesInView) * 100;
                     timeIndicator.style.left = `calc(${dayColumnWidth}px + ${percentage/100 * gridContentWidth}px)`;
                     timeIndicator.style.gridRow = `${currentDay + 2}`;
@@ -311,129 +449,134 @@
                 const nextClass = schedule.find(cls => cls.day === currentDay && timeToMinutes(cls.start) > currentMinutes && cls.type !== 'break');
                 
                 if (currentClass) {
-                    if (currentClass.type === 'break') {
-                        statusBar.textContent = 'พักกลางวัน';
-                        statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-slate-500';
-                    } else {
-                        statusBar.textContent = `กำลังเรียน: ${currentClass.name}`;
-                        statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-green-500';
-                    }
+                    statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน' : `กำลังเรียน: ${currentClass.name}`;
+                    statusBar.className = `text-center mb-6 p-3 rounded-lg font-semibold text-white ${currentClass.type === 'break' ? 'bg-slate-500' : 'bg-green-500'}`;
                 } else if (nextClass) {
                     statusBar.textContent = `กำลังว่าง | คาบต่อไป: ${nextClass.name} เวลา ${nextClass.start}`;
                     statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-sky-500';
                 } else {
-                    if (currentDay === 0 || currentDay === 6) {
-                        statusBar.textContent = 'วันนี้ไม่มีเรียน';
-                    } else {
-                        statusBar.textContent = 'หมดคาบเรียนสำหรับวันนี้แล้ว';
-                    }
+                    statusBar.textContent = (currentDay === 0 || currentDay === 6) ? 'วันนี้ไม่มีเรียน' : 'หมดคาบเรียนสำหรับวันนี้แล้ว';
                     statusBar.className = 'text-center mb-6 p-3 rounded-lg font-semibold text-white bg-gray-400';
                 }
 
-                document.querySelectorAll('.class-block').forEach(block => {
-                    block.classList.remove('current', 'finishing-soon', 'prepare-next');
-                    const overlay = block.querySelector('.class-status-overlay');
-                    if (overlay) {
-                        overlay.style.display = 'none';
-                        overlay.textContent = '';
-                    }
-                });
+                document.querySelectorAll('.class-block, .list-view-item').forEach(el => {
+                    el.classList.remove('current', 'finishing-soon', 'prepare-next');
+                    const overlay = el.querySelector('.class-status-overlay');
+                    if (overlay) overlay.style.display = 'none';
 
-                document.querySelectorAll('.class-block').forEach(block => {
-                    const cls = schedule[parseInt(block.dataset.index)];
+                    const cls = schedule[parseInt(el.dataset.index)];
                     if(!cls) return;
                     
                     const startMinutes = timeToMinutes(cls.start);
                     const endMinutes = timeToMinutes(cls.end);
-                    const overlay = block.querySelector('.class-status-overlay');
 
                     if (cls === currentClass && cls.type !== 'break') {
-                        block.classList.add('current');
+                        el.classList.add('current');
                         const timeLeft = endMinutes - currentMinutes;
-                        if (timeLeft <= 15) {
-                            block.classList.add('finishing-soon');
-                            if(overlay) {
-                                overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
-                                overlay.style.display = 'flex';
-                            }
+                        if (timeLeft <= 15 && overlay) {
+                            el.classList.add('finishing-soon');
+                            overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
+                            overlay.style.display = 'flex';
                         }
                     }
                     
-                    if (cls === nextClass) {
+                    if (cls === nextClass && overlay) {
                         const timeToNext = startMinutes - currentMinutes;
                         if (timeToNext > 0 && timeToNext <= 15) {
-                            block.classList.add('prepare-next');
-                            if(overlay) {
-                                overlay.textContent = `เตรียมตัวเรียน (${timeToNext} นาที)`;
-                                overlay.style.display = 'flex';
-                            }
+                            el.classList.add('prepare-next');
+                            overlay.textContent = `เตรียมตัวเรียน (${timeToNext} นาที)`;
+                            overlay.style.display = 'flex';
                         }
                     }
                 });
             };
 
-            const modal = document.getElementById('class-modal');
+            // --- Modal Logic ---
+            const classModal = document.getElementById('class-modal');
             const modalBody = document.getElementById('modal-body');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const classModalCloseBtn = document.getElementById('modal-close-btn');
             
-            // === UPDATED: openModal function to display topics ===
-            const openModal = (cls) => {
+            const openClassModal = (cls) => {
                 if (cls.type === 'break') return;
 
                 let topicsHtml = '';
                 if (cls.topics && cls.topics.length > 0) {
                     const topicsList = cls.topics.map(topic => `<li>${topic}</li>`).join('');
-                    topicsHtml = `
-                        <div class="border-t border-slate-200 my-3"></div>
-                        <div>
-                            <strong class="text-slate-600">หัวข้อการเรียนหลัก:</strong>
-                            <ul id="modal-topics-list" class="text-slate-500 mt-1 text-sm">${topicsList}</ul>
-                        </div>
-                    `;
+                    topicsHtml = `<div class="border-t border-slate-200 my-3"></div><div><strong class="text-slate-600">หัวข้อการเรียนหลัก:</strong><ul id="modal-topics-list" class="text-slate-500 mt-1 text-sm">${topicsList}</ul></div>`;
                 }
 
                 modalBody.innerHTML = `
-                    <div class="relative -mx-6 -mt-6">
-                         <img src="${cls.image}" alt="รูปภาพประกอบวิชา ${cls.name}" class="w-full h-40 object-cover rounded-t-lg">
-                    </div>
+                    <div class="relative -mx-6 -mt-6"><img src="${cls.image}" alt="รูปภาพประกอบวิชา ${cls.name}" class="w-full h-48 object-cover rounded-t-lg bg-slate-200"></div>
                     <div class="pt-4">
                         <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
                         <div class="border-t border-slate-200 my-3"></div>
-                        <p><strong class="text-slate-600 w-28 inline-block">รหัสวิชา:</strong> ${cls.code}</p>
-                        <p><strong class="text-slate-600 w-28 inline-block">หน่วยกิต (กลุ่ม):</strong> ${cls.section}</p>
-                        <p><strong class="text-slate-600 w-28 inline-block">สถานที่เรียน:</strong> ${cls.instructor}</p>
-                        <p><strong class="text-slate-600 w-28 inline-block">เวลา:</strong> ${cls.start} - ${cls.end}</p>
-                        <p><strong class="text-slate-600 w-28 inline-block">วัน:</strong> ${thaiDays[cls.day]}</p>
-                        <p><strong class="text-slate-600 w-28 inline-block">ห้องเรียน:</strong> ${cls.room}</p>
+                        <p class="flex mb-1"><strong class="text-slate-600 w-28 inline-block flex-shrink-0">รหัสวิชา:</strong> <span class="text-slate-800">${cls.code}</span></p>
+                        <p class="flex mb-1"><strong class="text-slate-600 w-28 inline-block flex-shrink-0">หน่วยกิต (กลุ่ม):</strong> <span class="text-slate-800">${cls.section}</span></p>
+                        <p class="flex mb-1"><strong class="text-slate-600 w-28 inline-block flex-shrink-0">สถานที่เรียน:</strong> <span class="text-slate-800">${cls.instructor}</span></p>
+                        <p class="flex mb-1"><strong class="text-slate-600 w-28 inline-block flex-shrink-0">เวลา:</strong> <span class="text-slate-800">${cls.start} - ${cls.end}</span></p>
+                        <p class="flex mb-1"><strong class="text-slate-600 w-28 inline-block flex-shrink-0">วัน:</strong> <span class="text-slate-800">${thaiDays[cls.day]}</span></p>
+                        <p class="flex mb-1"><strong class="text-slate-600 w-28 inline-block flex-shrink-0">ห้องเรียน:</strong> <span class="text-slate-800">${cls.room}</span></p>
                         <div class="border-t border-slate-200 my-3"></div>
-                        <div>
-                            <strong class="text-slate-600">คำอธิบายรายวิชา:</strong>
-                            <p class="text-slate-500 mt-1 text-sm">${cls.description}</p>
-                        </div>
+                        <div><strong class="text-slate-600">คำอธิบายรายวิชา:</strong><p class="text-slate-500 mt-1 text-sm">${cls.description}</p></div>
                         ${topicsHtml}
-                    </div>
-                `;
-                modal.classList.add('visible');
+                    </div>`;
+                classModal.classList.add('visible');
             };
-            const closeModal = () => modal.classList.remove('visible');
+            const closeClassModal = () => classModal.classList.remove('visible');
+
+            // === ADDED: Image Modal Logic ===
+            const imageModal = document.getElementById('image-modal');
+            const openImageBtn = document.getElementById('toggle-image-btn');
+            const closeImageBtn = imageModal.querySelector('.image-modal-close-btn');
+
+            const openImageModal = () => imageModal.classList.add('visible');
+            const closeImageModal = () => imageModal.classList.remove('visible');
+
+            // --- Event Listeners ---
+            toggleBtn.addEventListener('click', () => {
+                isGridView = !isGridView;
+                gridView.classList.toggle('hidden');
+                listView.classList.toggle('hidden');
+                toggleBtn.textContent = isGridView ? 'แสดงแบบรายการ' : 'แสดงแบบตาราง';
+                updateRealTime();
+            });
 
             timetableGrid.addEventListener('click', (e) => {
                 const classBlock = e.target.closest('.class-block');
                 if (classBlock) {
                     const cls = schedule[parseInt(classBlock.dataset.index)];
-                    if (cls) openModal(cls);
+                    if (cls) openClassModal(cls);
                 }
             });
-            modalCloseBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
+            listView.addEventListener('click', (e) => {
+                const listItem = e.target.closest('.list-view-item');
+                if (listItem) {
+                    const cls = schedule[parseInt(listItem.dataset.index)];
+                    if (cls) openClassModal(cls);
+                }
+            });
+
+            classModalCloseBtn.addEventListener('click', closeClassModal);
+            classModal.addEventListener('click', (e) => { if (e.target === classModal) closeClassModal(); });
+            
+            // ADDED: Event listeners for the new image modal
+            openImageBtn.addEventListener('click', openImageModal);
+            closeImageBtn.addEventListener('click', closeImageModal);
+            imageModal.addEventListener('click', (e) => { if (e.target === imageModal) closeImageModal(); });
+
+            // --- Initial Setup ---
             setupGrid();
             renderClasses();
+            renderListView();
             updateRealTime();
             setInterval(updateRealTime, 1000);
+
             window.addEventListener('resize', () => {
-                setupGrid();
-                renderClasses();
+                if(isGridView) {
+                    setupGrid();
+                    renderClasses();
+                }
                 updateRealTime();
             });
         });
