@@ -1,1 +1,437 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางเรียน Real-time (VRU)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* VRU Color Palette */
+        :root {
+            --vru-green: #006937;
+            --vru-yellow: #FFC000;
+            --vru-light-green-bg: #f0f9f4;
+            --vru-dark-green-text: #004d28;
+        }
 
+        /* General styling for the body */
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--vru-light-green-bg);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Add background and padding on large screens for centering effect */
+        @media (min-width: 1024px) { /* lg breakpoint */
+            body {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+                background-color: #e2e8f0; /* slate-200, for contrast */
+            }
+        }
+
+        /* Timetable grid layout for mobile-first */
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: 50px repeat(60, 16px);
+            grid-template-rows: 40px repeat(5, minmax(60px, auto)); /* 5 days */
+            gap: 1px;
+            position: relative;
+        }
+
+        /* Media query for larger screens (tablets and desktops) */
+        @media (min-width: 768px) {
+            .timetable-grid {
+                grid-template-columns: 70px repeat(60, 24px);
+                grid-template-rows: 50px repeat(5, minmax(70px, auto));
+            }
+        }
+
+        /* Styling for header cells (days and times) */
+        .grid-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 0.65rem;
+            border-radius: 0.25rem;
+            background-color: #e2e8f0;
+            color: var(--vru-dark-green-text);
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        @media (min-width: 768px) { .grid-header { font-size: 0.8rem; } }
+
+        /* Styling for individual class blocks */
+        .class-block {
+            border-radius: 0.375rem;
+            padding: 6px 8px;
+            border-left: 4px solid transparent;
+            color: white;
+            font-size: 0.7rem;
+            line-height: 1.25;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .class-block:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 5;
+        }
+        
+        .class-block strong {
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .class-block.current {
+            transform: scale(1.04);
+            z-index: 10;
+            border: 2px solid var(--vru-yellow);
+            box-shadow: 0 0 15px rgba(255, 192, 0, 0.7);
+        }
+        
+        .class-room-tag {
+            font-size: 0.6rem;
+            font-weight: 600;
+            background-color: rgba(0, 0, 0, 0.35);
+            padding: 1px 6px;
+            border-radius: 9999px;
+            flex-shrink: 0;
+            margin-left: 4px;
+            align-self: flex-start;
+        }
+
+        .class-status-overlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 4px;
+            border-radius: 0.375rem; /* Match parent */
+        }
+        .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
+        .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
+
+        #real-time-indicator {
+            position: absolute;
+            top: 40px; /* Height of time header row */
+            bottom: 0;
+            width: 3px;
+            background: var(--vru-yellow);
+            z-index: 20;
+            pointer-events: none;
+            transition: all 1s linear;
+            box-shadow: 0 0 8px 2px var(--vru-yellow);
+            border-radius: 2px;
+        }
+        @media (min-width: 768px) { #real-time-indicator { top: 50px; } }
+
+        #real-time-indicator::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            background-color: var(--vru-yellow);
+            border-radius: 9999px;
+            border: 3px solid white;
+            transform: translateX(-50%);
+        }
+
+        .sticky-day { position: sticky; left: 0; z-index: 15; }
+        .sticky-corner { position: sticky; left: 0; top: 0; z-index: 16; background-color: var(--vru-light-green-bg); }
+        
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: white; padding: 1.25rem; border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 95%; max-width: 500px;
+            position: relative; transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-close-btn {
+            position: absolute; top: 0.75rem; right: 0.75rem; background: #e2e8f0;
+            border: none; border-radius: 9999px; width: 2rem; height: 2rem;
+            font-size: 1.5rem; line-height: 1; cursor: pointer; color: #64748b;
+        }
+    </style>
+</head>
+<body class="p-2 md:p-4 flex flex-col min-h-screen">
+
+    <main class="flex-grow">
+        <div class="w-full lg:max-w-7xl mx-auto bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow-lg border border-gray-200 min-w-0">
+            <div class="text-center mb-4">
+                <h1 class="text-lg sm:text-xl lg:text-2xl font-bold" style="color: var(--vru-dark-green-text);">ตารางเรียน มหาวิทยาลัยราชภัฏวไลยอลงกรณ์ ในพระบรมราชูปถัมภ์</h1>
+                <p class="text-xs sm:text-sm text-slate-500">ภาคเรียนที่ 1 ปีการศึกษา 2568 | หลักสูตรนิเทศศาสตรบัณฑิต สาขาวิชาการสื่อสารดิจิทัลและมัลติมีเดีย</p>
+                <p id="current-time-display" class="mt-2 text-sm sm:text-base font-semibold" style="color: var(--vru-green);"></p>
+            </div>
+            
+            <div id="status-bar" class="text-center mb-4 p-2 rounded-lg font-semibold text-white transition-colors duration-500 text-sm">
+                กำลังโหลดสถานะ...
+            </div>
+    
+            <div class="relative overflow-x-auto shadow-inner rounded-lg bg-slate-50">
+                <div id="timetable-container" class="timetable-grid">
+                    <!-- Timetable will be generated here by JavaScript -->
+                    <div id="real-time-indicator" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center p-3 mt-6 text-slate-500 text-xs">
+        <p>จัดทำโดย: นักศึกษา 68030263 สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
+    </footer>
+
+    <div id="class-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="modal-close-btn" aria-label="Close modal">&times;</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Schedule data with VRU color theme
+            const initialSchedule = [
+                // Monday
+                { day: 1, start: '09:30', end: '12:30', name: 'การพัฒนาทักษะเทคโนโลยีดิจิทัลเพื่อผลิตสื่อมัลติมีเดีย', code: 'MCA108', section: '01', room: 'STUDIO TV', instructor: 'อาจารย์นิเทศศาสตร์', color: '#16a34a', imageUrl: 'https://placehold.co/600x400/16a34a/ffffff?text=MCA108', description: 'เรียนรู้ทักษะการใช้เทคโนโลยีดิจิทัลเพื่อการสร้างสรรค์และผลิตสื่อมัลติมีเดียในรูปแบบต่างๆ', topics: ['การวางแผนและการเขียนสตอรี่บอร์ด', 'การถ่ายทำวิดีโอเบื้องต้น', 'การตัดต่อวิดีโอด้วยโปรแกรม', 'การผลิตสื่อเสียงและพอดแคสต์'] },
+                // Tuesday
+                { day: 2, start: '09:30', end: '12:30', name: 'การใช้ภาษาไทยอย่างมีวิจารณญาณเพื่อการสื่อสาร', code: 'VGE102', section: 'ตามตาราง', room: 'ตามตาราง', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://placehold.co/600x400/f59e0b/ffffff?text=VGE102', description: 'พัฒนาทักษะการใช้ภาษาไทยเพื่อการสื่อสารอย่างถูกต้องและมีประสิทธิภาพในบริบทต่างๆ', topics: ['หลักการใช้ภาษาไทย', 'การเขียนเชิงสร้างสรรค์', 'การพูดในที่สาธารณะ', 'การสื่อสารในยุคดิจิทัล'] },
+                // Wednesday
+                { day: 3, start: '09:30', end: '11:30', name: 'กฎหมายและจริยธรรมนิเทศศาสตร์', code: 'MCA110', section: '01', room: 'CA 302', instructor: 'อาจารย์นิเทศศาสตร์', color: '#22c55e', imageUrl: 'https://placehold.co/600x400/22c55e/ffffff?text=MCA110', description: 'ศึกษาข้อกฎหมายและหลักจริยธรรมที่เกี่ยวข้องกับการสื่อสารมวลชนและนิเทศศาสตร์', topics: ['กฎหมายสื่อสิ่งพิมพ์และสื่อออนไลน์', 'จรรยาบรรณวิชาชีพสื่อ', 'สิทธิเสรีภาพในการแสดงออก', 'กรณีศึกษาด้านจริยธรรมสื่อ'] },
+                // Thursday
+                { day: 4, start: '09:30', end: '12:30', name: 'ตามรอยพระยุคลบาท', code: 'VGE101', section: 'ตามตาราง', room: 'ตามตาราง', instructor: 'ตามตาราง', color: '#14b8a6', imageUrl: 'https://placehold.co/600x400/14b8a6/ffffff?text=VGE101', description: 'เรียนรู้เกี่ยวกับพระราชประวัติและพระราชกรณียกิจที่สำคัญ', topics: ['โครงการอันเนื่องมาจากพระราชดำริ', 'หลักการทรงงาน', 'ปรัชญาของเศรษฐกิจพอเพียง'] },
+                { day: 4, start: '13:30', end: '16:30', name: 'การสร้างสรรค์อัตลักษณ์บัณฑิตโดยอลองกรณ์', code: 'VGE117', section: 'ตามตาราง', room: 'ตามตาราง', instructor: 'อลองกรณ์', color: '#14b8a6', imageUrl: 'https://placehold.co/600x400/14b8a6/ffffff?text=VGE117', description: 'พัฒนาตนเองและสร้างอัตลักษณ์เพื่อเตรียมความพร้อมสู่โลกของการทำงาน', topics: ['การค้นหาตนเอง', 'การสร้างแบรนด์ส่วนบุคคล', 'ทักษะการเป็นผู้นำ', 'การทำงานร่วมกับผู้อื่น'] },
+                // Friday
+                { day: 5, start: '09:30', end: '12:30', name: 'การถ่ายภาพดิจิทัล', code: 'MCA109', section: '01', room: 'ชั้น 4', instructor: 'อาจารย์นิเทศศาสตร์', color: '#0ea5e9', imageUrl: 'https://placehold.co/600x400/0ea5e9/ffffff?text=MCA109', description: 'เรียนรู้หลักการและเทคนิคการถ่ายภาพด้วยกล้องดิจิทัล', topics: ['องค์ประกอบศิลป์ในการถ่ายภาพ', 'การควบคุมกล้อง (รูรับแสง, ความเร็วชัตเตอร์, ISO)', 'การจัดแสงเบื้องต้น', 'การตกแต่งภาพด้วยโปรแกรม'] },
+            ];
+            
+            for (let i = 1; i <= 5; i++) {
+                initialSchedule.push({ day: i, start: '12:30', end: '13:30', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' });
+            }
+
+            const schedule = initialSchedule;
+            const timetableGrid = document.getElementById('timetable-container');
+            const timeIndicator = document.getElementById('real-time-indicator');
+            const timeDisplay = document.getElementById('current-time-display');
+            const statusBar = document.getElementById('status-bar');
+            const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const timetableStartHour = 8;
+            const timetableEndHour = 18;
+
+            const timeToMinutes = (timeStr) => {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
+
+            const setupGrid = () => {
+                timetableGrid.innerHTML = ''; 
+                const cornerCell = document.createElement('div');
+                cornerCell.className = 'sticky-corner';
+                cornerCell.style.gridRow = '1';
+                cornerCell.style.gridColumn = '1';
+                timetableGrid.appendChild(cornerCell);
+
+                const periods = [
+                    { start: '08:30', end: '09:30' }, { start: '09:30', end: '10:30' },
+                    { start: '10:30', end: '11:30' }, { start: '11:30', end: '12:30' },
+                    { start: '12:30', end: '13:30' }, { start: '13:30', end: '14:30' },
+                    { start: '14:30', end: '15:30' }, { start: '15:30', end: '16:30' },
+                    { start: '16:30', end: '17:30' }
+                ];
+
+                periods.forEach(period => {
+                    const startMinutes = timeToMinutes(period.start);
+                    const endMinutes = timeToMinutes(period.end);
+                    const startCol = Math.floor((startMinutes - timetableStartHour * 60) / 10) + 2;
+                    const colSpan = Math.floor((endMinutes - startMinutes) / 10);
+                    if (colSpan <= 0) return;
+
+                    const periodHeader = document.createElement('div');
+                    periodHeader.className = 'grid-header';
+                    periodHeader.innerHTML = `${period.start.replace(':', '.')}-${period.end.replace(':', '.')}`;
+                    periodHeader.style.gridRow = '1';
+                    periodHeader.style.gridColumn = `${startCol} / span ${colSpan}`;
+                    timetableGrid.appendChild(periodHeader);
+                });
+                
+                for(let i = 1; i <= 5; i++) {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'grid-header sticky-day';
+                    dayHeader.textContent = thaiDays[i];
+                    dayHeader.style.gridRow = `${i + 1}`;
+                    dayHeader.style.gridColumn = '1';
+                    timetableGrid.appendChild(dayHeader);
+                }
+
+                timetableGrid.appendChild(timeIndicator);
+            };
+
+            const renderClasses = () => {
+                timetableGrid.querySelectorAll('.class-block').forEach(block => block.remove());
+                schedule.forEach((cls, index) => {
+                    const startMinutes = timeToMinutes(cls.start);
+                    const endMinutes = timeToMinutes(cls.end);
+                    const startCol = Math.floor((startMinutes - timetableStartHour * 60) / 10) + 2;
+                    const endCol = Math.floor((endMinutes - timetableStartHour * 60) / 10) + 2;
+                    if (endCol <= startCol) return;
+
+                    const classBlock = document.createElement('div');
+                    classBlock.className = 'class-block';
+                    classBlock.style.backgroundColor = cls.color;
+                    classBlock.style.gridRow = `${cls.day + 1}`;
+                    classBlock.style.gridColumn = `${startCol} / ${endCol}`;
+                    classBlock.dataset.index = index;
+
+                    if (cls.type === 'break') {
+                        classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
+                    } else {
+                        classBlock.innerHTML = `
+                            <div class="flex flex-col h-full z-10 justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <strong class="font-semibold break-words">${cls.name}</strong>
+                                        <span class="class-room-tag">${cls.room}</span>
+                                    </div>
+                                    <p class="opacity-80 mt-0.5">${cls.code}</p>
+                                </div>
+                                <div class="text-right opacity-70 pt-1 text-xs mt-auto">
+                                    คลิกดูรายละเอียด
+                                </div>
+                            </div>
+                            <div class="class-status-overlay"></div>`;
+                    }
+                    timetableGrid.appendChild(classBlock);
+                });
+            };
+
+            const updateRealTime = () => {
+                const now = new Date();
+                const currentDay = now.getDay();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH')}`;
+
+                const dayColumnWidth = window.innerWidth < 768 ? 50 : 70;
+                const gridContentWidth = timetableGrid.scrollWidth - dayColumnWidth;
+                const minutesSinceStart = currentMinutes - (timetableStartHour * 60);
+                const totalMinutesInView = (timetableEndHour - timetableStartHour) * 60;
+
+                if (currentDay >= 1 && currentDay <= 5 && minutesSinceStart >= 0 && minutesSinceStart < totalMinutesInView) {
+                    timeIndicator.style.left = `calc(${dayColumnWidth}px + ${(minutesSinceStart / totalMinutesInView) * gridContentWidth}px)`;
+                    timeIndicator.style.gridRow = `${currentDay + 1}`;
+                    timeIndicator.classList.remove('hidden');
+                } else {
+                    timeIndicator.classList.add('hidden');
+                }
+
+                const currentClass = schedule.find(c => c.day === currentDay && currentMinutes >= timeToMinutes(c.start) && currentMinutes < timeToMinutes(c.end));
+                const nextClass = schedule.find(c => (c.day === currentDay && timeToMinutes(c.start) > currentMinutes && c.type !== 'break') || (c.day > currentDay && c.type !== 'break'));
+                
+                if (currentClass) {
+                    statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน' : `กำลังเรียน: ${currentClass.name}`;
+                    statusBar.style.backgroundColor = currentClass.type === 'break' ? '#94a3b8' : 'var(--vru-green)';
+                } else if (nextClass) {
+                    statusBar.textContent = `ว่าง | คาบต่อไป: ${nextClass.name} (${thaiDays[nextClass.day]} ${nextClass.start})`;
+                    statusBar.style.backgroundColor = '#38bdf8'; // sky-400
+                } else {
+                    statusBar.textContent = (currentDay === 0 || currentDay === 6) ? 'วันนี้เป็นวันหยุด' : 'หมดคาบเรียนสำหรับวันนี้แล้ว';
+                    statusBar.style.backgroundColor = '#9ca3af'; // gray-400
+                }
+
+                document.querySelectorAll('.class-block').forEach(block => {
+                    block.classList.remove('current', 'finishing-soon', 'prepare-next');
+                    const overlay = block.querySelector('.class-status-overlay');
+                    if (overlay) overlay.style.display = 'none';
+
+                    const cls = schedule[parseInt(block.dataset.index)];
+                    if (!cls) return;
+
+                    const startMins = timeToMinutes(cls.start);
+                    const endMins = timeToMinutes(cls.end);
+
+                    if (cls === currentClass && cls.type !== 'break') {
+                        block.classList.add('current');
+                        const timeLeft = endMins - currentMinutes;
+                        if (timeLeft <= 15 && overlay) {
+                            block.classList.add('finishing-soon');
+                            overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
+                            overlay.style.display = 'flex';
+                        }
+                    } else {
+                        const timeToNext = startMins - currentMinutes;
+                        if (cls.day === currentDay && timeToNext > 0 && timeToNext <= 15 && overlay) {
+                            block.classList.add('prepare-next');
+                            overlay.textContent = `เตรียมตัว (${timeToNext} นาที)`;
+                            overlay.style.display = 'flex';
+                        }
+                    }
+                });
+            };
+
+            const modal = document.getElementById('class-modal');
+            const modalBody = document.getElementById('modal-body');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            const openModal = (cls) => {
+                if (!cls || cls.type === 'break') return;
+                let topicsHtml = cls.topics && cls.topics.length > 0 ? `<div class="border-t border-slate-200 my-3"></div><div><strong class="text-slate-600">หัวข้อการเรียนหลัก:</strong><ul class="list-disc pl-5 mt-1 text-slate-500 text-sm">${cls.topics.map(t => `<li>${t}</li>`).join('')}</ul></div>` : '';
+                let imageHtml = cls.imageUrl ? `<img src="${cls.imageUrl}" alt="ภาพประกอบวิชา ${cls.name}" class="w-full h-48 object-cover rounded-lg my-4" onerror="this.style.display='none'">` : '';
+
+                modalBody.innerHTML = `
+                    <div class="pt-4">
+                        <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
+                        ${imageHtml}
+                        <div class="border-t border-slate-200 mt-4 mb-3"></div>
+                        <p class="text-sm my-1"><strong class="text-slate-600 w-28 inline-block">รหัสวิชา:</strong> ${cls.code}</p>
+                        <p class="text-sm my-1"><strong class="text-slate-600 w-28 inline-block">กลุ่มเรียน:</strong> ${cls.section}</p>
+                        <p class="text-sm my-1"><strong class="text-slate-600 w-28 inline-block">อาจารย์ผู้สอน:</strong> ${cls.instructor}</p>
+                        <p class="text-sm my-1"><strong class="text-slate-600 w-28 inline-block">เวลา:</strong> ${cls.start} - ${cls.end}</p>
+                        <p class="text-sm my-1"><strong class="text-slate-600 w-28 inline-block">ห้องเรียน:</strong> ${cls.room}</p>
+                        <div class="border-t border-slate-200 my-3"></div>
+                        <div><strong class="text-slate-600">คำอธิบายรายวิชา:</strong><p class="text-slate-500 mt-1 text-sm">${cls.description}</p></div>
+                        ${topicsHtml}
+                    </div>`;
+                modal.classList.add('visible');
+            };
+            const closeModal = () => modal.classList.remove('visible');
+
+            timetableGrid.addEventListener('click', (e) => {
+                const classBlock = e.target.closest('.class-block');
+                if (classBlock) openModal(schedule[parseInt(classBlock.dataset.index)]);
+            });
+            modalCloseBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            setupGrid();
+            renderClasses();
+            updateRealTime();
+            setInterval(updateRealTime, 1000);
+            window.addEventListener('resize', () => {
+                setTimeout(updateRealTime, 250);
+            });
+        });
+    </script>
+</body>
+</html>
