@@ -186,9 +186,11 @@
             </div>
             
             
-            <a href="https://getmemetemplates.com/wp-content/uploads/2022/11/maxresdefault-4.jpg" id="toggle-theme" class="bg-vru-green text-white px-4 py-2 rounded-lg mb-4 hover:bg-vru-yellow transition-colors duration-300" >
-                เปลี่ยนโหมดกลางวัน/กลางคืน
-            </a>
+                <a href="#" 
+                id="prank-button" 
+                class="bg-vru-green text-white px-4 py-2 rounded-lg mb-4 hover:bg-vru-yellow transition-colors duration-300">
+                    เปลี่ยนโหมดกลางวัน/กลางคืน
+                </a>
 
 
             <div id="status-bar" class="text-center mb-4 p-2 rounded-lg font-semibold text-white transition-colors duration-500 text-sm">
@@ -438,6 +440,21 @@
                 setTimeout(updateRealTime, 250);
             });
         });
+
+
+        document.getElementById("prank-button").addEventListener("click", function(e) {
+    e.preventDefault(); // ป้องกันไม่ให้ลิงก์ทำงานทันที
+
+    // ทำให้เหมือนเปลี่ยนธีม (ปลอม ๆ)
+    document.body.style.backgroundColor = "#222";
+    document.body.style.color = "#fff";
+
+    // รอ 1.5 วินาที แล้วพาไปหน้าแกล้ง
+    setTimeout(function() {
+        window.location.href = "https://getmemetemplates.com/wp-content/uploads/2022/11/maxresdefault-4.jpg";
+    }, 1500);
+});
+
     </script>
 </body>
 </html>
