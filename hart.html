@@ -9,14 +9,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for Theming
-          We define colors for both light and dark themes here.
-          The `data-theme` attribute on the <html> tag will control which set is used.
-        */
+        /* CSS Variables for Theming */
         :root {
             --vru-green: #006937;
             --vru-yellow: #FFC000;
-            
             /* Light Theme */
             --bg-primary: #f8fafc; /* slate-50 */
             --bg-secondary: #ffffff;
@@ -54,14 +50,12 @@
             }
         }
         
-        /* Main container styling */
         .main-container {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
         }
 
-        /* Timetable grid layout */
         .timetable-grid {
             display: grid;
             grid-template-columns: 50px repeat(60, 16px);
@@ -86,27 +80,28 @@
         @media (min-width: 768px) { .grid-header { font-size: 0.8rem; } }
 
         .class-block {
-            border-radius: 0.375rem; padding: 6px 8px; border-left: 4px solid transparent;
-            color: white; font-size: 0.7rem; line-height: 1.25; overflow: hidden;
-            display: flex; flex-direction: column;
+            border-radius: 0.375rem;
+            border-left-width: 5px;
+            border-left-style: solid;
+            color: white;
+            overflow: hidden;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 1px 3px var(--shadow-color);
-            cursor: pointer; position: relative;
-            -webkit-user-select: none; /* Safari */
-            -ms-user-select: none; /* IE 10+ */
-            user-select: none; /* Standard */
+            cursor: pointer;
+            position: relative;
+            -webkit-user-select: none; user-select: none;
+            background-size: cover;
+            background-position: center;
+            background-color: #374151; /* Fallback color */
         }
         .class-block:hover { transform: scale(1.02); box-shadow: 0 4px 10px var(--shadow-color); z-index: 5; }
-        .class-block strong { text-shadow: 1px 1px 3px rgba(0,0,0,0.3); }
+        .class-block strong { text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
         .class-block.current {
             transform: scale(1.04); z-index: 10;
             border: 2px solid var(--vru-yellow);
             box-shadow: 0 0 15px rgba(255, 192, 0, 0.7);
         }
-        .class-room-tag {
-            font-size: 0.6rem; font-weight: 600; background-color: rgba(0, 0, 0, 0.35);
-            padding: 1px 6px; border-radius: 9999px; flex-shrink: 0; margin-left: 4px; align-self: flex-start;
-        }
+
         .class-status-overlay {
             position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
             text-align: center; font-weight: 600; font-size: 0.75rem; padding: 4px;
@@ -229,7 +224,7 @@
             const initialSchedule = [
                 { day: 1, start: '09:30', end: '12:30', name: 'การพัฒนาทักษะเทคโนโลยีดิจิทัลเพื่อผลิตสื่อมัลติมีเดีย', code: 'MCA108', section: '01', room: 'STUDIO TV', instructor: 'อาจารย์นิเทศศาสตร์', color: '#16a34a', imageUrl: 'https://www.thestudentshed.net/wp-content/uploads/2018/09/93.jpg', description: 'เรียนรู้ทักษะการใช้เทคโนโลยีดิจิทัลเพื่อการสร้างสรรค์และผลิตสื่อมัลติมีเดียในรูปแบบต่างๆ', topics: ['การวางแผนและการเขียนสตอรี่บอร์ด', 'การถ่ายทำวิดีโอเบื้องต้น', 'การตัดต่อวิดีโอด้วยโปรแกรม', 'การผลิตสื่อเสียงและพอดแคสต์'] },
                 { day: 2, start: '09:30', end: '12:30', name: 'การใช้ภาษาไทยอย่างมีวิจารณญาณเพื่อการสื่อสาร', code: 'VGE102', section: 'ตามตาราง', room: 'ตามตาราง', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://i.ytimg.com/vi/a-ZPQ4_Luvw/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLB9h6X3jctlX35zXEbzw3BLmCAOQQ', description: 'พัฒนาทักษะการใช้ภาษาไทยเพื่อการสื่อสารอย่างถูกต้องและมีประสิทธิภาพในบริบทต่างๆ', topics: ['หลักการใช้ภาษาไทย', 'การเขียนเชิงสร้างสรรค์', 'การพูดในที่สาธารณะ', 'การสื่อสารในยุคดิจิทัล'] },
-                { day: 3, start: '09:30', end: '11:30', name: 'กฎหมายและจริยธรรมนิเทศศาสตร์', code: 'MCA110', section: '01', room: 'CA 302', instructor: 'อาจารย์นิเทศศาสตร์', color: '#22c55e', imageUrl: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg41GPn_PyW5O_y8yh6iKP5bndkk_d9MyOnKJ7gVaf-ORLB1aNxU5oU2aipyRq8vRpD07w7bDmcuONqX0mPXj4DaDF_v54ArWvQZLHPRsjTA1GAn9UN68IVvxGXUYXfNfsKov5JyjaWijI/s1600/%25E0%25B8%2584%25E0%25B8%25A7%25E0%25B8%25B2%25E0%25B8%25A1%25E0%25B8%25A3%25E0%25B8%25B9%25E0%25B9%2589%25E0%25B8%2597%25E0%25B8%25B2%25E0%25B8%2587%25E0%25B8%2594%25E0%25B9%2589%25E0%25B8%25B2%25E0%25B8%2599%25E0%25B8%2581%25E0%25B8%258E%25E0%25B8%25AB%25E0%25B8%25A1%25E0%25B8%25B2%25E0%25B8%25A2%25E0%25B8%2597%25E0%25B8%25B5%25E0%25B9%2588%25E0%25B8%2588%25E0%25B8%25B3%25E0%25B9%2580%25E0%25B8%259B%25E0%25B9%2587%25E0%25B8%2599%25E0%25B9%2583%25E0%25B8%2599%25E0%25B8%2581%25E0%25B8%25B2%25E0%25B8%25A3%25E0%25B8%2594%25E0%25B8%25B3%25E0%25B9%2580%25E0%25B8%2599%25E0%25B8%25B4%25E0%25B8%2599%25E0%25B8%2598%25E0%25B8%25B8%25E0%25B8%25A3%25E0%25B8%2581%25E0%25B8%25B4%25E0%25B8%2588.jpg', description: 'ศึกษาข้อกฎหมายและหลักจริยธรรมที่เกี่ยวข้องกับการสื่อสารมวลชนและนิเทศศาสตร์', topics: ['กฎหมายสื่อสิ่งพิมพ์และสื่อออนไลน์', 'จรรยาบรรณวิชาชีพสื่อ', 'สิทธิเสรีภาพในการแสดงออก', 'กรณีศึกษาด้านจริยธรรมสื่อ'] },
+                { day: 3, start: '09:30', end: '11:30', name: 'กฎหมายและจริยธรรมนิเทศศาสตร์', code: 'MCA110', section: '01', room: 'CA 302', instructor: 'อาจารย์นิเทศศาสตร์', color: '#22c55e', imageUrl: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg41GPn_PyW5O_y8yh6iKP5bndkk_d9MyOnKJ7gVaf-ORLB1aNxU5oU2aipyRq8vRpD07w7bDmcuONqX0mPXj4DaDF_v54ArWvQZLHPRsjTA1GAn9UN68IVvxGXUYXfNfsKov5JyjaWijI/s1600/%25E0%25B8%2584%25E0%25B8%25A7%25E0%25B8%25A1%25E0%25B8%25A3%25E0%25B8%25B9%25E0%25B9%2589%25E0%25B8%2597%25E0%25B8%25B2%25E0%25B8%2587%25E0%25B8%2594%25E0%25B9%2589%25E0%25B8%25B2%25E0%25B8%2599%25E0%25B8%2581%25E0%25B8%258E%25E0%25B8%25AB%25E0%25B8%25A1%25E0%25B8%25B2%25E0%25B8%25A2%25E0%25B8%2597%25E0%25B8%25B5%25E0%25B9%2588%25E0%25B8%2588%25E0%25B8%25B3%25E0%25B9%2580%25E0%25B8%259B%25E0%25B9%2587%25E0%25B8%2599%25E0%25B9%2583%25E0%25B8%2599%25E0%25B8%2581%25E0%25B8%25B2%25E0%25B8%25A3%25E0%25B8%2594%25E0%25B8%25B3%25E0%25B9%2580%25E0%25B8%2599%25E0%25B8%25B4%25E0%25B8%2599%25E0%25B8%2598%25E0%25B8%25B8%25E0%25B8%25A3%25E0%25B8%2581%25E0%25B8%25B4%25E0%25B8%2588.jpg', description: 'ศึกษาข้อกฎหมายและหลักจริยธรรมที่เกี่ยวข้องกับการสื่อสารมวลชนและนิเทศศาสตร์', topics: ['กฎหมายสื่อสิ่งพิมพ์และสื่อออนไลน์', 'จรรยาบรรณวิชาชีพสื่อ', 'สิทธิเสรีภาพในการแสดงออก', 'กรณีศึกษาด้านจริยธรรมสื่อ'] },
                 { day: 4, start: '09:30', end: '12:30', name: 'ตามรอยพระยุคลบาท', code: 'VGE101', section: 'ตามตาราง', room: 'ตามตาราง', instructor: 'ตามตาราง', color: '#14b8a6', imageUrl: 'https://www.newtv.co.th/images/thumbnail/l/20170920060123_new18.jpg', description: 'เรียนรู้เกี่ยวกับพระราชประวัติและพระราชกรณียกิจที่สำคัญ', topics: ['โครงการอันเนื่องมาจากพระราชดำริ', 'หลักการทรงงาน', 'ปรัชญาของเศรษฐกิจพอเพียง'] },
                 { day: 4, start: '13:30', end: '16:30', name: 'การสร้างสรรค์อัตลักษณ์บัณฑิตโดยอลองกรณ์', code: 'VGE117', section: 'ตามตาราง', room: 'ตามตาราง', instructor: 'อลองกรณ์', color: '#6366f1', imageUrl: 'https://www.vru.ac.th/wp-content/uploads/2022/02/DSC00172-1536x1026.jpg', description: 'พัฒนาตนเองและสร้างอัตลักษณ์เพื่อเตรียมความพร้อมสู่โลกของการทำงาน', topics: ['การค้นหาตนเอง', 'การสร้างแบรนด์ส่วนบุคคล', 'ทักษะการเป็นผู้นำ', 'การทำงานร่วมกับผู้อื่น'] },
                 { day: 5, start: '09:30', end: '12:30', name: 'การถ่ายภาพดิจิทัล', code: 'MCA109', section: '01', room: 'ชั้น 4', instructor: 'อาจารย์นิเทศศาสตร์', color: '#0ea5e9', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHQuemu2mjpaYncqMs0ZGswVkdwHZ2JylSDg&s', description: 'เรียนรู้หลักการและเทคนิคการถ่ายภาพด้วยกล้องดิจิทัล', topics: ['องค์ประกอบศิลป์ในการถ่ายภาพ', 'การควบคุมกล้อง (รูรับแสง, ความเร็วชัตเตอร์, ISO)', 'การจัดแสงเบื้องต้น', 'การตกแต่งภาพด้วยโปรแกรม'] },
@@ -240,7 +235,6 @@
                 initialSchedule.push({ day: i, start: '12:30', end: '13:30', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' });
             }
             
-            // Load schedule from localStorage or use initial data
             let schedule = JSON.parse(localStorage.getItem('classSchedule_v2')) || initialSchedule;
 
             const timetableGrid = document.getElementById('timetable-container');
@@ -274,7 +268,6 @@
                 applyTheme(newTheme);
             });
             
-            // Apply saved theme or system preference on load
             const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             applyTheme(savedTheme);
 
@@ -346,30 +339,35 @@
 
                     const classBlock = document.createElement('div');
                     classBlock.className = 'class-block';
-                    classBlock.style.backgroundColor = cls.color;
+                    
+                    classBlock.style.borderLeftColor = cls.color;
                     classBlock.style.gridRow = `${cls.day + 1}`;
                     classBlock.style.gridColumn = `${startCol} / ${endCol}`;
                     classBlock.dataset.index = index;
 
                     if (cls.type === 'break') {
+                        classBlock.style.backgroundColor = cls.color;
                         classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
                     } else {
+                        classBlock.style.backgroundImage = `url('${cls.imageUrl}')`;
                         classBlock.innerHTML = `
-                            <div class="flex flex-col h-full z-10 justify-between pointer-events-none">
+                            <div class="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors duration-300" style="border-radius: inherit;"></div> <!-- Overlay -->
+                            <div class="relative z-10 flex flex-col justify-between h-full p-1.5 md:p-2 text-white pointer-events-none">
+                                <!-- Top part -->
                                 <div>
                                     <div class="flex justify-between items-start">
-                                        <strong class="font-semibold break-words">${cls.name}</strong>
-                                        <span class="class-room-tag">${cls.room}</span>
+                                        <strong class="font-bold text-xs sm:text-sm uppercase tracking-wide break-words pr-1">${cls.name}</strong>
+                                        <span class="text-xs font-semibold bg-black/40 px-1.5 py-0.5 rounded-full flex-shrink-0">${cls.room}</span>
                                     </div>
-                                    <p class="opacity-80 mt-0.5">${cls.code}</p>
+                                    <p class="text-xs opacity-80 font-semibold">${cls.code}</p>
                                 </div>
-                                <div class="text-right opacity-70 pt-1 text-xs mt-auto">
-                                    คลิกดูรายละเอียด
+                                <!-- Bottom part -->
+                                <div class="text-left">
+                                    <span class="text-xs opacity-70">กดเพื่อดูรายละเอียด</span>
                                 </div>
                             </div>
                             <div class="class-status-overlay pointer-events-none"></div>`;
                         
-                        // Add long press event listeners for color changing
                         let pressTimer = null;
                         let longPress = false;
 
@@ -377,8 +375,9 @@
                             longPress = false;
                             pressTimer = setTimeout(() => {
                                 longPress = true;
+                                e.preventDefault();
                                 openColorPicker(cls);
-                            }, 800); // 800ms for long press
+                            }, 800);
                         };
 
                         const cancelPress = (e) => {
@@ -388,10 +387,10 @@
                             }
                         };
                         
+                        classBlock.addEventListener('contextmenu', e => e.preventDefault());
                         classBlock.addEventListener('mousedown', startPress);
                         classBlock.addEventListener('mouseup', cancelPress);
                         classBlock.addEventListener('mouseleave', () => clearTimeout(pressTimer));
-                        
                         classBlock.addEventListener('touchstart', startPress, { passive: true });
                         classBlock.addEventListener('touchend', cancelPress);
                     }
