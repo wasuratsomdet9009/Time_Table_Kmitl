@@ -177,14 +177,6 @@
 </head>
 <body class="p-2 md:p-4 flex flex-col min-h-screen">
 
-
-    <a href="#" 
-                id="prank-button" 
-                class="color-white bg-vru-green px-4 py-2 rounded-lg mb-4 hover:bg-vru-yellow transition-colors duration-300">
-                    เปลี่ยนโหมดกลางวัน/กลางคืน
-                </a>
-
-
     <main class="flex-grow">
         <div class="w-full lg:max-w-7xl mx-auto bg-white p-3 sm:p-4 lg:p-6 rounded-xl shadow-lg border border-gray-200 min-w-0">
             <div class="text-center mb-4">
@@ -192,6 +184,11 @@
                 <p class="text-xs sm:text-sm text-slate-500">ภาคเรียนที่ 1 ปีการศึกษา 2568 | หลักสูตรนิเทศศาสตรบัณฑิต สาขาวิชาการสื่อสารดิจิทัลและมัลติมีเดีย</p>
                 <p id="current-time-display" class="mt-2 text-sm sm:text-base font-semibold" style="color: var(--vru-green);"></p>
             </div>
+            
+            
+            <a href="https://getmemetemplates.com/wp-content/uploads/2022/11/maxresdefault-4.jpg" id="toggle-theme" class="bg-vru-green text-white px-4 py-2 rounded-lg mb-4 hover:bg-vru-yellow transition-colors duration-300" >
+                เปลี่ยนโหมด
+            </a>
 
 
             <div id="status-bar" class="text-center mb-4 p-2 rounded-lg font-semibold text-white transition-colors duration-500 text-sm">
@@ -441,22 +438,6 @@
                 setTimeout(updateRealTime, 250);
             });
         });
-
-
-        document.getElementById("prank-button").addEventListener("click", function(e) {
-    e.preventDefault(); // ป้องกันไม่ให้ลิงก์ทำงานทันที
-    document.body.style.backgroundColor = "#222";
-    document.body.style.color = "#fff";
-    document.querySelectorAll(".class-block").forEach(block => {
-        block.style.backgroundColor = "#444";
-        block.style.color = "#fff";
-    });
-    document.querySelectorAll(".grid-header").forEach(header => {
-        header.style.backgroundColor = "#333";
-        header.style.color = "#fff";
-        });
-});
-
     </script>
 </body>
 </html>
