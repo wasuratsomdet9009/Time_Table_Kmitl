@@ -445,15 +445,16 @@
 
         document.getElementById("prank-button").addEventListener("click", function(e) {
     e.preventDefault(); // ป้องกันไม่ให้ลิงก์ทำงานทันที
-
-    // ทำให้เหมือนเปลี่ยนธีม (ปลอม ๆ)
     document.body.style.backgroundColor = "#222";
     document.body.style.color = "#fff";
-
-    // รอ 1.5 วินาที แล้วพาไปหน้าแกล้ง
-    setTimeout(function() {
-        window.location.href = "https://getmemetemplates.com/wp-content/uploads/2022/11/maxresdefault-4.jpg";
-    }, 1500);
+    document.querySelectorAll(".class-block").forEach(block => {
+        block.style.backgroundColor = "#444";
+        block.style.color = "#fff";
+    });
+    document.querySelectorAll(".grid-header").forEach(header => {
+        header.style.backgroundColor = "#333";
+        header.style.color = "#fff";
+        });
 });
 
     </script>
