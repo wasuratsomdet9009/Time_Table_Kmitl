@@ -368,31 +368,65 @@
                             </div>
                             <div class="class-status-overlay pointer-events-none"></div>`;
                         
+                        // --- IMPROVED TOUCH/CLICK HANDLING ---
                         let pressTimer = null;
-                        let longPress = false;
+                        let interactionHandled = false;
+                        let startX, startY;
+                        const dragThreshold = 10; // Pixels to move before it's a drag
 
-                        const startPress = (e) => {
-                            longPress = false;
+                        const handlePressStart = (e) => {
+                            interactionHandled = false;
+                            const point = e.changedTouches ? e.changedTouches[0] : e;
+                            startX = point.clientX;
+                            startY = point.clientY;
+
                             pressTimer = setTimeout(() => {
-                                longPress = true;
-                                e.preventDefault();
+                                // Long press triggered
+                                interactionHandled = true;
+                                // e.preventDefault(); // Can't preventDefault with passive listener
                                 openColorPicker(cls);
                             }, 800);
                         };
 
-                        const cancelPress = (e) => {
+                        const handlePressMove = (e) => {
+                            if (interactionHandled) return;
+                            if (pressTimer) {
+                                const point = e.changedTouches ? e.changedTouches[0] : e;
+                                const deltaX = Math.abs(point.clientX - startX);
+                                const deltaY = Math.abs(point.clientY - startY);
+
+                                if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                                    clearTimeout(pressTimer);
+                                    pressTimer = null;
+                                    interactionHandled = true;
+                                }
+                            }
+                        };
+
+                        const handlePressEnd = (e) => {
                             clearTimeout(pressTimer);
-                            if (!longPress) {
+                            pressTimer = null;
+                            if (!interactionHandled) {
                                 openModal(cls);
                             }
                         };
                         
+                        const handlePressLeave = () => {
+                            clearTimeout(pressTimer);
+                            pressTimer = null;
+                            interactionHandled = true; // Consider leaving as a handled interaction
+                        };
+
                         classBlock.addEventListener('contextmenu', e => e.preventDefault());
-                        classBlock.addEventListener('mousedown', startPress);
-                        classBlock.addEventListener('mouseup', cancelPress);
-                        classBlock.addEventListener('mouseleave', () => clearTimeout(pressTimer));
-                        classBlock.addEventListener('touchstart', startPress, { passive: true });
-                        classBlock.addEventListener('touchend', cancelPress);
+                        // Mouse events
+                        classBlock.addEventListener('mousedown', handlePressStart);
+                        classBlock.addEventListener('mousemove', handlePressMove);
+                        classBlock.addEventListener('mouseup', handlePressEnd);
+                        classBlock.addEventListener('mouseleave', handlePressLeave);
+                        // Touch events
+                        classBlock.addEventListener('touchstart', handlePressStart, { passive: true });
+                        classBlock.addEventListener('touchmove', handlePressMove, { passive: true });
+                        classBlock.addEventListener('touchend', handlePressEnd);
                     }
                     timetableGrid.appendChild(classBlock);
                 });
