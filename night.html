@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="th" data-theme="light"> <head>
+<html lang="th" data-theme="light"> <!-- Default theme is light -->
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ตารางเรียน (ม.ศิลปากร) - Enhanced</title>
@@ -77,6 +78,7 @@
             background-color: var(--bg-tertiary);
             color: var(--text-secondary);
             line-height: 1.2; text-align: center; white-space: nowrap;
+            padding: 0 2px;
         }
         @media (min-width: 768px) { .grid-header { font-size: 0.8rem; } }
 
@@ -166,6 +168,7 @@
                     <p id="current-time-display" class="mt-2 text-sm sm:text-base font-semibold" style="color: var(--su-green);"></p>
                 </div>
                 <button id="theme-toggle-btn" class="p-2 rounded-full text-secondary hover:bg-tertiary transition-colors duration-200" aria-label="Toggle theme">
+                    <!-- Sun and Moon Icons -->
                     <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
                     <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 </button>
@@ -177,7 +180,33 @@
     
             <div class="relative overflow-x-auto shadow-inner rounded-lg bg-primary">
                 <div id="timetable-container" class="timetable-grid">
+                    <!-- Timetable will be generated here by JavaScript -->
                     <div id="real-time-indicator" class="hidden"></div>
+                </div>
+            </div>
+
+            <!-- Additional Classes Section -->
+            <div id="additional-classes" class="mt-6">
+                <h2 class="text-md sm:text-lg font-bold" style="color: var(--text-header);">รายวิชาเพิ่มเติม / นอกตาราง</h2>
+                <div class="mt-2 p-4 rounded-lg bg-primary border border-color">
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-secondary">
+                        <li>
+                            <strong class="text-primary">SU101-162 ศิลปะศิลปากร</strong> (กลุ่ม 5002M1 และ 5002M2):
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">ยังไม่กำหนดเวลาเรียน</span>
+                        </li>
+                         <li>
+                            <strong class="text-primary">SU162-162 ข่าวสารในชีวิตประจำวัน</strong> (กลุ่ม 1301F1):
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">ยังไม่กำหนดเวลาเรียน</span>
+                        </li>
+                        <li>
+                            <strong class="text-primary">SU301-162 พลเมืองตื่นรู้</strong> (กลุ่ม 5006M1):
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">นัดเรียนเฉพาะวันเสาร์ที่ 30 ส.ค. 2568 เวลา 17:00-19:00</span>
+                        </li>
+                        <li>
+                            <strong class="text-primary">SU301-162 พลเมืองตื่นรู้</strong> (กลุ่ม 5006F3):
+                            <span class="bg-yellow-100 text-yellow-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">ยังไม่กำหนดเวลาเรียน</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -203,6 +232,7 @@
         </div>
     </footer>
 
+    <!-- Class Details Modal -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-content">
             <button id="modal-close-btn" aria-label="Close modal">&times;</button>
@@ -210,6 +240,7 @@
         </div>
     </div>
     
+    <!-- Color Picker Modal -->
     <div id="color-picker-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="text-lg font-semibold mb-4 text-center text-primary">เลือกสีใหม่</h3>
@@ -237,7 +268,7 @@
                 { day: 4, start: '12:05', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' }
             ];
             
-            let schedule = JSON.parse(localStorage.getItem('classSchedule_silpakorn_v1')) || initialSchedule;
+            let schedule = JSON.parse(localStorage.getItem('classSchedule_silpakorn_v2')) || initialSchedule;
 
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
@@ -245,7 +276,7 @@
             const statusBar = document.getElementById('status-bar');
             const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
             const timetableStartHour = 8;
-            const timetableEndHour = 19; // Extended to 7 PM
+            const timetableEndHour = 19; 
             const colorPalette = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e'];
 
             // --- THEME MANAGEMENT ---
@@ -281,7 +312,7 @@
             };
 
             const saveSchedule = () => {
-                localStorage.setItem('classSchedule_silpakorn_v1', JSON.stringify(schedule));
+                localStorage.setItem('classSchedule_silpakorn_v2', JSON.stringify(schedule));
             };
 
             schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
