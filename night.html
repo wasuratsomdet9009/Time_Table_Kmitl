@@ -213,8 +213,8 @@
     </main>
 
     <footer class="text-center p-3 mt-6 text-secondary text-xs">
-        <p>จัดทำโดย: นักศึกษาปริญญาตรี นายวสุรัชต์ สมเด็จ 68030263</p>
-        <p style="color:orange;">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
+        <p>จัดทำโดย: นักศึกษาปริญญาตรี นายวสุรัชต์ สมเด็จ</p>
+        <p style="color:orange;">มหาวิทยาลัยศิลปากร</p>
         <div class="flex justify-center items-center space-x-4 mt-2">
             <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
@@ -255,20 +255,22 @@
             // --- DATA & CONFIG ---
             const initialSchedule = [
                 // Monday
-                { day: 1, start: '08:30', end: '11:10', name: 'ทฤษฎีนิเทศศาสตร์', code: '803103-165', section: 'MT404', room: 'ห้องคอม', instructor: 'ตามตาราง', color: '#22c55e', imageUrl: 'https://images.unsplash.com/photo-1585241936939-be4099591252?q=80&w=2070&auto=format&fit=crop', description: 'ศึกษาทฤษฎีและแนวคิดพื้นฐานทางนิเทศศาสตร์ เพื่อความเข้าใจในกระบวนการสื่อสารและผลกระทบต่อสังคม', topics: ['โมเดลการสื่อสาร', 'ทฤษฎีสื่อสารมวลชน', 'การสื่อสารระหว่างบุคคล', 'การวิเคราะห์ผู้รับสาร'] },
+                { day: 1, start: '13:00', end: '14:50', name: 'ทฤษฎีนิเทศศาสตร์', code: '803103-165', section: '2', room: 'MT404', instructor: 'ตามตาราง', color: '#22c55e', imageUrl: 'https://images.unsplash.com/photo-1585241936939-be4099591252?q=80&w=2070&auto=format&fit=crop', description: 'ศึกษาทฤษฎีและแนวคิดพื้นฐานทางนิเทศศาสตร์ เพื่อความเข้าใจในกระบวนการสื่อสารและผลกระทบต่อสังคม', topics: ['โมเดลการสื่อสาร', 'ทฤษฎีสื่อสารมวลชน', 'การสื่อสารระหว่างบุคคล', 'การวิเคราะห์ผู้รับสาร'] },
                 // Tuesday
-                { day: 2, start: '08:30', end: '09:25', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5006', room: 'ออนไลน์', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
-                { day: 2, start: '16:40', end: '18:30', name: 'ข่าวสารในชีวิตประจำวัน', code: 'SU162-162', section: '1301', room: 'MT406-407', instructor: 'ตามตาราง', color: '#14b8a6', imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070&auto=format&fit=crop', description: 'เรียนรู้การวิเคราะห์ แยกแยะ และประเมินความน่าเชื่อถือของข่าวสารในยุคข้อมูลข่าวสาร', topics: ['ประเภทของข่าว', 'การตรวจสอบข้อเท็จจริง (Fact-checking)', 'จรรยาบรรณสื่อ', 'ผลกระทบของข่าวปลอม'] },
+                { day: 2, start: '09:25', end: '11:10', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5002', room: 'ออนไลน์', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
+                { day: 2, start: '15:45', end: '17:30', name: 'ข่าวสารในชีวิตประจำวัน', code: 'SU162-162', section: '1301', room: 'MT406-407', instructor: 'ตามตาราง', color: '#14b8a6', imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070&auto=format&fit=crop', description: 'เรียนรู้การวิเคราะห์ แยกแยะ และประเมินความน่าเชื่อถือของข่าวสารในยุคข้อมูลข่าวสาร', topics: ['ประเภทของข่าว', 'การตรวจสอบข้อเท็จจริง (Fact-checking)', 'จรรยาบรรณสื่อ', 'ผลกระทบของข่าวปลอม'] },
                 // Wednesday
-                { day: 3, start: '09:25', end: '12:05', name: 'คอมพิวเตอร์กราฟิก', code: '803101-1651', section: '5', room: 'MT312', instructor: 'ตามตาราง', color: '#0ea5e9', imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2071&auto=format&fit=crop', description: 'เรียนรู้หลักการและเครื่องมือในการสร้างสรรค์ผลงานคอมพิวเตอร์กราฟิก ทั้งภาพนิ่งและภาพเคลื่อนไหว', topics: ['ทฤษฎีสีและองค์ประกอบศิลป์', 'โปรแกรม Adobe Photoshop', 'โปรแกรม Adobe Illustrator', 'หลักการออกแบบกราฟิก'] },
+                { day: 3, start: '09:25', end: '12:05', name: 'คอมพิวเตอร์กราฟิก', code: '803101-1651', section: '5', room: 'MT312 (LabPC2)', instructor: 'ตามตาราง', color: '#0ea5e9', imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2071&auto=format&fit=crop', description: 'เรียนรู้หลักการและเครื่องมือในการสร้างสรรค์ผลงานคอมพิวเตอร์กราฟิก ทั้งภาพนิ่งและภาพเคลื่อนไหว', topics: ['ทฤษฎีสีและองค์ประกอบศิลป์', 'โปรแกรม Adobe Photoshop', 'โปรแกรม Adobe Illustrator', 'หลักการออกแบบกราฟิก'] },
                 // Thursday
-                { day: 4, start: '08:30', end: '12:05', name: 'หลักการสื่อสาร', code: '803102-165', section: '3', room: 'MT404', instructor: 'ตามตาราง', color: '#6366f1', imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop', description: 'สำรวจองค์ประกอบและหลักการพื้นฐานของการสื่อสารที่มีประสิทธิภาพในบริบทต่างๆ', topics: ['ผู้ส่งสารและผู้รับสาร', 'ช่องทางการสื่อสาร', 'อุปสรรคในการสื่อสาร', 'การสื่อสารแบบวัจนภาษาและอวัจนภาษา'] },
-                { day: 4, start: '13:00', end: '14:50', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5006', room: 'MT302', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
+                { day: 4, start: '08:30', end: '09:20', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5002', room: 'ออนไลน์', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
+                // Friday
+                { day: 5, start: '08:30', end: '12:05', name: 'หลักการสื่อสาร', code: '803102-165', section: '3', room: 'MT404', instructor: 'ตามตาราง', color: '#6366f1', imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop', description: 'สำรวจองค์ประกอบและหลักการพื้นฐานของการสื่อสารที่มีประสิทธิภาพในบริบทต่างๆ', topics: ['ผู้ส่งสารและผู้รับสาร', 'ช่องทางการสื่อสาร', 'อุปสรรคในการสื่อสาร', 'การสื่อสารแบบวัจนภาษาและอวัจนภาษา'] },
+                { day: 5, start: '13:00', end: '14:50', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5006', room: 'MT302', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
                 // Breaks
-                { day: 4, start: '12:05', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' }
+                { day: 5, start: '12:05', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' }
             ];
             
-            let schedule = JSON.parse(localStorage.getItem('classSchedule_silpakorn_v2')) || initialSchedule;
+            let schedule = JSON.parse(localStorage.getItem('classSchedule_silpakorn_v3')) || initialSchedule;
 
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
@@ -312,7 +314,7 @@
             };
 
             const saveSchedule = () => {
-                localStorage.setItem('classSchedule_silpakorn_v2', JSON.stringify(schedule));
+                localStorage.setItem('classSchedule_silpakorn_v3', JSON.stringify(schedule));
             };
 
             schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
