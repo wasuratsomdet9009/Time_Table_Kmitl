@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางเรียน (ม.ศิลปากร) - Enhanced</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            --su-purple: #8A2BE2; /* A representative purple for Silpakorn */
+            --su-green: #006C5F;
+            --su-yellow: #FFC72C;
+            /* Light Theme */
+            --bg-primary: #f8fafc; /* slate-50 */
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e2e8f0; /* slate-200 */
+            --text-primary: #1e293b; /* slate-800 */
+            --text-secondary: #64748b; /* slate-500 */
+            --text-header: var(--su-green);
+            --border-color: #e2e8f0; /* slate-200 */
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        html[data-theme='dark'] {
+            --bg-primary: #0f172a; /* slate-900 */
+            --bg-secondary: #1e293b; /* slate-800 */
+            --bg-tertiary: #334155; /* slate-700 */
+            --text-primary: #f1f5f9; /* slate-100 */
+            --text-secondary: #94a3b8; /* slate-400 */
+            --text-header: #93c5fd; /* A lighter blue for dark mode */
+            --border-color: #334155; /* slate-700 */
+            --shadow-color: rgba(0,0,0,0.25);
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+                background-color: var(--bg-tertiary);
+            }
+        }
+        
+        .main-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+        }
+
+        .timetable-grid {
+            display: grid;
+            /* (19:00 - 8:00) = 11 hours = 660 mins = 66 columns of 10 mins */
+            grid-template-columns: 50px repeat(66, 16px);
+            grid-template-rows: 40px repeat(5, minmax(60px, auto));
+            gap: 1px;
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .timetable-grid {
+                grid-template-columns: 70px repeat(66, 24px);
+                grid-template-rows: 50px repeat(5, minmax(70px, auto));
+            }
+        }
+
+        .grid-header {
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 500; font-size: 0.65rem; border-radius: 0.25rem;
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            line-height: 1.2; text-align: center; white-space: nowrap;
+        }
+        @media (min-width: 768px) { .grid-header { font-size: 0.8rem; } }
+
+        .class-block {
+            border-radius: 0.375rem;
+            border-left-width: 5px;
+            border-left-style: solid;
+            color: white;
+            overflow: hidden;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            cursor: pointer;
+            position: relative;
+            -webkit-user-select: none; user-select: none;
+            background-size: cover;
+            background-position: center;
+            background-color: #374151; /* Fallback color */
+        }
+        .class-block:hover { transform: scale(1.02); box-shadow: 0 4px 10px var(--shadow-color); z-index: 5; }
+        .class-block strong { text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        .class-block.current {
+            transform: scale(1.04); z-index: 10;
+            border: 2px solid var(--su-yellow);
+            box-shadow: 0 0 15px rgba(255, 199, 44, 0.7);
+        }
+
+        .class-status-overlay {
+            position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+            text-align: center; font-weight: 600; font-size: 0.75rem; padding: 4px;
+            border-radius: 0.375rem; /* Match parent */
+        }
+        .finishing-soon .class-status-overlay { display: flex; background-color: rgba(220, 38, 38, 0.75); }
+        .prepare-next .class-status-overlay { display: flex; background-color: rgba(59, 130, 246, 0.75); }
+
+        #real-time-indicator {
+            position: absolute; top: 40px; bottom: 0; width: 3px; background: var(--su-yellow);
+            z-index: 20; pointer-events: none; transition: all 1s linear;
+            box-shadow: 0 0 8px 2px var(--su-yellow); border-radius: 2px;
+        }
+        @media (min-width: 768px) { #real-time-indicator { top: 50px; } }
+        #real-time-indicator::before {
+            content: ''; position: absolute; top: -8px; left: 50%; width: 16px; height: 16px;
+            background-color: var(--su-yellow); border-radius: 9999px;
+            border: 3px solid var(--bg-secondary); transform: translateX(-50%);
+        }
+
+        .sticky-day { position: sticky; left: 0; z-index: 15; }
+        .sticky-corner { position: sticky; left: 0; top: 0; z-index: 16; background-color: var(--bg-secondary); }
+        
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
+            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--bg-secondary); padding: 1.25rem; border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 95%; max-width: 500px;
+            position: relative; transform: scale(0.95); transition: transform 0.3s ease;
+            color: var(--text-primary);
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-close-btn {
+            position: absolute; top: 0.75rem; right: 0.75rem; background: var(--bg-tertiary);
+            border: none; border-radius: 9999px; width: 2rem; height: 2rem;
+            font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--text-secondary);
+        }
+        
+        /* Color Picker Styles */
+        #color-picker-modal .modal-content { max-width: 300px; }
+        .color-palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 0.75rem; }
+        .color-swatch {
+            width: 40px; height: 40px; border-radius: 9999px; cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: transform 0.2s ease;
+        }
+        .color-swatch:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body class="p-2 md:p-4 flex flex-col min-h-screen">
+
+    <main class="flex-grow">
+        <div class="w-full lg:max-w-7xl mx-auto main-container p-3 sm:p-4 lg:p-6 rounded-xl min-w-0">
+            <div class="flex justify-between items-start mb-4">
+                <div class="text-left">
+                    <h1 class="text-lg sm:text-xl lg:text-2xl font-bold" style="color: var(--text-header);">ตารางเรียน ม.ศิลปากร</h1>
+                    <p class="text-xs sm:text-sm text-secondary">ภาคเรียนที่ 1 ปีการศึกษา 2568 | คณะเทคโนโลยีสารสนเทศและการสื่อสาร</p>
+                    <p id="current-time-display" class="mt-2 text-sm sm:text-base font-semibold" style="color: var(--su-green);"></p>
+                </div>
+                <button id="theme-toggle-btn" class="p-2 rounded-full text-secondary hover:bg-tertiary transition-colors duration-200" aria-label="Toggle theme">
+                    <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+            
+            <div id="status-bar" class="text-center mb-4 p-2 rounded-lg font-semibold text-white transition-colors duration-500 text-sm">
+                กำลังโหลดสถานะ...
+            </div>
+    
+            <div class="relative overflow-x-auto shadow-inner rounded-lg bg-primary">
+                <div id="timetable-container" class="timetable-grid">
+                    <div id="real-time-indicator" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center p-3 mt-6 text-secondary text-xs">
+        <p>จัดทำโดย: นักศึกษาปริญญาตรี นายวสุรัชต์ สมเด็จ</p>
+        <p style="color:orange;">มหาวิทยาลัยศิลปากร</p>
+        <div class="flex justify-center items-center space-x-4 mt-2">
+            <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+            <a href="https://github.com/wasuratsomdet9009" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            </a>
+            <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+            </a>
+        </div>
+    </footer>
+
+    <div id="class-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="modal-close-btn" aria-label="Close modal">&times;</button>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+    
+    <div id="color-picker-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-lg font-semibold mb-4 text-center text-primary">เลือกสีใหม่</h3>
+            <div id="color-palette" class="color-palette"></div>
+            <button id="color-picker-close-btn" class="mt-4 w-full bg-tertiary text-secondary py-2 rounded-lg hover:bg-gray-400/50 transition-colors">ยกเลิก</button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- DATA & CONFIG ---
+            const initialSchedule = [
+                // Monday
+                { day: 1, start: '08:30', end: '11:10', name: 'ทฤษฎีนิเทศศาสตร์', code: '803103-165', section: 'MT404', room: 'ห้องคอม', instructor: 'ตามตาราง', color: '#22c55e', imageUrl: 'https://images.unsplash.com/photo-1585241936939-be4099591252?q=80&w=2070&auto=format&fit=crop', description: 'ศึกษาทฤษฎีและแนวคิดพื้นฐานทางนิเทศศาสตร์ เพื่อความเข้าใจในกระบวนการสื่อสารและผลกระทบต่อสังคม', topics: ['โมเดลการสื่อสาร', 'ทฤษฎีสื่อสารมวลชน', 'การสื่อสารระหว่างบุคคล', 'การวิเคราะห์ผู้รับสาร'] },
+                // Tuesday
+                { day: 2, start: '08:30', end: '09:25', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5006', room: 'ออนไลน์', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
+                { day: 2, start: '16:40', end: '18:30', name: 'ข่าวสารในชีวิตประจำวัน', code: 'SU162-162', section: '1301', room: 'MT406-407', instructor: 'ตามตาราง', color: '#14b8a6', imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?q=80&w=2070&auto=format&fit=crop', description: 'เรียนรู้การวิเคราะห์ แยกแยะ และประเมินความน่าเชื่อถือของข่าวสารในยุคข้อมูลข่าวสาร', topics: ['ประเภทของข่าว', 'การตรวจสอบข้อเท็จจริง (Fact-checking)', 'จรรยาบรรณสื่อ', 'ผลกระทบของข่าวปลอม'] },
+                // Wednesday
+                { day: 3, start: '09:25', end: '12:05', name: 'คอมพิวเตอร์กราฟิก', code: '803101-1651', section: '5', room: 'MT312', instructor: 'ตามตาราง', color: '#0ea5e9', imageUrl: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2071&auto=format&fit=crop', description: 'เรียนรู้หลักการและเครื่องมือในการสร้างสรรค์ผลงานคอมพิวเตอร์กราฟิก ทั้งภาพนิ่งและภาพเคลื่อนไหว', topics: ['ทฤษฎีสีและองค์ประกอบศิลป์', 'โปรแกรม Adobe Photoshop', 'โปรแกรม Adobe Illustrator', 'หลักการออกแบบกราฟิก'] },
+                // Thursday
+                { day: 4, start: '08:30', end: '12:05', name: 'หลักการสื่อสาร', code: '803102-165', section: '3', room: 'MT404', instructor: 'ตามตาราง', color: '#6366f1', imageUrl: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?q=80&w=1974&auto=format&fit=crop', description: 'สำรวจองค์ประกอบและหลักการพื้นฐานของการสื่อสารที่มีประสิทธิภาพในบริบทต่างๆ', topics: ['ผู้ส่งสารและผู้รับสาร', 'ช่องทางการสื่อสาร', 'อุปสรรคในการสื่อสาร', 'การสื่อสารแบบวัจนภาษาและอวัจนภาษา'] },
+                { day: 4, start: '13:00', end: '14:50', name: 'ภาษาอังกฤษในยุคดิจิทัล', code: 'SU201-162', section: '5006', room: 'MT302', instructor: 'ตามตาราง', color: '#f59e0b', imageUrl: 'https://images.unsplash.com/photo-1521321203953-22b82635e32a?q=80&w=2070&auto=format&fit=crop', description: 'พัฒนาทักษะการใช้ภาษาอังกฤษสำหรับการสื่อสารผ่านสื่อดิจิทัลและแพลตฟอร์มออนไลน์ต่างๆ', topics: ['การเขียนอีเมลธุรกิจ', 'การสื่อสารในโซเชียลมีเดีย', 'คำศัพท์ด้านเทคโนโลยี', 'การนำเสนอออนไลน์'] },
+                // Breaks
+                { day: 4, start: '12:05', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' }
+            ];
+            
+            let schedule = JSON.parse(localStorage.getItem('classSchedule_silpakorn_v1')) || initialSchedule;
+
+            const timetableGrid = document.getElementById('timetable-container');
+            const timeIndicator = document.getElementById('real-time-indicator');
+            const timeDisplay = document.getElementById('current-time-display');
+            const statusBar = document.getElementById('status-bar');
+            const thaiDays = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const timetableStartHour = 8;
+            const timetableEndHour = 19; // Extended to 7 PM
+            const colorPalette = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e'];
+
+            // --- THEME MANAGEMENT ---
+            const themeToggleBtn = document.getElementById('theme-toggle-btn');
+            const sunIcon = document.getElementById('theme-icon-sun');
+            const moonIcon = document.getElementById('theme-icon-moon');
+            
+            const applyTheme = (theme) => {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                if (theme === 'dark') {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                } else {
+                    moonIcon.classList.remove('hidden');
+                    sunIcon.classList.add('hidden');
+                }
+            };
+            
+            themeToggleBtn.addEventListener('click', () => {
+                const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+            
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+
+            // --- UTILITY FUNCTIONS ---
+            const timeToMinutes = (timeStr) => {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            };
+
+            const saveSchedule = () => {
+                localStorage.setItem('classSchedule_silpakorn_v1', JSON.stringify(schedule));
+            };
+
+            schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
+
+            // --- GRID & CLASS RENDERING ---
+            const setupGrid = () => {
+                timetableGrid.innerHTML = ''; 
+                const cornerCell = document.createElement('div');
+                cornerCell.className = 'sticky-corner';
+                cornerCell.style.gridRow = '1';
+                cornerCell.style.gridColumn = '1';
+                timetableGrid.appendChild(cornerCell);
+
+                const periods = [
+                    { start: '08:30', end: '09:30' }, { start: '09:30', end: '10:30' },
+                    { start: '10:30', end: '11:30' }, { start: '11:30', end: '12:30' },
+                    { start: '12:30', end: '13:30' }, { start: '13:30', end: '14:30' },
+                    { start: '14:30', end: '15:30' }, { start: '15:30', end: '16:30' },
+                    { start: '16:30', end: '17:30' }, { start: '17:30', end: '18:30' }
+                ];
+
+                periods.forEach(period => {
+                    const startMinutes = timeToMinutes(period.start);
+                    const endMinutes = timeToMinutes(period.end);
+                    const startCol = Math.floor((startMinutes - timetableStartHour * 60) / 10) + 2;
+                    const colSpan = Math.floor((endMinutes - startMinutes) / 10);
+                    if (colSpan <= 0) return;
+
+                    const periodHeader = document.createElement('div');
+                    periodHeader.className = 'grid-header';
+                    periodHeader.innerHTML = `${period.start.replace(':', '.')}-${period.end.replace(':', '.')}`;
+                    periodHeader.style.gridRow = '1';
+                    periodHeader.style.gridColumn = `${startCol} / span ${colSpan}`;
+                    timetableGrid.appendChild(periodHeader);
+                });
+                
+                for(let i = 1; i <= 5; i++) {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'grid-header sticky-day';
+                    dayHeader.textContent = thaiDays[i];
+                    dayHeader.style.gridRow = `${i + 1}`;
+                    dayHeader.style.gridColumn = '1';
+                    timetableGrid.appendChild(dayHeader);
+                }
+
+                timetableGrid.appendChild(timeIndicator);
+            };
+
+            const renderClasses = () => {
+                timetableGrid.querySelectorAll('.class-block').forEach(block => block.remove());
+                schedule.forEach((cls, index) => {
+                    const startMinutes = timeToMinutes(cls.start);
+                    const endMinutes = timeToMinutes(cls.end);
+                    const startCol = Math.floor((startMinutes - timetableStartHour * 60) / 10) + 2;
+                    const endCol = Math.floor((endMinutes - timetableStartHour * 60) / 10) + 2;
+                    if (endCol <= startCol) return;
+
+                    const classBlock = document.createElement('div');
+                    classBlock.className = 'class-block';
+                    
+                    classBlock.style.borderLeftColor = cls.color;
+                    classBlock.style.gridRow = `${cls.day + 1}`;
+                    classBlock.style.gridColumn = `${startCol} / ${endCol}`;
+                    classBlock.dataset.index = index;
+
+                    if (cls.type === 'break') {
+                        classBlock.style.backgroundColor = cls.color;
+                        classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
+                    } else {
+                        classBlock.style.backgroundImage = `url('${cls.imageUrl}')`;
+                        classBlock.innerHTML = `
+                            <div class="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors duration-300" style="border-radius: inherit;"></div> <div class="relative z-10 flex flex-col justify-between h-full p-1.5 md:p-2 text-white pointer-events-none">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <strong class="font-bold text-xs sm:text-sm uppercase tracking-wide break-words pr-1">${cls.name}</strong>
+                                        <span class="text-xs font-semibold bg-black/40 px-1.5 py-0.5 rounded-full flex-shrink-0">${cls.room}</span>
+                                    </div>
+                                    <p class="text-xs opacity-80 font-semibold">${cls.code}</p>
+                                </div>
+                                <div class="text-left">
+                                    <span class="text-xs opacity-70">กดเพื่อดูรายละเอียด</span>
+                                </div>
+                            </div>
+                            <div class="class-status-overlay pointer-events-none"></div>`;
+                        
+                        let pressTimer = null;
+                        let interactionHandled = false;
+                        let startX, startY;
+                        const dragThreshold = 10;
+
+                        const handlePressStart = (e) => {
+                            interactionHandled = false;
+                            const point = e.changedTouches ? e.changedTouches[0] : e;
+                            startX = point.clientX;
+                            startY = point.clientY;
+                            pressTimer = setTimeout(() => {
+                                interactionHandled = true;
+                                openColorPicker(cls);
+                            }, 800);
+                        };
+                        const handlePressMove = (e) => {
+                            if (interactionHandled || !pressTimer) return;
+                            const point = e.changedTouches ? e.changedTouches[0] : e;
+                            const deltaX = Math.abs(point.clientX - startX);
+                            const deltaY = Math.abs(point.clientY - startY);
+                            if (deltaX > dragThreshold || deltaY > dragThreshold) {
+                                clearTimeout(pressTimer);
+                                pressTimer = null;
+                                interactionHandled = true;
+                            }
+                        };
+                        const handlePressEnd = () => {
+                            if (pressTimer) clearTimeout(pressTimer);
+                            if (!interactionHandled) openModal(cls);
+                        };
+                        const handlePressLeave = () => {
+                            if (pressTimer) clearTimeout(pressTimer);
+                            interactionHandled = true;
+                        };
+
+                        classBlock.addEventListener('contextmenu', e => e.preventDefault());
+                        classBlock.addEventListener('mousedown', handlePressStart);
+                        classBlock.addEventListener('mousemove', handlePressMove);
+                        classBlock.addEventListener('mouseup', handlePressEnd);
+                        classBlock.addEventListener('mouseleave', handlePressLeave);
+                        classBlock.addEventListener('touchstart', handlePressStart, { passive: true });
+                        classBlock.addEventListener('touchmove', handlePressMove, { passive: true });
+                        classBlock.addEventListener('touchend', handlePressEnd);
+                    }
+                    timetableGrid.appendChild(classBlock);
+                });
+            };
+
+            // --- REAL-TIME UPDATES ---
+            const updateRealTime = () => {
+                const now = new Date();
+                const currentDay = now.getDay();
+                const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                timeDisplay.textContent = `เวลาปัจจุบัน: ${thaiDays[currentDay]} ${now.toLocaleTimeString('th-TH')}`;
+
+                const dayColumnWidth = window.innerWidth < 768 ? 50 : 70;
+                const gridContentWidth = timetableGrid.scrollWidth - dayColumnWidth;
+                const minutesSinceStart = currentMinutes - (timetableStartHour * 60);
+                const totalMinutesInView = (timetableEndHour - timetableStartHour) * 60;
+
+                if (currentDay >= 1 && currentDay <= 5 && minutesSinceStart >= 0 && minutesSinceStart < totalMinutesInView) {
+                    timeIndicator.style.left = `calc(${dayColumnWidth}px + ${(minutesSinceStart / totalMinutesInView) * gridContentWidth}px)`;
+                    timeIndicator.style.gridRow = `${currentDay + 1}`;
+                    timeIndicator.classList.remove('hidden');
+                } else {
+                    timeIndicator.classList.add('hidden');
+                }
+
+                const currentClass = schedule.find(c => c.day === currentDay && currentMinutes >= timeToMinutes(c.start) && currentMinutes < timeToMinutes(c.end));
+                const nextClass = schedule.find(c => (c.day === currentDay && timeToMinutes(c.start) > currentMinutes && c.type !== 'break') || (c.day > currentDay && c.type !== 'break'));
+                
+                if (currentClass) {
+                    statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน' : `กำลังเรียน: ${currentClass.name}`;
+                    statusBar.style.backgroundColor = currentClass.type === 'break' ? '#94a3b8' : 'var(--su-green)';
+                } else if (nextClass) {
+                    statusBar.textContent = `ว่าง | คาบต่อไป: ${nextClass.name} (${thaiDays[nextClass.day]} ${nextClass.start})`;
+                    statusBar.style.backgroundColor = '#38bdf8'; // sky-400
+                } else {
+                    statusBar.textContent = (currentDay === 0 || currentDay === 6) ? 'วันนี้เป็นวันหยุด' : 'หมดคาบเรียนสำหรับวันนี้แล้ว';
+                    statusBar.style.backgroundColor = '#9ca3af'; // gray-400
+                }
+
+                document.querySelectorAll('.class-block').forEach(block => {
+                    block.classList.remove('current', 'finishing-soon', 'prepare-next');
+                    const overlay = block.querySelector('.class-status-overlay');
+                    if (overlay) overlay.style.display = 'none';
+                    const cls = schedule[parseInt(block.dataset.index)];
+                    if (!cls) return;
+                    const startMins = timeToMinutes(cls.start);
+                    const endMins = timeToMinutes(cls.end);
+                    if (cls === currentClass && cls.type !== 'break') {
+                        block.classList.add('current');
+                        const timeLeft = endMins - currentMinutes;
+                        if (timeLeft <= 15 && overlay) {
+                            block.classList.add('finishing-soon');
+                            overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
+                            overlay.style.display = 'flex';
+                        }
+                    } else {
+                        const timeToNext = startMins - currentMinutes;
+                        if (cls.day === currentDay && timeToNext > 0 && timeToNext <= 15 && overlay) {
+                            block.classList.add('prepare-next');
+                            overlay.textContent = `เตรียมตัว (${timeToNext} นาที)`;
+                            overlay.style.display = 'flex';
+                        }
+                    }
+                });
+            };
+
+            // --- MODAL HANDLING ---
+            const classModal = document.getElementById('class-modal');
+            const modalBody = document.getElementById('modal-body');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+
+            const openModal = (cls) => {
+                if (!cls || cls.type === 'break') return;
+                let topicsHtml = cls.topics && cls.topics.length > 0 ? `<div class="border-t border-color my-3"></div><div><strong class="text-secondary">หัวข้อการเรียนหลัก:</strong><ul class="list-disc pl-5 mt-1 text-secondary text-sm">${cls.topics.map(t => `<li>${t}</li>`).join('')}</ul></div>` : '';
+                let imageHtml = cls.imageUrl ? `<img src="${cls.imageUrl}" alt="ภาพประกอบวิชา ${cls.name}" class="w-full h-48 object-cover rounded-lg my-4" onerror="this.style.display='none'">` : '';
+
+                modalBody.innerHTML = `
+                    <div class="pt-4">
+                        <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
+                        ${imageHtml}
+                        <div class="border-t border-color mt-4 mb-3"></div>
+                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">รหัสวิชา:</strong> ${cls.code}</p>
+                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">กลุ่มเรียน:</strong> ${cls.section}</p>
+                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">อาจารย์ผู้สอน:</strong> ${cls.instructor}</p>
+                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">เวลา:</strong> ${cls.start} - ${cls.end}</p>
+                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">ห้องเรียน:</strong> ${cls.room}</p>
+                        <div class="border-t border-color my-3"></div>
+                        <div><strong class="text-secondary">คำอธิบายรายวิชา:</strong><p class="text-secondary mt-1 text-sm">${cls.description}</p></div>
+                        ${topicsHtml}
+                    </div>`;
+                classModal.classList.add('visible');
+            };
+            const closeModal = () => classModal.classList.remove('visible');
+
+            modalCloseBtn.addEventListener('click', closeModal);
+            classModal.addEventListener('click', (e) => { if (e.target === classModal) closeModal(); });
+
+            // --- COLOR PICKER MODAL ---
+            const colorPickerModal = document.getElementById('color-picker-modal');
+            const colorPaletteContainer = document.getElementById('color-palette');
+            const colorPickerCloseBtn = document.getElementById('color-picker-close-btn');
+            
+            const openColorPicker = (cls) => {
+                colorPaletteContainer.innerHTML = '';
+                colorPalette.forEach(color => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    swatch.style.backgroundColor = color;
+                    swatch.addEventListener('click', () => {
+                        cls.color = color;
+                        saveSchedule();
+                        renderClasses();
+                        closeColorPicker();
+                    });
+                    colorPaletteContainer.appendChild(swatch);
+                });
+                colorPickerModal.classList.add('visible');
+            };
+            const closeColorPicker = () => colorPickerModal.classList.remove('visible');
+            
+            colorPickerCloseBtn.addEventListener('click', closeColorPicker);
+            colorPickerModal.addEventListener('click', (e) => { if (e.target === colorPickerModal) closeColorPicker(); });
+
+            // --- INITIALIZATION ---
+            setupGrid();
+            renderClasses();
+            updateRealTime();
+            setInterval(updateRealTime, 1000); // Update every second
+            window.addEventListener('resize', () => {
+                setTimeout(updateRealTime, 250); // Debounce resize updates
+            });
+        });
+    </script>
+</body>
+</html>
