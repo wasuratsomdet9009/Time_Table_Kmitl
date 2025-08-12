@@ -127,11 +127,11 @@
         
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center;
-            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+            z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; backdrop-filter: blur(4px);
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
         .modal-content {
-            background: var(--bg-secondary); padding: 1.25rem; border-radius: 1rem;
+            background: var(--bg-secondary); padding: 1.5rem; border-radius: 1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 95%; max-width: 500px;
             position: relative; transform: scale(0.95); transition: transform 0.3s ease;
             color: var(--text-primary);
@@ -141,6 +141,7 @@
             position: absolute; top: 0.75rem; right: 0.75rem; background: var(--bg-tertiary);
             border: none; border-radius: 9999px; width: 2rem; height: 2rem;
             font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--text-secondary);
+            display: flex; align-items: center; justify-content: center;
         }
         
         /* Color Picker Styles */
@@ -152,6 +153,28 @@
             transition: transform 0.2s ease;
         }
         .color-swatch:hover { transform: scale(1.1); }
+        
+        /* Settings Popover */
+        #settings-popover {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color);
+            z-index: 40;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+            width: 200px;
+        }
+        #settings-popover.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body class="p-2 md:p-4 flex flex-col min-h-screen">
@@ -164,14 +187,25 @@
                     <p class="text-xs sm:text-sm text-secondary">ภาคเรียนที่ 1 ปีการศึกษา 2568 | สื่อสารดิจิทัลและมัลติมีเดีย</p>
                     <p id="current-time-display" class="mt-2 text-sm sm:text-base font-semibold" style="color: var(--vru-green);"></p>
                 </div>
-                <button id="theme-toggle-btn" class="p-2 rounded-full text-secondary hover:bg-tertiary transition-colors duration-200" aria-label="Toggle theme">
-                    <!-- Sun and Moon Icons -->
-                    <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                    <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
+                <div class="flex items-center space-x-2 relative">
+                    <button id="theme-toggle-btn" class="p-2 rounded-full text-secondary hover:bg-tertiary transition-colors duration-200" aria-label="Toggle theme">
+                        <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                    </button>
+                    <!-- Settings Button & Popover -->
+                    <div class="relative">
+                        <button id="settings-btn" class="p-2 rounded-full text-secondary hover:bg-tertiary transition-colors duration-200" aria-label="Settings">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        </button>
+                        <div id="settings-popover" class="mt-2 p-2">
+                            <button id="help-btn" class="w-full text-left px-3 py-2 rounded hover:bg-tertiary transition-colors flex items-center space-x-2 text-sm"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>วิธีใช้งาน</span></button>
+                            <button id="reset-btn" class="w-full text-left px-3 py-2 rounded hover:bg-tertiary transition-colors flex items-center space-x-2 text-sm text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span>รีเซ็ตตาราง</span></button>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div id="status-bar" class="text-center mb-4 p-2 rounded-lg font-semibold text-white transition-colors duration-500 text-sm">
+            <div id="status-bar" class="text-center mb-4 p-2.5 rounded-lg font-semibold text-white transition-all duration-500 text-sm shadow-md">
                 กำลังโหลดสถานะ...
             </div>
     
@@ -200,14 +234,13 @@
             <a href="mailto:wasuratsomdet@gmail.com" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             </a>
-
         </div>
     </footer>
 
     <!-- Class Details Modal -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-content">
-            <button id="modal-close-btn" aria-label="Close modal">&times;</button>
+            <button id="modal-close-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
             <div id="modal-body"></div>
         </div>
     </div>
@@ -220,7 +253,51 @@
             <button id="color-picker-close-btn" class="mt-4 w-full bg-tertiary text-secondary py-2 rounded-lg hover:bg-gray-400/50 transition-colors">ยกเลิก</button>
         </div>
     </div>
-
+    
+    <!-- Instructions Modal -->
+    <div id="instructions-modal" class="modal-overlay">
+        <div class="modal-content">
+             <button id="instructions-close-btn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+             <h2 class="text-xl font-bold text-center mb-4" style="color: var(--vru-green);">ยินดีต้อนรับ!</h2>
+             <p class="text-center text-secondary mb-6">นี่คือคู่มือการใช้งานตารางเรียนแบบ Real-time</p>
+             <div class="space-y-4 text-primary">
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900/50 text-blue-500 rounded-lg p-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 10.3c.2-.4.5-.8.9-1a2.1 2.1 0 0 1 2.6.4c.3.4.5.8.5 1.3 0 1.3-2 2-2 2"></path><path d="M8.5 8.5v.01"></path><path d="m2 2 20 20"></path><path d="M12 17v.01"></path><path d="M7.5 4.2c1.5-1 3.5-.9 5 .6"></path><path d="M16.5 19.8c-1.5 1-3.5.9-5-.6"></path><path d="M2 12h.01"></path><path d="M22 12h-.01"></path><path d="M12 2v.01"></path><path d="M12 22v-.01"></path></svg></div>
+                    <div>
+                        <h3 class="font-semibold">ดูรายละเอียดวิชา</h3>
+                        <p class="text-sm text-secondary"><strong>คลิก</strong> ที่คาบเรียนใดก็ได้เพื่อดูข้อมูลเพิ่มเติม เช่น คำอธิบายรายวิชา, หัวข้อการเรียน, และอาจารย์ผู้สอน</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-500 rounded-lg p-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3 16.828V21h4.172l14-14.188z"></path><path d="m15 5 6 6"></path></svg></div>
+                    <div>
+                        <h3 class="font-semibold">เปลี่ยนสีคาบเรียน</h3>
+                        <p class="text-sm text-secondary"><strong>กดค้าง (Long Press)</strong> ที่คาบเรียนเพื่อเปิดหน้าต่างเลือกสี และปรับแต่งตารางเรียนของคุณ</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="flex-shrink-0 bg-green-100 dark:bg-green-900/50 text-green-500 rounded-lg p-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></div>
+                    <div>
+                        <h3 class="font-semibold">การตั้งค่า</h3>
+                        <p class="text-sm text-secondary">ใช้ไอคอน<strong>รูปฟันเฟือง</strong>ที่มุมบนขวาเพื่อรีเซ็ตตารางเรียนกลับเป็นค่าเริ่มต้น หรือเปิดคู่มือนี้อีกครั้ง</p>
+                    </div>
+                </div>
+             </div>
+             <button id="instructions-ok-btn" class="mt-8 w-full bg-vru-green text-white py-2.5 rounded-lg hover:bg-opacity-90 transition-colors font-semibold">เข้าใจแล้ว</button>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content max-w-sm text-center">
+            <h3 id="confirm-title" class="text-lg font-bold mb-2">ยืนยันการกระทำ</h3>
+            <p id="confirm-text" class="text-secondary mb-6">คุณแน่ใจหรือไม่?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-cancel-btn" class="w-full py-2 rounded-lg bg-tertiary text-secondary hover:bg-opacity-80 transition-colors">ยกเลิก</button>
+                <button id="confirm-ok-btn" class="w-full py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -235,11 +312,19 @@
             ];
             
             // Add lunch breaks
-            for (let i = 1; i <= 5; i++) {
-                initialSchedule.push({ day: i, start: '12:30', end: '13:30', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' });
+            const addLunchBreaks = (scheduleData) => {
+                const scheduleWithBreaks = [...scheduleData];
+                for (let i = 1; i <= 5; i++) {
+                    // Avoid adding a break if a class already occupies the slot
+                    const breakOccupied = scheduleData.some(c => c.day === i && c.start === '12:30');
+                    if (!breakOccupied) {
+                        scheduleWithBreaks.push({ day: i, start: '12:30', end: '13:30', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: '-' });
+                    }
+                }
+                return scheduleWithBreaks;
             }
             
-            let schedule = JSON.parse(localStorage.getItem('classSchedule_v2')) || initialSchedule;
+            let schedule = JSON.parse(localStorage.getItem('classSchedule_v3')) || addLunchBreaks(initialSchedule);
 
             const timetableGrid = document.getElementById('timetable-container');
             const timeIndicator = document.getElementById('real-time-indicator');
@@ -257,7 +342,7 @@
             
             const applyTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
-                localStorage.setItem('theme', theme);
+                localStorage.setItem('theme_v1', theme);
                 if (theme === 'dark') {
                     sunIcon.classList.remove('hidden');
                     moonIcon.classList.add('hidden');
@@ -272,7 +357,7 @@
                 applyTheme(newTheme);
             });
             
-            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const savedTheme = localStorage.getItem('theme_v1') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             applyTheme(savedTheme);
 
 
@@ -283,7 +368,7 @@
             };
 
             const saveSchedule = () => {
-                localStorage.setItem('classSchedule_v2', JSON.stringify(schedule));
+                localStorage.setItem('classSchedule_v3', JSON.stringify(schedule));
             };
 
             schedule.sort((a, b) => a.day - b.day || timeToMinutes(a.start) - timeToMinutes(b.start));
@@ -351,13 +436,12 @@
 
                     if (cls.type === 'break') {
                         classBlock.style.backgroundColor = cls.color;
-                        classBlock.innerHTML = `<div class="m-auto text-center"><strong class="text-sm">${cls.name}</strong></div>`;
+                        classBlock.innerHTML = `<div class="p-1 flex items-center justify-center h-full"><strong class="text-sm font-medium text-white/90">${cls.name}</strong></div>`;
                     } else {
                         classBlock.style.backgroundImage = `url('${cls.imageUrl}')`;
                         classBlock.innerHTML = `
                             <div class="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-colors duration-300" style="border-radius: inherit;"></div> <!-- Overlay -->
                             <div class="relative z-10 flex flex-col justify-between h-full p-1.5 md:p-2 text-white pointer-events-none">
-                                <!-- Top part -->
                                 <div>
                                     <div class="flex justify-between items-start">
                                         <strong class="font-bold text-xs sm:text-sm uppercase tracking-wide break-words pr-1">${cls.name}</strong>
@@ -365,29 +449,24 @@
                                     </div>
                                     <p class="text-xs opacity-80 font-semibold">${cls.code}</p>
                                 </div>
-                                <!-- Bottom part -->
                                 <div class="text-left">
                                     <span class="text-xs opacity-70">กดเพื่อดูรายละเอียด</span>
                                 </div>
                             </div>
                             <div class="class-status-overlay pointer-events-none"></div>`;
                         
-                        // --- IMPROVED TOUCH/CLICK HANDLING ---
                         let pressTimer = null;
                         let interactionHandled = false;
                         let startX, startY;
-                        const dragThreshold = 10; // Pixels to move before it's a drag
+                        const dragThreshold = 10;
 
                         const handlePressStart = (e) => {
                             interactionHandled = false;
                             const point = e.changedTouches ? e.changedTouches[0] : e;
                             startX = point.clientX;
                             startY = point.clientY;
-
                             pressTimer = setTimeout(() => {
-                                // Long press triggered
                                 interactionHandled = true;
-                                // e.preventDefault(); // Can't preventDefault with passive listener
                                 openColorPicker(cls);
                             }, 800);
                         };
@@ -398,7 +477,6 @@
                                 const point = e.changedTouches ? e.changedTouches[0] : e;
                                 const deltaX = Math.abs(point.clientX - startX);
                                 const deltaY = Math.abs(point.clientY - startY);
-
                                 if (deltaX > dragThreshold || deltaY > dragThreshold) {
                                     clearTimeout(pressTimer);
                                     pressTimer = null;
@@ -418,16 +496,14 @@
                         const handlePressLeave = () => {
                             clearTimeout(pressTimer);
                             pressTimer = null;
-                            interactionHandled = true; // Consider leaving as a handled interaction
+                            interactionHandled = true;
                         };
 
                         classBlock.addEventListener('contextmenu', e => e.preventDefault());
-                        // Mouse events
                         classBlock.addEventListener('mousedown', handlePressStart);
                         classBlock.addEventListener('mousemove', handlePressMove);
                         classBlock.addEventListener('mouseup', handlePressEnd);
                         classBlock.addEventListener('mouseleave', handlePressLeave);
-                        // Touch events
                         classBlock.addEventListener('touchstart', handlePressStart, { passive: true });
                         classBlock.addEventListener('touchmove', handlePressMove, { passive: true });
                         classBlock.addEventListener('touchend', handlePressEnd);
@@ -456,42 +532,60 @@
                     timeIndicator.classList.add('hidden');
                 }
 
-                const currentClass = schedule.find(c => c.day === currentDay && currentMinutes >= timeToMinutes(c.start) && currentMinutes < timeToMinutes(c.end));
-                const nextClass = schedule.find(c => (c.day === currentDay && timeToMinutes(c.start) > currentMinutes && c.type !== 'break') || (c.day > currentDay && c.type !== 'break'));
-                
-                if (currentClass) {
-                    statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน' : `กำลังเรียน: ${currentClass.name}`;
-                    statusBar.style.backgroundColor = currentClass.type === 'break' ? '#94a3b8' : 'var(--vru-green)';
-                } else if (nextClass) {
-                    statusBar.textContent = `ว่าง | คาบต่อไป: ${nextClass.name} (${thaiDays[nextClass.day]} ${nextClass.start})`;
-                    statusBar.style.backgroundColor = '#38bdf8'; // sky-400
-                } else {
-                    statusBar.textContent = (currentDay === 0 || currentDay === 6) ? 'วันนี้เป็นวันหยุด' : 'หมดคาบเรียนสำหรับวันนี้แล้ว';
+                // --- Enhanced Status Bar Logic ---
+                if (currentDay === 0 || currentDay === 6) {
+                    statusBar.textContent = '🎉 สุขสันต์วันหยุดสุดสัปดาห์! 🎉';
                     statusBar.style.backgroundColor = '#9ca3af'; // gray-400
+                } else {
+                    const todayClasses = schedule.filter(c => c.day === currentDay).sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+                    const currentClass = todayClasses.find(c => currentMinutes >= timeToMinutes(c.start) && currentMinutes < timeToMinutes(c.end));
+                    const nextClass = todayClasses.find(c => timeToMinutes(c.start) > currentMinutes && c.type !== 'break');
+                    const firstClassToday = todayClasses.find(c => c.type !== 'break');
+                    const lastClassToday = todayClasses.length > 0 ? todayClasses[todayClasses.length - 1] : null;
+
+                    if (currentClass) {
+                        statusBar.textContent = currentClass.type === 'break' ? 'พักกลางวัน 🍔' : `กำลังเรียน: ${currentClass.name}`;
+                        statusBar.style.backgroundColor = currentClass.type === 'break' ? '#94a3b8' : 'var(--vru-green)';
+                    } else if (nextClass) {
+                        const timeToNext = timeToMinutes(nextClass.start) - currentMinutes;
+                        statusBar.textContent = `ว่าง | คาบต่อไปใน ${timeToNext} นาที: ${nextClass.name}`;
+                        statusBar.style.backgroundColor = '#38bdf8'; // sky-400
+                    } else if (firstClassToday && currentMinutes < timeToMinutes(firstClassToday.start)) {
+                        const timeToFirst = timeToMinutes(firstClassToday.start) - currentMinutes;
+                        statusBar.textContent = `ยังไม่ถึงเวลาเรียน | คาบแรกใน ${timeToFirst} นาที`;
+                        statusBar.style.backgroundColor = '#38bdf8'; // sky-400
+                    } else if (lastClassToday && currentMinutes >= timeToMinutes(lastClassToday.end)) {
+                        statusBar.textContent = 'หมดคาบเรียนสำหรับวันนี้แล้ว เจอกันใหม่พรุ่งนี้! 👋';
+                        statusBar.style.backgroundColor = '#9ca3af'; // gray-400
+                    } else {
+                        statusBar.textContent = 'วันนี้ไม่มีคาบเรียน';
+                        statusBar.style.backgroundColor = '#9ca3af'; // gray-400
+                    }
                 }
 
+                // --- Class Block Status (Current, Finishing, etc.) ---
                 document.querySelectorAll('.class-block').forEach(block => {
                     block.classList.remove('current', 'finishing-soon', 'prepare-next');
                     const overlay = block.querySelector('.class-status-overlay');
                     if (overlay) overlay.style.display = 'none';
 
                     const cls = schedule[parseInt(block.dataset.index)];
-                    if (!cls) return;
+                    if (!cls || cls.day !== currentDay) return;
 
                     const startMins = timeToMinutes(cls.start);
                     const endMins = timeToMinutes(cls.end);
 
-                    if (cls === currentClass && cls.type !== 'break') {
-                        block.classList.add('current');
+                    if (currentMinutes >= startMins && currentMinutes < endMins) {
+                         if (cls.type !== 'break') block.classList.add('current');
                         const timeLeft = endMins - currentMinutes;
-                        if (timeLeft <= 15 && overlay) {
+                        if (timeLeft <= 15 && overlay && cls.type !== 'break') {
                             block.classList.add('finishing-soon');
                             overlay.textContent = `ใกล้หมดคาบ (${timeLeft} นาที)`;
                             overlay.style.display = 'flex';
                         }
                     } else {
                         const timeToNext = startMins - currentMinutes;
-                        if (cls.day === currentDay && timeToNext > 0 && timeToNext <= 15 && overlay) {
+                        if (timeToNext > 0 && timeToNext <= 15 && overlay && cls.type !== 'break') {
                             block.classList.add('prepare-next');
                             overlay.textContent = `เตรียมตัว (${timeToNext} นาที)`;
                             overlay.style.display = 'flex';
@@ -507,20 +601,28 @@
 
             const openModal = (cls) => {
                 if (!cls || cls.type === 'break') return;
-                let topicsHtml = cls.topics && cls.topics.length > 0 ? `<div class="border-t border-color my-3"></div><div><strong class="text-secondary">หัวข้อการเรียนหลัก:</strong><ul class="list-disc pl-5 mt-1 text-secondary text-sm">${cls.topics.map(t => `<li>${t}</li>`).join('')}</ul></div>` : '';
+                let topicsHtml = cls.topics && cls.topics.length > 0 ? `<div class="border-t border-color my-4"></div><div><strong class="text-secondary">หัวข้อการเรียนหลัก:</strong><ul class="list-disc pl-5 mt-2 text-secondary text-sm space-y-1">${cls.topics.map(t => `<li>${t}</li>`).join('')}</ul></div>` : '';
                 let imageHtml = cls.imageUrl ? `<img src="${cls.imageUrl}" alt="ภาพประกอบวิชา ${cls.name}" class="w-full h-48 object-cover rounded-lg my-4" onerror="this.style.display='none'">` : '';
+
+                const detailItem = (icon, label, value) => `
+                    <div class="flex items-start text-sm my-2">
+                        <div class="flex-shrink-0 w-6 h-6 mr-3 text-secondary">${icon}</div>
+                        <div class="flex-grow"><strong class="text-secondary w-28 inline-block">${label}:</strong> ${value}</div>
+                    </div>`;
 
                 modalBody.innerHTML = `
                     <div class="pt-4">
-                        <h3 class="text-xl font-bold" style="color:${cls.color};">${cls.name}</h3>
+                        <h3 class="text-xl font-bold text-center" style="color:${cls.color};">${cls.name}</h3>
                         ${imageHtml}
                         <div class="border-t border-color mt-4 mb-3"></div>
-                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">รหัสวิชา:</strong> ${cls.code}</p>
-                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">กลุ่มเรียน:</strong> ${cls.section}</p>
-                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">อาจารย์ผู้สอน:</strong> ${cls.instructor}</p>
-                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">เวลา:</strong> ${cls.start} - ${cls.end}</p>
-                        <p class="text-sm my-1"><strong class="text-secondary w-28 inline-block">ห้องเรียน:</strong> ${cls.room}</p>
-                        <div class="border-t border-color my-3"></div>
+                        <div class="space-y-1">
+                            ${detailItem('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2V4" /><path d="M16 2v20" /><path d="M12 10h4" /><path d="M12 14h4" /><path d="M12 6h4" /></svg>', 'รหัสวิชา', cls.code)}
+                            ${detailItem('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>', 'เวลา', `${cls.start} - ${cls.end}`)}
+                            ${detailItem('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>', 'ห้องเรียน', cls.room)}
+                            ${detailItem('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>', 'กลุ่มเรียน', cls.section)}
+                            ${detailItem('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m4.93 19.07 1.41-1.41" /><path d="m17.66 6.34 1.41-1.41" /></svg>', 'ผู้สอน', cls.instructor)}
+                        </div>
+                        <div class="border-t border-color my-4"></div>
                         <div><strong class="text-secondary">คำอธิบายรายวิชา:</strong><p class="text-secondary mt-1 text-sm">${cls.description}</p></div>
                         ${topicsHtml}
                     </div>`;
@@ -556,6 +658,72 @@
             
             colorPickerCloseBtn.addEventListener('click', closeColorPicker);
             colorPickerModal.addEventListener('click', (e) => { if (e.target === colorPickerModal) closeColorPicker(); });
+            
+            // --- INSTRUCTIONS & CONFIRMATION MODALS ---
+            const instructionsModal = document.getElementById('instructions-modal');
+            const instructionsCloseBtn = document.getElementById('instructions-close-btn');
+            const instructionsOkBtn = document.getElementById('instructions-ok-btn');
+            const confirmModal = document.getElementById('confirm-modal');
+            let confirmCallback = null;
+
+            const showInstructions = () => instructionsModal.classList.add('visible');
+            const hideInstructions = () => {
+                instructionsModal.classList.remove('visible');
+                localStorage.setItem('hasSeenInstructions_v1', 'true');
+            };
+            
+            const showConfirm = (title, text, onConfirm) => {
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-text').textContent = text;
+                confirmCallback = onConfirm;
+                confirmModal.classList.add('visible');
+            };
+            
+            const hideConfirm = () => {
+                confirmModal.classList.remove('visible');
+                confirmCallback = null;
+            };
+            
+            instructionsCloseBtn.addEventListener('click', hideInstructions);
+            instructionsOkBtn.addEventListener('click', hideInstructions);
+            document.getElementById('confirm-cancel-btn').addEventListener('click', hideConfirm);
+            document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+                if(confirmCallback) confirmCallback();
+                hideConfirm();
+            });
+
+            // --- SETTINGS POPOVER ---
+            const settingsBtn = document.getElementById('settings-btn');
+            const settingsPopover = document.getElementById('settings-popover');
+            const helpBtn = document.getElementById('help-btn');
+            const resetBtn = document.getElementById('reset-btn');
+
+            settingsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                settingsPopover.classList.toggle('visible');
+            });
+            
+            helpBtn.addEventListener('click', () => {
+                showInstructions();
+                settingsPopover.classList.remove('visible');
+            });
+            
+            resetBtn.addEventListener('click', () => {
+                settingsPopover.classList.remove('visible');
+                showConfirm('รีเซ็ตตารางเรียน?', 'การตั้งค่าสีและข้อมูลทั้งหมดจะกลับไปเป็นค่าเริ่มต้น คุณแน่ใจหรือไม่?', () => {
+                    localStorage.removeItem('classSchedule_v3');
+                    schedule = addLunchBreaks(initialSchedule);
+                    saveSchedule();
+                    renderClasses();
+                    updateRealTime();
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!settingsPopover.contains(e.target) && !settingsBtn.contains(e.target)) {
+                    settingsPopover.classList.remove('visible');
+                }
+            });
 
             // --- INITIALIZATION ---
             setupGrid();
@@ -565,6 +733,11 @@
             window.addEventListener('resize', () => {
                 setTimeout(updateRealTime, 250); // Debounce resize updates
             });
+            
+            // Show instructions on first visit
+            if (!localStorage.getItem('hasSeenInstructions_v1')) {
+                setTimeout(showInstructions, 500);
+            }
         });
     </script>
 </body>
