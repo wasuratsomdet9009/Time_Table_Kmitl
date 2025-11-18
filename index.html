@@ -281,15 +281,118 @@
         document.addEventListener('DOMContentLoaded', function () {
             // --- Data and Constants ---
             const initialSchedule = [
-                 { day: 1, start: '08:00', end: '12:00', name: 'DATABASE SYSTEM', code: '01076120', section: '3(2-2)', room: 'IE 1602', instructor: 'ตึกนวัตกรรมการเรียนรู้ MicroBit LAB ชั้น6', color: '#ef4444', description: 'ศึกษาหลักการและแนวคิดของระบบฐานข้อมูล การออกแบบ แบบจำลองข้อมูล ภาษาสอบถาม SQL และการจัดการฐานข้อมูลเบื้องต้น', image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1974&auto=format&fit=crop', topics: ['แบบจำลองข้อมูล (Data Models)', 'การออกแบบฐานข้อมูลเชิงสัมพันธ์', 'ภาษาสอบถาม SQL', 'การทำ Normalization', 'การจัดการ Transaction'] },
-                 { day: 1, start: '13:00', end: '17:00', name: 'ANALOG DEVICES', code: '01076118', section: '3(2-2)', room: 'IE2303', instructor: 'อาคารภาควิชาวิศวกรรมอุตสาหกรรม ห้องปฎิบัติการไฟฟ้า 1 ชั้น3', color: '#f97316', description: 'ศึกษาคุณลักษณะของอุปกรณ์และวงจรอิเล็กทรอนิกส์แอนะล็อก เช่น ไดโอด, ทรานซิสเตอร์, และออปแอมป์ รวมถึงการประยุกต์ใช้งานในวงจรต่างๆ', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeOaue8DOOaMsM0QzgEGhq_aOATJnYsbsyfQ&usqp=CAU', topics: ['คุณสมบัติและการใช้งานไดโอด', 'ทรานซิสเตอร์ (BJT และ MOSFET)', 'วงจรขยายสัญญาณด้วย Op-Amp', 'วงจรกรองความถี่ (Filters)', 'การประยุกต์ใช้งานในวงจรจริง'] },
-                 { day: 2, start: '09:00', end: '12:00', name: 'EDUCATIONAL FOUNDATION', code: '01086107', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารจอมไตร', color: '#3b82f6', description: 'เรียนรู้เกี่ยวกับรากฐานและปรัชญาการศึกษา พัฒนาการของวิชาชีพครู คุณธรรมและจริยธรรมสำหรับความเป็นครู', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOb-k02k86XK8KR2E8Ve4EEgESPxgjXcexy4gZ6wg-OgdWKMK5Qf3we8hC&s=10', topics: ['ปรัชญาการศึกษาพื้นฐาน', 'ประวัติและพัฒนาการของวิชาชีพครู', 'กฎหมายและจรรยาบรรณวิชาชีพครู', 'สังคมและวัฒนธรรมกับการศึกษา', 'แนวโน้มการศึกษาในอนาคต'] },
-                 { day: 2, start: '13:00', end: '16:00', name: 'EDUCATIONAL PSYCHOLOGY', code: '01086108', section: '3(3-0)', room: 'IE1303', instructor: 'อาคารจอมไตร', color: '#2563eb', description: 'สำรวจหลักการทางจิตวิทยาที่เกี่ยวข้องกับการเรียนรู้ พัฒนาการของผู้เรียน การสร้างแรงจูงใจ และการจัดการชั้นเรียน', image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop', topics: ['ทฤษฎีการเรียนรู้และพัฒนาการ', 'จิตวิทยาพัฒนาการของผู้เรียน', 'การสร้างแรงจูงใจในการเรียน', 'การจัดการชั้นเรียนเชิงบวก', 'การวัดและประเมินผลการเรียนรู้'] },
-                 { day: 3, start: '08:00', end: '12:00', name: 'COMPUTER SYSTEMS', code: '01076117', section: '3(2-2)', room: 'IE 3313', instructor: 'อาคารจอมไตร', color: '#a855f7', description: 'เรียนรู้โครงสร้างและสถาปัตยกรรมของระบบคอมพิวเตอร์ หน่วยประมวลผลกลาง หน่วยความจำ และอุปกรณ์อินพุต/เอาท์พุต', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzf1en3EFNhSk1Fyvus1huhpQZQKRYr6JMU-irYK9KimZQSpDn_PQlhMY&s=10', topics: ['สถาปัตยกรรมคอมพิวเตอร์พื้นฐาน', 'การทำงานของหน่วยประมวลผลกลาง (CPU)', 'ลำดับชั้นของหน่วยความจำ (Memory Hierarchy)', 'ระบบบัสและอุปกรณ์ I/O', 'ภาษาระดับเครื่องและการประกอบ'] },
-                 { day: 3, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN & DEV', code: '01076116', section: '3(2-2)', room: 'IE 1602', instructor: 'ตึกนวัตกรรมารเรียนรู้', color: '#10b981', description: 'หลักการออกแบบและพัฒนาซอฟต์แวร์ กระบวนการทางวิศวกรรมซอฟต์แวร์ การสร้างแบบจำลอง และการประยุกต์ใช้เครื่องมือ', image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop', topics: ['กระบวนการพัฒนาซอฟต์แวร์ (SDLC)', 'การออกแบบเชิงวัตถุ (Object-Oriented Design)', 'UML และการสร้างแบบจำลอง', 'รูปแบบการออกแบบ (Design Patterns)', 'หลักการทดสอบซอฟต์แวร์'] },
-                 { day: 5, start: '13:00', end: '16:00', name: 'HEALTH AND SAFETY', code: '01076019', section: '3(3-0)', room: 'IE2207', instructor: 'อาคารภาควิชาวิศวกรรมอุตสาหกรรม', color: '#ec4899', description: 'ความรู้เบื้องต้นเกี่ยวกับอาชีวอนามัยและความปลอดภัยในการทำงาน การประเมินความเสี่ยง และกฎหมายที่เกี่ยวข้อง', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOg0V9hOONBloQE4zPyp6_M1YLWiAA15_ryw&usqp=CAU', topics: ['หลักการอาชีวอนามัยและความปลอดภัย', 'การประเมินและจัดการความเสี่ยง', 'การป้องกันอุบัติเหตุในที่ทำงาน', 'กฎหมายความปลอดภัยและอาชีวอนามัย', 'การปฐมพยาบาลเบื้องต้น'] },
-                 { day: 0, start: '09:00', end: '12:00', name: 'ENGLISH COMMUNICATION', code: '90641008', section: '0(0-0)', room: 'Online', instructor: 'คณะศิลปศาสตร์', color: '#84cc16', description: 'พัฒนาทักษะการสื่อสารภาษาอังกฤษทั้งการฟัง พูด อ่าน และเขียน เพื่อใช้ในชีวิตประจำวันและในเชิงวิชาการ', image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=2070&auto=format&fit=crop', topics: ['การสนทนาในชีวิตประจำวัน', 'การเขียนอีเมลและจดหมายธุรกิจ', 'การนำเสนอผลงานเป็นภาษาอังกฤษ', 'ทักษะการอ่านจับใจความ', 'การฟังและสรุปประเด็น'] }
-            ];
+                 { 
+      day: 1, 
+      start: '09:00', 
+      end: '12:00', 
+      name: 'THAI LANGUAGE FOR CREATIVITY', 
+      code: 'GE-Thai', 
+      section: '901 (n)', 
+      room: 'D-401', 
+      instructor: 'อาคารพระเทพฯ (Phra Thep)', 
+      color: '#14b8a6', // Teal
+      description: 'การใช้ภาษาไทยเพื่อการสร้างสรรค์ การสื่อสารและการนำเสนออย่างมีศิลปะ', 
+      image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973&auto=format&fit=crop', 
+      topics: ['การเขียนเชิงสร้างสรรค์', 'วาทศิลป์', 'การนำเสนอผลงาน', 'ภาษาไทยในสื่อดิจิทัล'] 
+    },
+    { 
+      day: 2, 
+      start: '09:00', 
+      end: '11:00', 
+      name: 'TEAM-PROJECT 1', 
+      code: 'TP-001', 
+      section: '304 (U)', 
+      room: 'IE2205', 
+      instructor: 'ครุศาสตร์ฯ (IE)', 
+      color: '#f43f5e', // Red/Pink
+      description: 'การทำงานเป็นทีม การจัดการโครงการเบื้องต้น และการแก้ปัญหาร่วมกัน', 
+      image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop', 
+      topics: ['Team Building', 'Project Management Basics', 'Agile Methodology', 'Problem Solving'] 
+    },
+    { 
+      day: 2, 
+      start: '13:00', 
+      end: '17:00', 
+      name: 'COMPUTER NETWORKS', 
+      code: 'IE3312', 
+      section: '3(n), 4(U)', 
+      room: 'IE3312', 
+      instructor: 'อาคารออมสิน (Aomsin)', 
+      color: '#0ea5e9', // Blue
+      description: 'หลักการสื่อสารข้อมูล เครือข่ายคอมพิวเตอร์ โปรโตคอล และการออกแบบระบบเครือข่าย', 
+      image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop', 
+      topics: ['OSI Model', 'TCP/IP', 'IP Addressing', 'Routing & Switching', 'Network Security'] 
+    },
+    { 
+      day: 3, 
+      start: '13:00', 
+      end: '16:00', 
+      name: 'DIGITAL CITIZEN', 
+      code: 'GE-Digi', 
+      section: '301 (n)', 
+      room: 'D-504', 
+      instructor: 'อาคารพระเทพฯ (Phra Thep)', 
+      color: '#6366f1', // Indigo
+      description: 'การเป็นพลเมืองดิจิทัล ความฉลาดทางดิจิทัล กฎหมายและจริยธรรมออนไลน์', 
+      image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop', 
+      topics: ['Digital Literacy', 'Cyber Security Basics', 'Digital Footprint', 'PDPA & Laws'] 
+    },
+    { 
+      day: 4, 
+      start: '08:00', 
+      end: '12:00', 
+      name: 'SOFTWARE DESIGN AND DEVELOPMENT 1', 
+      code: 'IE 1601', 
+      section: '3(n), 4(U)', 
+      room: 'IE 1601', 
+      instructor: 'อาคารนวัตกรรมฯ (Innovation)', 
+      color: '#d946ef', // Fuchsia
+      description: 'พื้นฐานวิศวกรรมซอฟต์แวร์ การวิเคราะห์ความต้องการ และการออกแบบระบบ', 
+      image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop', 
+      topics: ['SDLC', 'UML Diagrams', 'Software Architecture', 'Coding Standards', 'Version Control (Git)'] 
+    },
+    { 
+      day: 4, 
+      start: '13:00', 
+      end: '17:00', 
+      name: 'FUNDAMENTAL OF DIGITAL DEVICES AND CIRCUITS', 
+      code: 'IE2212', 
+      section: '3(n), 4(U)', 
+      room: 'IE2212', 
+      instructor: 'ครุศาสตร์ฯ (IE)', 
+      color: '#ec4899', // Pink
+      description: 'วงจรดิจิทัลพื้นฐาน ลอจิกเกต ระบบตัวเลข และวงจรอิเล็กทรอนิกส์เบื้องต้น', 
+      image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop', 
+      topics: ['Number Systems', 'Logic Gates', 'Boolean Algebra', 'Combinational Circuits', 'Sequential Circuits'] 
+    },
+    { 
+      day: 5, 
+      start: '08:00', 
+      end: '12:00', 
+      name: 'LANGUAGE FOR COMMUNICATION FOR TEACHERS', 
+      code: 'IE1304', 
+      section: '7(n), 8(U)', 
+      room: 'IE1304', 
+      instructor: 'อาคารนวัตกรรมฯ (Innovation)', 
+      color: '#84cc16', // Lime Green
+      description: 'ทักษะการสื่อสารสำหรับครู การพูดในที่สาธารณะ และจิตวิทยาการสื่อสาร', 
+      image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop', 
+      topics: ['Public Speaking', 'Classroom Communication', 'Non-verbal Communication', 'Listening Skills'] 
+    },
+    { 
+      day: 5, 
+      start: '13:00', 
+      end: '17:00', 
+      name: 'Technology Innovation for Learning', 
+      code: 'IE1301', 
+      section: '7(n), 8(U)', 
+      room: 'IE1301', 
+      instructor: 'อาคารนวัตกรรมฯ (Innovation)', 
+      color: '#eab308', // Yellow/Gold
+      description: 'นวัตกรรมและเทคโนโลยีเพื่อการเรียนรู้ สื่อการสอนสมัยใหม่ และ AI เพื่อการศึกษา', 
+      image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2028&auto=format&fit=crop', 
+      topics: ['EdTech Trends', 'AI in Education', 'Multimedia for Learning', 'LMS Platforms'] 
+    }            ];
             
             for (let i = 1; i <= 5; i++) {
                 initialSchedule.push({ day: i, start: '12:00', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#64748b', room: 'Anywhere' });
