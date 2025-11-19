@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางสอน Real-time (Smart Schedule)</title>
+    <title>ตารางสอนวิศวกรรมคอมพิวเตอร์ (KMITL Smart Schedule)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --primary: #F58220; /* KMITL Orange */
-            --secondary: #1e293b;
+            --kmitl-orange: #F58220;
+            --kmitl-dark: #1a1a1a;
             --bg-soft: #f8fafc;
         }
         body {
@@ -26,61 +26,61 @@
             overflow-x: hidden;
         }
 
-        /* --- Custom Scrollbar --- */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* --- Animations --- */
+        /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(245, 130, 32, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 130, 32, 0); } }
-        
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        
-        /* --- Grid Layout --- */
+
+        /* Grid Layout */
         .timetable-wrapper {
             overflow-x: auto;
             padding-bottom: 1rem;
             border-radius: 1rem;
             background: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
         }
         .timetable-grid {
             display: grid;
-            grid-template-columns: 60px repeat(12, minmax(80px, 1fr));
-            grid-template-rows: 50px repeat(7, minmax(100px, auto));
+            grid-template-columns: 60px repeat(12, minmax(90px, 1fr));
+            grid-template-rows: 50px repeat(7, minmax(110px, auto));
             gap: 1px;
-            background-color: #e2e8f0; /* Grid lines color */
+            background-color: #e2e8f0;
             border: 1px solid #e2e8f0;
-            min-width: 900px; /* Ensure it doesn't squish too much */
+            min-width: 1000px;
             position: relative;
         }
         
         .grid-header {
-            background-color: #f8fafc;
+            background-color: #fff7ed; /* Orange tint */
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 0.85rem;
-            color: #64748b;
+            font-size: 0.9rem;
+            color: #d97706;
         }
         
         .grid-cell { background-color: white; transition: background-color 0.2s; }
-        .grid-cell:hover { background-color: #f1f5f9; }
+        .grid-cell:hover { background-color: #fffaf0; }
 
-        /* --- Class Block --- */
+        /* Class Block */
         .class-block {
             padding: 8px;
             color: white;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
             position: relative;
             z-index: 1;
             border-radius: 6px;
@@ -89,12 +89,12 @@
         }
         .class-block::before {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
+            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
             z-index: -1;
         }
         .class-block:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
             z-index: 20;
         }
         .class-block.current {
@@ -103,38 +103,22 @@
             z-index: 10;
         }
 
-        /* --- Timeline View (New List View) --- */
-        .timeline-container { padding: 10px; }
-        .timeline-day { margin-bottom: 2rem; }
-        .timeline-header {
-            position: sticky; top: 0; z-index: 30;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(5px);
-            padding: 10px 0;
-            border-bottom: 2px solid #e2e8f0;
-            margin-bottom: 1rem;
-            display: flex; align-items: center; gap: 10px;
-        }
+        /* Timeline Card */
         .timeline-card {
             background: white;
             border-radius: 1rem;
             padding: 1.25rem;
             margin-bottom: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             border-left: 6px solid transparent;
             transition: transform 0.2s;
             display: flex;
             gap: 1rem;
             align-items: center;
         }
-        .timeline-card:hover { transform: translateX(5px); }
-        .time-pill {
-            background: #f1f5f9; padding: 4px 10px; border-radius: 20px;
-            font-weight: 600; font-size: 0.8rem; color: #475569;
-            white-space: nowrap;
-        }
+        .timeline-card:hover { transform: translateX(5px); border-color: var(--kmitl-orange) !important; }
 
-        /* --- Real-time Indicator --- */
+        /* Real-time Indicator */
         #real-time-indicator {
             position: absolute; top: 50px; bottom: 0; width: 3px;
             background: #ef4444; z-index: 25; pointer-events: none;
@@ -146,9 +130,23 @@
             padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;
         }
 
-        /* --- Modals --- */
+        /* Schedule Info Card */
+        .info-card {
+            background: linear-gradient(135deg, #fff 0%, #fff7ed 100%);
+            border: 1px solid #fdba74;
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .info-card::after {
+            content: ''; position: absolute; right: -20px; top: -20px;
+            width: 80px; height: 80px; background: var(--kmitl-orange);
+            opacity: 0.1; border-radius: 50%;
+        }
+
+        /* Modals */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
             backdrop-filter: blur(4px);
             display: flex; align-items: center; justify-content: center;
             z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -157,40 +155,47 @@
         .modal-box {
             background: white; width: 90%; max-width: 500px;
             border-radius: 1.5rem; padding: 2rem;
-            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
             max-height: 85vh; overflow-y: auto;
         }
         .modal-overlay.visible .modal-box { transform: scale(1); }
 
-        /* --- Status Bar --- */
-        .status-pill {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 6px 16px; border-radius: 99px;
-            font-size: 0.9rem; font-weight: 500;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        /* KMITL Button */
+        .btn-kmitl {
+            background-color: var(--kmitl-orange);
+            color: white;
             transition: all 0.3s;
+        }
+        .btn-kmitl:hover {
+            background-color: #d97706;
+            box-shadow: 0 4px 12px rgba(245, 130, 32, 0.3);
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
     <!-- Navbar -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-orange-200">
+                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">
                         K
                     </div>
                     <div class="leading-tight">
-                        <h1 class="font-bold text-slate-800">ตารางเรียนวิศวกรรม</h1>
-                        <p class="text-xs text-slate-500">คอมพิวเตอร์ (Sec 2)</p>
+                        <h1 class="font-bold text-slate-800 text-lg">วิศวกรรมคอมพิวเตอร์ <span class="text-orange-500">Sec 2</span></h1>
+                        <p class="text-xs text-slate-500">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button id="settings-btn" class="p-2 text-slate-500 hover:text-orange-500 transition-colors rounded-full hover:bg-orange-50">
-                        <i class="fa-solid fa-gear text-xl"></i>
+                    <!-- Image Button (Top Nav) -->
+                     <button id="show-image-nav-btn" class="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors mr-2">
+                        <i class="fa-regular fa-image"></i> รูปตาราง
+                    </button>
+                    <!-- Settings -->
+                    <button id="settings-btn" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center">
+                        <i class="fa-solid fa-gear"></i>
                     </button>
                 </div>
             </div>
@@ -200,31 +205,85 @@
     <!-- Main Content -->
     <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
         
-        <!-- Control Bar -->
-        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <div>
-                <p id="current-date" class="text-slate-500 text-sm font-medium"></p>
-                <div class="flex items-baseline gap-2">
-                    <h2 id="clock-time" class="text-4xl font-bold text-slate-800 tracking-tight">--:--</h2>
-                    <span id="clock-sec" class="text-xl text-orange-500 font-medium">--</span>
-                </div>
-            </div>
+        <!-- Top Section: Clock & Controls -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-6 gap-6">
             
-            <!-- Status Indicator -->
-            <div id="status-container">
-                <div class="status-pill bg-slate-100 text-slate-500">
-                    <i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลด...
+            <!-- Clock & Date -->
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded">ปีการศึกษา 2568</span>
+                    <p id="current-date" class="text-slate-500 text-sm font-medium"></p>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <h2 id="clock-time" class="text-5xl font-bold text-slate-800 tracking-tight font-mono">--:--</h2>
+                    <span id="clock-sec" class="text-2xl text-orange-500 font-medium font-mono">--</span>
                 </div>
             </div>
 
-            <!-- View Toggles -->
-            <div class="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex">
-                <button id="view-grid" class="px-4 py-2 rounded-lg text-sm font-medium bg-orange-500 text-white shadow-sm transition-all">
-                    <i class="fa-solid fa-table-cells me-2"></i>ตาราง
+            <!-- Action Controls (Prominent Calendar) -->
+            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                
+                <!-- Google Calendar Button (Moved Here) -->
+                <button id="export-calendar-main-btn" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:border-orange-300 hover:text-orange-600 transition-all group">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors">
+                        <i class="fa-brands fa-google"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-[10px] text-slate-400 font-medium leading-none">Add to</p>
+                        <p class="text-sm font-bold leading-tight">Calendar</p>
+                    </div>
                 </button>
-                <button id="view-list" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-all">
-                    <i class="fa-solid fa-list-ul me-2"></i>รายวัน
-                </button>
+
+                <!-- View Toggle -->
+                <div class="flex bg-slate-100 p-1 rounded-xl">
+                    <button id="view-grid" class="px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">ตาราง</span>
+                    </button>
+                    <button id="view-list" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul"></i> <span class="hidden sm:inline">รายวัน</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semester Info Card (New Feature) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Status -->
+            <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
+                <div class="relative z-10">
+                    <p class="text-slate-400 text-xs mb-1 uppercase tracking-wider">Current Status</p>
+                    <div id="status-container">
+                        <p class="text-lg font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังโหลด...</p>
+                    </div>
+                </div>
+                <div class="absolute right-0 bottom-0 opacity-10 text-9xl text-white transform translate-x-4 translate-y-4">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+
+            <!-- Key Dates (Based on Image) -->
+            <div class="info-card p-4 col-span-1">
+                <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-days text-orange-500"></i> กำหนดการ เทอม 2/2568
+                </h3>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center pb-2 border-b border-orange-100">
+                        <span class="text-slate-500">เปิดภาคเรียน</span>
+                        <span class="font-semibold text-green-600">24 พ.ย. 68</span>
+                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-orange-100">
+                        <span class="text-slate-500">สอบกลางภาค</span>
+                        <span class="font-semibold text-orange-600">19-25 ม.ค. 69</span>
+                    </div>
+                     <div class="flex justify-between items-center pb-2 border-b border-orange-100">
+                        <span class="text-slate-500">สอบปลายภาค</span>
+                        <span class="font-semibold text-red-500">16-27 มี.ค. 69</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-500">ปิดภาคเรียน</span>
+                        <span class="font-semibold text-slate-800">28 มี.ค. 69</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -246,52 +305,74 @@
 
     </main>
 
+    <!-- New KMITL Footer -->
+    <footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-orange-500 rounded text-white flex items-center justify-center font-bold text-xl">K</div>
+                        <h3 class="text-lg font-bold">วิศวกรรมคอมพิวเตอร์</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        ตารางเรียนภาคการศึกษาที่ 2 ปีการศึกษา 2568<br>
+                        สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
+                    </p>
+                </div>
+                <div class="text-sm">
+                    <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>Google Classroom</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>ตารางสอบ</a></li>
+                    </ul>
+                </div>
+                <div class="text-sm">
+                    <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Developer</h4>
+                    <div class="flex flex-col space-y-2 text-gray-400">
+                        <p>จัดทำโดย: นศ. ปริญญาตรี Section 2</p>
+                        <div class="flex space-x-4 mt-2">
+                            <a href="https://github.com/wasuratsomdet9009" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><i class="fa-brands fa-github"></i></a>
+                            <a href="https://www.instagram.com/raiwa_gu_wasurat/" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
+                &copy; 2025 KMITL Computer Engineering Student. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
     <!-- Settings Modal -->
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-slate-800">
-                    <i class="fa-solid fa-sliders text-orange-500 mr-2"></i>ตั้งค่าระบบ
+                    <i class="fa-solid fa-sliders text-orange-500 mr-2"></i>ตั้งค่า
                 </h3>
                 <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- Calendar Feature -->
-            <div class="mb-6">
-                <h4 class="font-semibold text-slate-700 mb-2">เชื่อมต่อปฏิทิน (Google Calendar)</h4>
-                <div class="bg-orange-50 border border-orange-100 p-4 rounded-xl">
-                    <div class="text-sm text-slate-600 mb-3">
-                        <i class="fa-regular fa-calendar-check text-orange-500 mr-1"></i>
-                        เพิ่มตารางเรียนลงในปฏิทินของคุณ
-                    </div>
-                    <div class="flex flex-col gap-2 text-xs text-slate-500 mb-3 pl-2 border-l-2 border-orange-200">
-                        <p>เริ่ม: <strong>24 พ.ย. 68 (2025)</strong></p>
-                        <p>สิ้นสุด: <strong>15 มี.ค. 69 (2026)</strong></p>
-                    </div>
-                    <button id="export-calendar-btn" class="w-full py-2.5 bg-white border border-orange-200 text-orange-600 font-semibold rounded-lg hover:bg-orange-500 hover:text-white transition-colors shadow-sm flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-file-export"></i> ดาวน์โหลดไฟล์ตาราง (.ics)
-                    </button>
-                    <p class="text-[10px] text-slate-400 mt-2 text-center">*รองรับ Google Calendar, Apple Calendar, Outlook</p>
-                </div>
-            </div>
-
-            <!-- Notifications Feature (UI Only for Demo) -->
-            <div class="mb-6">
-                <h4 class="font-semibold text-slate-700 mb-2">การแจ้งเตือน</h4>
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                    <span class="text-sm text-slate-600">เตือนก่อนเริ่มเรียน 15 นาที</span>
+            <div class="space-y-4">
+                 <!-- Notifications -->
+                 <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="text-sm font-medium text-slate-700">เตือนก่อนเรียน 15 นาที</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" checked class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
                     </label>
                 </div>
-            </div>
 
-             <!-- Image View Button -->
-             <div class="mb-2">
-                <button id="show-image-btn" class="w-full py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-colors">
-                    <i class="fa-regular fa-image mr-2"></i> ดูรูปภาพตารางเรียน
+                <!-- Image View Button -->
+                <button id="show-image-btn" class="w-full py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-colors shadow-lg shadow-slate-200">
+                    <i class="fa-regular fa-image mr-2"></i> ดูรูปภาพตารางต้นฉบับ
                 </button>
+            </div>
+            
+            <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-400">Version 2.1 (KMITL Edition with Date Fix)</p>
             </div>
         </div>
     </div>
@@ -299,44 +380,39 @@
     <!-- Class Details Modal -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-box p-0 overflow-hidden">
-            <div id="modal-header-bg" class="h-32 bg-cover bg-center relative">
-                <div class="absolute inset-0 bg-black/40"></div>
-                <button class="modal-close absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors">
+            <div id="modal-header-bg" class="h-36 bg-cover bg-center relative">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                <button class="modal-close absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors border border-white/20">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
-                <div class="absolute bottom-4 left-6 text-white">
-                    <div id="modal-code" class="text-xs font-light bg-white/20 px-2 py-1 rounded inline-block backdrop-blur-md mb-1">CODE</div>
-                    <h3 id="modal-title" class="text-xl font-bold leading-tight shadow-black drop-shadow-md">Course Name</h3>
+                <div class="absolute bottom-4 left-6 text-white right-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div id="modal-code" class="text-[10px] font-bold bg-orange-500 px-2 py-0.5 rounded shadow-sm">CODE</div>
+                        <div id="modal-room-tag" class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-0.5 rounded border border-white/30">ROOM</div>
+                    </div>
+                    <h3 id="modal-title" class="text-xl font-bold leading-tight shadow-black drop-shadow-sm">Course Name</h3>
                 </div>
             </div>
             <div class="p-6">
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <p class="text-xs text-slate-400 mb-1"><i class="fa-regular fa-clock mr-1"></i> เวลาเรียน</p>
-                        <p id="modal-time" class="font-semibold text-slate-700">-</p>
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="bg-orange-50 p-3 rounded-xl border border-orange-100">
+                        <p class="text-[10px] uppercase text-orange-400 font-bold mb-1">Time</p>
+                        <p id="modal-time" class="font-bold text-slate-700 text-sm">-</p>
                     </div>
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <p class="text-xs text-slate-400 mb-1"><i class="fa-solid fa-location-dot mr-1"></i> ห้องเรียน</p>
-                        <p id="modal-room" class="font-semibold text-slate-700">-</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <p class="text-xs text-slate-400 mb-1"><i class="fa-solid fa-user-tie mr-1"></i> อาจารย์/อาคาร</p>
-                        <p id="modal-instructor" class="font-semibold text-slate-700 text-sm">-</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-lg">
-                        <p class="text-xs text-slate-400 mb-1"><i class="fa-solid fa-layer-group mr-1"></i> Section</p>
-                        <p id="modal-section" class="font-semibold text-slate-700">-</p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Instructor / Loc</p>
+                        <p id="modal-instructor" class="font-bold text-slate-700 text-sm">-</p>
                     </div>
                 </div>
                 
-                <div class="mb-4">
-                    <h4 class="font-semibold text-slate-700 text-sm mb-2">รายละเอียดวิชา</h4>
-                    <p id="modal-desc" class="text-sm text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100"></p>
+                <div class="mb-5">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2 border-l-4 border-orange-500 pl-2">รายละเอียดวิชา</h4>
+                    <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed bg-white p-3 rounded-lg border border-slate-100 shadow-sm"></p>
                 </div>
 
                 <div>
-                    <h4 class="font-semibold text-slate-700 text-sm mb-2">หัวข้อการเรียนรู้</h4>
-                    <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-500 space-y-1 pl-2">
+                    <h4 class="font-bold text-slate-800 text-sm mb-2 border-l-4 border-orange-500 pl-2">หัวข้อการเรียนรู้</h4>
+                    <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-600 space-y-1 pl-2 marker:text-orange-500">
                     </ul>
                 </div>
             </div>
@@ -346,40 +422,24 @@
     <!-- Image Modal -->
     <div id="image-modal" class="modal-overlay">
         <div class="relative max-w-4xl w-full mx-4">
-            <button class="modal-close absolute -top-10 right-0 text-white text-3xl hover:scale-110 transition-transform">&times;</button>
+            <button class="modal-close absolute -top-12 right-0 text-white text-3xl hover:text-orange-400 transition-colors"><i class="fa-solid fa-circle-xmark"></i></button>
             <img src="https://blogger.googleusercontent.com/img/a/AVvXsEinZ_z9UpLJQGIKuqpiRxhZHenQd91TLXEu3oFR8gYB1RQZ62Re3grUvx0oG3VL_xpQXUI19GEStpezAAeHDF3THxwE8_vip-V-MmJBUbjs-ruEOGGjiozfva-0QKEWZ6Lsf-RRVw3bflRyaEeE2fRQyPjDfu-gEf1QcpO1dwrXDQX7MNeM_auS_krR-pQ" 
-                 alt="ตารางเรียน" class="w-full rounded-lg shadow-2xl border-4 border-white">
+                 alt="ตารางเรียน" class="w-full rounded-xl shadow-2xl border-4 border-white">
+            <p class="text-white text-center mt-4 text-sm opacity-80">แตะพื้นที่ว่างเพื่อปิด</p>
         </div>
     </div>
 
-    <footer class="text-center p-3 mt-6 text-secondary text-xs bg-white border-t border-slate-200">
-        <p>จัดทำโดย: นักศึกษาปริญญาตรี Section 2 สาขาเทคโนโลยีคอมพิวเตอร์</p>
-        <p style="color:orange;">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
-        <div class="flex justify-center items-center space-x-4 mt-2">
-            <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </a>
-            <a href="https://github.com/wasuratsomdet9009" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-            </a>
-            <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-primary transition-colors">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-            </a>
-        </div>
-    </footer>
-
     <script>
         // --- Data ---
-        // Note: day 1 = Monday, day 0 = Sunday in this logic (Mapped later)
         const rawSchedule = [
-             { day: 1, start: '09:00', end: '12:00', name: 'THAI LANGUAGE FOR CREATIVITY', code: 'GE-Thai', section: '901 (n)', room: 'D-401', instructor: 'อาคารพระเทพฯ (Phra Thep)', color: '#14b8a6', description: 'การใช้ภาษาไทยเพื่อการสร้างสรรค์ การสื่อสารและการนำเสนออย่างมีศิลปะ', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973&auto=format&fit=crop', topics: ['การเขียนเชิงสร้างสรรค์', 'วาทศิลป์', 'การนำเสนอผลงาน'] },
-             { day: 2, start: '09:00', end: '11:00', name: 'TEAM-PROJECT 1', code: 'TP-001', section: '304 (U)', room: 'IE2205', instructor: 'ครุศาสตร์ฯ (IE)', color: '#f43f5e', description: 'การทำงานเป็นทีม การจัดการโครงการเบื้องต้น และการแก้ปัญหาร่วมกัน', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop', topics: ['Team Building', 'Project Management', 'Problem Solving'] },
-             { day: 2, start: '13:00', end: '17:00', name: 'COMPUTER NETWORKS', code: 'IE3312', section: '3(n), 4(U)', room: 'IE3312', instructor: 'อาคารออมสิน (Aomsin)', color: '#0ea5e9', description: 'หลักการสื่อสารข้อมูล เครือข่ายคอมพิวเตอร์ โปรโตคอล', image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop', topics: ['OSI Model', 'TCP/IP', 'Routing & Switching'] },
-             { day: 3, start: '13:00', end: '16:00', name: 'DIGITAL CITIZEN', code: 'GE-Digi', section: '301 (n)', room: 'D-504', instructor: 'อาคารพระเทพฯ (Phra Thep)', color: '#6366f1', description: 'การเป็นพลเมืองดิจิทัล ความฉลาดทางดิจิทัล', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop', topics: ['Digital Literacy', 'Cyber Security', 'PDPA'] },
-             { day: 4, start: '08:00', end: '12:00', name: 'SOFTWARE DESIGN AND DEV 1', code: 'IE 1601', section: '3(n), 4(U)', room: 'IE 1601', instructor: 'อาคารนวัตกรรมฯ', color: '#d946ef', description: 'พื้นฐานวิศวกรรมซอฟต์แวร์ การวิเคราะห์และการออกแบบระบบ', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop', topics: ['SDLC', 'UML', 'Software Architecture'] },
-             { day: 4, start: '13:00', end: '17:00', name: 'DIGITAL DEVICES & CIRCUITS', code: 'IE2212', section: '3(n), 4(U)', room: 'IE2212', instructor: 'ครุศาสตร์ฯ (IE)', color: '#ec4899', description: 'วงจรดิจิทัลพื้นฐาน ลอจิกเกต ระบบตัวเลข', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop', topics: ['Logic Gates', 'Boolean Algebra', 'Circuits'] },
-             { day: 5, start: '08:00', end: '12:00', name: 'LANGUAGE FOR COMMUNICATION', code: 'IE1304', section: '7(n), 8(U)', room: 'IE1304', instructor: 'อาคารนวัตกรรมฯ', color: '#84cc16', description: 'ทักษะการสื่อสารสำหรับครู การพูดในที่สาธารณะ', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop', topics: ['Public Speaking', 'Communication Skills'] },
-             { day: 5, start: '13:00', end: '17:00', name: 'TECH INNOVATION FOR LEARNING', code: 'IE1301', section: '7(n), 8(U)', room: 'IE1301', instructor: 'อาคารนวัตกรรมฯ', color: '#eab308', description: 'นวัตกรรมและเทคโนโลยีเพื่อการเรียนรู้ สื่อการสอนสมัยใหม่', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2028&auto=format&fit=crop', topics: ['EdTech', 'AI in Education', 'Multimedia'] }
+             { day: 1, start: '09:00', end: '12:00', name: 'THAI LANGUAGE FOR CREATIVITY', code: 'GE-Thai', section: '901 (n)', room: 'D-401', instructor: 'อาคารพระเทพฯ', color: '#0d9488', description: 'การใช้ภาษาไทยเพื่อการสร้างสรรค์ การสื่อสารและการนำเสนออย่างมีศิลปะ', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973&auto=format&fit=crop', topics: ['การเขียนเชิงสร้างสรรค์', 'วาทศิลป์', 'การนำเสนอผลงาน'] },
+             { day: 2, start: '09:00', end: '11:00', name: 'TEAM-PROJECT 1', code: 'TP-001', section: '304 (U)', room: 'IE2205', instructor: 'ครุศาสตร์ฯ (IE)', color: '#e11d48', description: 'การทำงานเป็นทีม การจัดการโครงการเบื้องต้น และการแก้ปัญหาร่วมกัน', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop', topics: ['Team Building', 'Project Management', 'Problem Solving'] },
+             { day: 2, start: '13:00', end: '17:00', name: 'COMPUTER NETWORKS', code: 'IE3312', section: '3(n), 4(U)', room: 'IE3312', instructor: 'อาคารออมสิน', color: '#0284c7', description: 'หลักการสื่อสารข้อมูล เครือข่ายคอมพิวเตอร์ โปรโตคอล', image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop', topics: ['OSI Model', 'TCP/IP', 'Routing & Switching'] },
+             { day: 3, start: '13:00', end: '16:00', name: 'DIGITAL CITIZEN', code: 'GE-Digi', section: '301 (n)', room: 'D-504', instructor: 'อาคารพระเทพฯ', color: '#4f46e5', description: 'การเป็นพลเมืองดิจิทัล ความฉลาดทางดิจิทัล', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop', topics: ['Digital Literacy', 'Cyber Security', 'PDPA'] },
+             { day: 4, start: '08:00', end: '12:00', name: 'SOFTWARE DESIGN AND DEV 1', code: 'IE 1601', section: '3(n), 4(U)', room: 'IE 1601', instructor: 'อาคารนวัตกรรมฯ', color: '#c026d3', description: 'พื้นฐานวิศวกรรมซอฟต์แวร์ การวิเคราะห์และการออกแบบระบบ', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop', topics: ['SDLC', 'UML', 'Software Architecture'] },
+             { day: 4, start: '13:00', end: '17:00', name: 'DIGITAL DEVICES & CIRCUITS', code: 'IE2212', section: '3(n), 4(U)', room: 'IE2212', instructor: 'ครุศาสตร์ฯ (IE)', color: '#db2777', description: 'วงจรดิจิทัลพื้นฐาน ลอจิกเกต ระบบตัวเลข', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop', topics: ['Logic Gates', 'Boolean Algebra', 'Circuits'] },
+             { day: 5, start: '08:00', end: '12:00', name: 'LANGUAGE FOR COMMUNICATION', code: 'IE1304', section: '7(n), 8(U)', room: 'IE1304', instructor: 'อาคารนวัตกรรมฯ', color: '#65a30d', description: 'ทักษะการสื่อสารสำหรับครู การพูดในที่สาธารณะ', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop', topics: ['Public Speaking', 'Communication Skills'] },
+             { day: 5, start: '13:00', end: '17:00', name: 'TECH INNOVATION FOR LEARNING', code: 'IE1301', section: '7(n), 8(U)', room: 'IE1301', instructor: 'อาคารนวัตกรรมฯ', color: '#ca8a04', description: 'นวัตกรรมและเทคโนโลยีเพื่อการเรียนรู้ สื่อการสอนสมัยใหม่', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2028&auto=format&fit=crop', topics: ['EdTech', 'AI in Education', 'Multimedia'] }
         ];
 
         // Add Lunch Breaks
@@ -411,8 +471,14 @@
             document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
             document.getElementById('view-list').addEventListener('click', () => switchView('list'));
             document.getElementById('settings-btn').addEventListener('click', () => openModal(settingsModal));
-            document.getElementById('show-image-btn').addEventListener('click', () => { closeModal(settingsModal); openModal(imageModal); });
-            document.getElementById('export-calendar-btn').addEventListener('click', generateICS);
+            
+            // Image Modal Triggers
+            const openImg = () => { closeModal(settingsModal); openModal(imageModal); };
+            document.getElementById('show-image-btn').addEventListener('click', openImg);
+            document.getElementById('show-image-nav-btn').addEventListener('click', openImg);
+            
+            // Export Calendar
+            document.getElementById('export-calendar-main-btn').addEventListener('click', generateICS);
             
             // Close Modals
             document.querySelectorAll('.modal-close').forEach(btn => {
@@ -426,7 +492,6 @@
                 });
             });
 
-            // Set initial active button
             switchView('grid');
         }
 
@@ -444,16 +509,15 @@
                 gridView.classList.remove('hidden');
                 listView.classList.add('hidden');
                 btnGrid.classList.replace('bg-white', 'bg-orange-500');
-                btnGrid.classList.replace('text-slate-600', 'text-white');
-                btnList.classList.replace('bg-orange-500', 'bg-white');
-                btnList.classList.replace('text-white', 'text-slate-600');
+                btnGrid.classList.replace('text-orange-600', 'text-white');
+                btnList.classList.replace('bg-orange-500', 'bg-white'); // Reset list btn
+                btnList.classList.remove('text-white'); // Reset text color
             } else {
                 gridView.classList.add('hidden');
                 listView.classList.remove('hidden');
-                btnList.classList.replace('bg-white', 'bg-orange-500');
-                btnList.classList.replace('text-slate-600', 'text-white');
+                btnList.classList.add('bg-orange-500', 'text-white');
                 btnGrid.classList.replace('bg-orange-500', 'bg-white');
-                btnGrid.classList.replace('text-white', 'text-slate-600');
+                btnGrid.classList.replace('text-white', 'text-orange-600');
             }
         }
 
@@ -472,17 +536,15 @@
             
             document.getElementById('modal-title').textContent = cls.name;
             document.getElementById('modal-code').textContent = cls.code;
-            document.getElementById('modal-time').textContent = `${cls.start} - ${cls.end}`;
-            document.getElementById('modal-room').textContent = cls.room;
+            document.getElementById('modal-time').textContent = `${cls.start} - ${cls.end} (${daysTH[cls.day]})`;
+            // Fixed: Removed modal-room line that caused error
+            document.getElementById('modal-room-tag').textContent = cls.room;
             document.getElementById('modal-instructor').textContent = cls.instructor;
-            document.getElementById('modal-section').textContent = cls.section;
             document.getElementById('modal-desc').textContent = cls.description;
             
-            // Image Header
             const bg = document.getElementById('modal-header-bg');
             bg.style.backgroundImage = `url('${cls.image}')`;
             
-            // Topics
             const topicsList = document.getElementById('modal-topics');
             topicsList.innerHTML = '';
             if (cls.topics) {
@@ -496,37 +558,32 @@
             openModal(classModal);
         }
 
-        // --- Rendering Grid ---
+        // --- Rendering ---
         function renderGrid() {
             const grid = document.getElementById('timetable-grid');
-            // Clear except indicator
             Array.from(grid.children).forEach(c => {
                 if (c.id !== 'real-time-indicator') grid.removeChild(c);
             });
 
-            // Time Headers
             const headerRow = 1;
             for (let h = startHour; h <= endHour; h++) {
                 const div = document.createElement('div');
-                div.className = 'grid-header sticky top-0 z-20 bg-slate-50';
+                div.className = 'grid-header sticky top-0 z-20 bg-[#fff7ed] border-b border-orange-200';
                 div.textContent = `${String(h).padStart(2, '0')}:00`;
                 div.style.gridRow = 1;
                 div.style.gridColumn = h - startHour + 2;
                 grid.appendChild(div);
             }
 
-            // Day Headers & Background Cells
             daysTH.forEach((day, idx) => {
                 const row = idx + 2;
-                // Day Label
                 const dayHeader = document.createElement('div');
-                dayHeader.className = 'grid-header sticky left-0 z-20 bg-slate-50 border-r border-slate-200 text-xs';
+                dayHeader.className = 'grid-header sticky left-0 z-20 bg-white border-r border-orange-100 text-xs font-bold text-slate-600';
                 dayHeader.textContent = day;
                 dayHeader.style.gridRow = row;
                 dayHeader.style.gridColumn = 1;
                 grid.appendChild(dayHeader);
 
-                // Empty Cells
                 for (let col = 2; col <= (endHour - startHour + 2); col++) {
                     const cell = document.createElement('div');
                     cell.className = 'grid-cell';
@@ -536,127 +593,121 @@
                 }
             });
 
-            // Render Classes
             schedule.forEach(cls => {
                 const startM = timeToMin(cls.start);
                 const endM = timeToMin(cls.end);
-                const duration = endM - startM;
-                
-                // Calculate Grid Position
-                const row = cls.day + 2; // +2 because row 1 is header
+                const row = cls.day + 2;
                 const startCol = ((startM - (startHour * 60)) / 60) + 2;
                 const endCol = ((endM - (startHour * 60)) / 60) + 2;
 
                 if (startCol >= 2) {
                     const el = document.createElement('div');
-                    el.className = `class-block ${cls.type === 'break' ? 'opacity-70' : ''}`;
+                    el.className = `class-block ${cls.type === 'break' ? 'opacity-70 grayscale' : ''}`;
                     el.style.gridRow = row;
                     el.style.gridColumn = `${startCol} / ${endCol}`;
-                    el.style.backgroundColor = cls.type === 'break' ? cls.color : 'transparent';
+                    el.style.backgroundColor = cls.type === 'break' ? '#cbd5e1' : cls.color;
                     
                     if (cls.type !== 'break') {
-                        el.style.borderLeft = `4px solid ${cls.color}`;
-                        el.style.backgroundImage = `linear-gradient(to right, ${cls.color}dd, ${cls.color}aa), url(${cls.image})`;
+                        el.style.backgroundImage = `linear-gradient(to right, ${cls.color}dd, ${cls.color}99), url(${cls.image})`;
                         el.style.backgroundSize = 'cover';
                     }
 
                     el.innerHTML = `
-                        <div class="font-bold truncate">${cls.name}</div>
+                        <div class="font-bold truncate text-white shadow-sm">${cls.name}</div>
                         <div class="flex justify-between items-end mt-auto">
-                            <span class="bg-black/20 px-1.5 rounded text-[10px] backdrop-blur-sm">${cls.room}</span>
-                            ${cls.type !== 'break' ? '<i class="fa-solid fa-circle-info text-[10px] opacity-70"></i>' : ''}
+                            <span class="bg-black/30 px-1.5 rounded text-[10px] backdrop-blur-md border border-white/20">${cls.room}</span>
                         </div>
                     `;
                     
                     el.onclick = () => showClassDetail(cls);
-                    // Store for real-time highlighting
                     el.dataset.day = cls.day;
                     el.dataset.start = startM;
                     el.dataset.end = endM;
-                    
                     grid.appendChild(el);
                 }
             });
         }
 
-        // --- Rendering List (Timeline) ---
         function renderList() {
             const container = document.getElementById('list-view');
             container.innerHTML = '';
-
-            // Group by Day
             const grouped = {};
             schedule.forEach(cls => {
                 if (!grouped[cls.day]) grouped[cls.day] = [];
                 grouped[cls.day].push(cls);
             });
 
-            // Sort days
             Object.keys(grouped).sort().forEach(dayIdx => {
                 if (grouped[dayIdx].length === 0) return;
-                
-                // Sort time within day
                 grouped[dayIdx].sort((a, b) => timeToMin(a.start) - timeToMin(b.start));
 
                 const daySection = document.createElement('div');
-                daySection.className = 'timeline-day';
+                daySection.className = 'timeline-day mb-6';
                 
                 const header = document.createElement('div');
-                header.className = 'timeline-header';
-                header.innerHTML = `<span class="w-3 h-8 rounded-r bg-orange-500 block"></span><h3 class="text-lg font-bold text-slate-700">${daysTH[dayIdx]}</h3>`;
+                header.className = 'sticky top-0 z-30 bg-white/95 backdrop-blur py-2 border-b border-slate-100 mb-2 flex items-center gap-3';
+                header.innerHTML = `<div class="w-1.5 h-8 rounded-full bg-orange-500"></div><h3 class="text-xl font-bold text-slate-800">${daysTH[dayIdx]}</h3>`;
                 daySection.appendChild(header);
 
                 grouped[dayIdx].forEach(cls => {
                     const card = document.createElement('div');
-                    card.className = 'timeline-card cursor-pointer';
-                    card.style.borderLeftColor = cls.color;
-                    
-                    if (cls.type !== 'break') {
-                         card.onclick = () => showClassDetail(cls);
-                    }
+                    card.className = 'timeline-card cursor-pointer hover:shadow-md bg-white p-4 rounded-2xl mb-3 border border-slate-100 flex gap-4 items-stretch transition-all';
+                    if (cls.type !== 'break') card.onclick = () => showClassDetail(cls);
 
                     card.innerHTML = `
-                        <div class="flex flex-col items-center min-w-[80px]">
+                        <div class="flex flex-col items-center justify-center min-w-[70px] border-r border-slate-100 pr-4">
                             <span class="text-lg font-bold text-slate-700">${cls.start}</span>
-                            <span class="text-xs text-slate-400">ถึง</span>
-                            <span class="text-sm text-slate-500">${cls.end}</span>
+                            <span class="text-xs text-slate-400">ถึง ${cls.end}</span>
                         </div>
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-slate-800 ${cls.type === 'break' ? 'text-slate-500' : ''}">${cls.name}</h4>
+                        <div class="flex-grow py-1">
+                            <h4 class="font-bold text-slate-800 ${cls.type === 'break' ? 'text-slate-400' : ''} line-clamp-1">${cls.name}</h4>
                             <div class="flex flex-wrap gap-2 mt-2">
-                                <span class="time-pill text-xs"><i class="fa-solid fa-location-dot mr-1"></i>${cls.room}</span>
-                                ${cls.type !== 'break' ? `<span class="time-pill text-xs bg-orange-50 text-orange-600">${cls.code}</span>` : ''}
+                                <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i>${cls.room}</span>
+                                ${cls.type !== 'break' ? `<span class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded border border-orange-100">${cls.code}</span>` : ''}
                             </div>
                         </div>
-                        ${cls.type !== 'break' ? '<div class="text-slate-300"><i class="fa-solid fa-chevron-right"></i></div>' : ''}
                     `;
                     daySection.appendChild(card);
                 });
-
                 container.appendChild(daySection);
             });
         }
 
-        // --- Update Clock & Logic ---
         function updateClock() {
             const now = new Date();
-            const days = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
             const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             
-            // Date Display
-            document.getElementById('current-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
-            
-            // Time Display
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('clock-time').textContent = `${h}:${m}`;
-            document.getElementById('clock-sec').textContent = s;
+            document.getElementById('current-date').textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
+            document.getElementById('clock-time').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('clock-sec').textContent = String(now.getSeconds()).padStart(2, '0');
 
-            // Status Logic
-            const currentMin = now.getHours() * 60 + now.getMinutes();
-            const currentDay = now.getDay(); // 0-6
+            // Semester Dates Logic
+            const semesterStart = new Date(2025, 10, 24); // Nov 24, 2025 (Month is 0-indexed)
+            const semesterEnd = new Date(2026, 2, 28);   // Mar 28, 2026
+            const isSemesterActive = now >= semesterStart && now <= semesterEnd;
             
+            const currentMin = now.getHours() * 60 + now.getMinutes();
+            const currentDay = now.getDay();
+            const statusDiv = document.getElementById('status-container');
+
+            if (!isSemesterActive) {
+                 if (now < semesterStart) {
+                     statusDiv.innerHTML = `
+                        <p class="text-xl font-bold text-orange-500"><i class="fa-solid fa-hourglass-start mr-2"></i>ยังไม่เปิดภาคเรียน</p>
+                        <p class="text-xs text-slate-300 mt-1 opacity-80">เปิดภาคเรียนวันที่ 24 พ.ย. 68</p>
+                     `;
+                 } else {
+                     statusDiv.innerHTML = `
+                        <p class="text-xl font-bold text-slate-500"><i class="fa-solid fa-school-lock mr-2"></i>ปิดภาคเรียนแล้ว</p>
+                     `;
+                 }
+                 // Clear grid highlights if not active
+                 document.querySelectorAll('.class-block').forEach(el => el.classList.remove('current'));
+                 document.getElementById('real-time-indicator').classList.add('hidden');
+                 return; // Stop processing next class logic
+            }
+            
+            // Normal Semester Logic
             let activeClass = null;
             let nextClass = null;
             let minDiffNext = Infinity;
@@ -674,44 +725,34 @@
                 }
             });
 
-            const statusDiv = document.getElementById('status-container');
             if (activeClass) {
-                const isBreak = activeClass.type === 'break';
                 statusDiv.innerHTML = `
-                    <div class="status-pill ${isBreak ? 'bg-slate-200 text-slate-600' : 'bg-green-100 text-green-700 border border-green-200'}">
-                        <div class="w-2 h-2 rounded-full bg-current animate-pulse"></div>
-                        กำลังเรียน: ${activeClass.name}
-                    </div>`;
+                    <p class="text-2xl font-bold text-white leading-tight">${activeClass.name}</p>
+                    <p class="text-sm text-orange-300 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${activeClass.room} | หมดเวลา ${activeClass.end}</p>
+                `;
             } else if (nextClass) {
                 statusDiv.innerHTML = `
-                    <div class="status-pill bg-orange-50 text-orange-600 border border-orange-200">
-                        <i class="fa-regular fa-clock"></i>
-                        คาบต่อไป: ${nextClass.name} (อีก ${minDiffNext} นาที)
-                    </div>`;
+                    <p class="text-lg text-slate-300">Next Class:</p>
+                    <p class="text-xl font-bold text-white">${nextClass.name}</p>
+                    <p class="text-xs text-orange-400 mt-1">เริ่มเรียนในอีก ${minDiffNext} นาที (${nextClass.start})</p>
+                `;
             } else {
-                statusDiv.innerHTML = `<div class="status-pill bg-slate-100 text-slate-400">ไม่มีการเรียนการสอนในขณะนี้</div>`;
+                statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-400">ไม่มีการเรียนการสอนขณะนี้</p>`;
             }
 
-            // Update Grid Highlight & Indicator
             document.querySelectorAll('.class-block').forEach(el => {
                 el.classList.remove('current');
-                if (el.dataset.day == currentDay && 
-                    currentMin >= parseInt(el.dataset.start) && 
-                    currentMin < parseInt(el.dataset.end)) {
+                if (el.dataset.day == currentDay && currentMin >= parseInt(el.dataset.start) && currentMin < parseInt(el.dataset.end)) {
                     el.classList.add('current');
                 }
             });
 
-            // Red Line Indicator position
             if (currentMin >= startHour * 60 && currentMin <= endHour * 60) {
-                const percent = (currentMin - (startHour * 60)) / ((endHour - startHour) * 60) * 100;
-                // Adjust calculation to match grid columns width + header offset
-                // Grid structure: 60px header + (cols * flex)
-                // Simpler logic: Calculate percentage of the scrollWidth minus header
                 const gridEl = document.getElementById('timetable-grid');
                 const headerWidth = 60; 
                 const totalWidth = gridEl.scrollWidth - headerWidth;
-                const leftPos = headerWidth + (totalWidth * (percent/100));
+                const percent = (currentMin - (startHour * 60)) / ((endHour - startHour) * 60);
+                const leftPos = headerWidth + (totalWidth * percent);
                 
                 timeIndicator.classList.remove('hidden');
                 timeIndicator.style.left = `${leftPos}px`;
@@ -721,21 +762,23 @@
             }
         }
 
-        // --- Google Calendar ICS Generator ---
+        // --- Google Calendar Generator (Updated Dates) ---
         function generateICS() {
-            // Config: 24 Nov 2025 - 15 Mar 2026
-            const startDate = new Date(2025, 10, 24); // Month is 0-indexed (10 = Nov)
-            const endDate = new Date(2026, 2, 15); // 2 = Mar
+            // Dates from Image: Start 24 Nov 2025, End 28 Mar 2026
+            const startDate = new Date(2025, 10, 24); // Nov 24, 2025
+            const endDate = new Date(2026, 2, 15); // End generating recurring classes around mid-March before finals
+            
+            // Note: Actual semester ends 28 March, but classes usually stop 1-2 weeks before for finals (16-27 Mar).
+            // So we generate classes until March 15.
 
             let icsContent = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
-                "PRODID:-//KMITL//Timetable Sec2//TH",
+                "PRODID:-//KMITL//CE Schedule 2568//TH",
                 "CALSCALE:GREGORIAN",
                 "METHOD:PUBLISH"
             ];
 
-            // Helper to format date for ICS: YYYYMMDDTHHmm00
             const fmtDate = (date, timeStr) => {
                 const [h, m] = timeStr.split(':');
                 const y = date.getFullYear();
@@ -745,46 +788,55 @@
             };
 
             let loopDate = new Date(startDate);
-            
             while (loopDate <= endDate) {
-                const dayOfWeek = loopDate.getDay(); // 0 (Sun) - 6 (Sat)
-                
-                // Find classes for this day
-                const classesToday = rawSchedule.filter(c => c.day === dayOfWeek);
+                const dayOfWeek = loopDate.getDay();
+                const classesToday = rawSchedule.filter(c => c.day === dayOfWeek); // Exclude lunch
 
                 classesToday.forEach(cls => {
-                    // Create Event
                     icsContent.push("BEGIN:VEVENT");
                     icsContent.push(`UID:${cls.code}-${loopDate.getTime()}@kmitl.ac.th`);
-                    icsContent.push(`DTSTAMP:${fmtDate(new Date(), '00:00')}`); // Now
+                    icsContent.push(`DTSTAMP:${fmtDate(new Date(), '00:00')}`);
                     icsContent.push(`DTSTART:${fmtDate(loopDate, cls.start)}`);
                     icsContent.push(`DTEND:${fmtDate(loopDate, cls.end)}`);
-                    icsContent.push(`SUMMARY:${cls.name} (${cls.code})`);
-                    icsContent.push(`DESCRIPTION:${cls.description || ''} | Instructor: ${cls.instructor}`);
+                    icsContent.push(`SUMMARY:${cls.name}`);
+                    icsContent.push(`DESCRIPTION:${cls.code} - ${cls.description} | Instructor: ${cls.instructor}`);
                     icsContent.push(`LOCATION:${cls.room}`);
                     icsContent.push("STATUS:CONFIRMED");
                     icsContent.push("END:VEVENT");
                 });
-
-                // Next day
                 loopDate.setDate(loopDate.getDate() + 1);
             }
+            
+            // Add Exam Events (Hardcoded based on image)
+            // Midterm: 19-25 Jan
+            icsContent.push("BEGIN:VEVENT");
+            icsContent.push(`UID:MIDTERM-2568@kmitl.ac.th`);
+            icsContent.push(`DTSTART;VALUE=DATE:20260119`);
+            icsContent.push(`DTEND;VALUE=DATE:20260126`); // End date is exclusive in ICS
+            icsContent.push(`SUMMARY:สอบกลางภาค (Midterm Exam)`);
+            icsContent.push(`DESCRIPTION:ช่วงสอบกลางภาคการศึกษาที่ 2/2568`);
+            icsContent.push("END:VEVENT");
+
+            // Final: 16-27 Mar
+            icsContent.push("BEGIN:VEVENT");
+            icsContent.push(`UID:FINAL-2568@kmitl.ac.th`);
+            icsContent.push(`DTSTART;VALUE=DATE:20260316`);
+            icsContent.push(`DTEND;VALUE=DATE:20260328`);
+            icsContent.push(`SUMMARY:สอบปลายภาค (Final Exam)`);
+            icsContent.push(`DESCRIPTION:ช่วงสอบปลายภาคการศึกษาที่ 2/2568`);
+            icsContent.push("END:VEVENT");
 
             icsContent.push("END:VCALENDAR");
 
-            // Create File
             const blob = new Blob([icsContent.join("\r\n")], { type: 'text/calendar;charset=utf-8' });
             const link = document.createElement('a');
             link.href = window.URL.createObjectURL(blob);
-            link.setAttribute('download', 'KMITL_Schedule_Sec2.ics');
+            link.setAttribute('download', 'KMITL_Schedule_2568_2.ics');
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-
-            alert('ดาวน์โหลดไฟล์ปฏิทินเรียบร้อย! กรุณาเปิดไฟล์ .ics เพื่อเพิ่มลงในปฏิทินของคุณ');
         }
 
-        // Run
         init();
     </script>
 </body>
