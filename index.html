@@ -12,6 +12,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas for Image Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         :root {
@@ -118,7 +120,7 @@
         }
         .timeline-card:hover { transform: translateX(5px); border-color: var(--kmitl-orange) !important; }
 
-        /* Real-time Indicator (Updated Style) */
+        /* Real-time Indicator */
         #real-time-indicator {
             position: absolute; top: 50px; bottom: 0; width: 3px;
             background: #ef4444; z-index: 25; pointer-events: none;
@@ -126,29 +128,14 @@
             transition: left 0.5s linear;
         }
         #real-time-indicator::after {
-            content: 'Now'; 
-            position: absolute; 
-            top: -26px; 
-            left: 50%;
-            transform: translateX(-50%); 
-            background: #ef4444; 
-            color: white;
-            padding: 3px 10px; 
-            border-radius: 12px; 
-            font-size: 10px; 
-            font-weight: bold;
+            content: 'Now'; position: absolute; top: -26px; left: 50%;
+            transform: translateX(-50%); background: #ef4444; color: white;
+            padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        /* Small arrow for the badge */
         #real-time-indicator::before {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-top: 4px solid #ef4444;
+            content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+            border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid #ef4444;
         }
 
         /* Schedule Info Card */
@@ -182,108 +169,101 @@
         }
         .modal-overlay.visible .modal-box { transform: scale(1); }
 
-        /* KMITL Button */
-        .btn-kmitl {
-            background-color: var(--kmitl-orange);
-            color: white;
-            transition: all 0.3s;
-        }
-        .btn-kmitl:hover {
-            background-color: #d97706;
-            box-shadow: 0 4px 12px rgba(245, 130, 32, 0.3);
-        }
-
-        /* --- Analog Clock Styles --- */
+        /* Analog Clock */
         .analog-clock-container {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: white;
-            border: 4px solid #e2e8f0;
-            position: relative;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100px; height: 100px; border-radius: 50%; background: white;
+            border: 4px solid #e2e8f0; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        .clock-face {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
+        .clock-face { width: 100%; height: 100%; position: relative; }
         .clock-hand {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform-origin: bottom center;
-            border-radius: 4px;
-            z-index: 10;
-            transform: translateX(-50%);
+            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center;
+            border-radius: 4px; z-index: 10; transform: translateX(-50%);
         }
-        .hand-hour {
-            width: 4px;
-            height: 25%;
-            background-color: #1e293b; /* Slate 800 */
-        }
-        .hand-minute {
-            width: 3px;
-            height: 35%;
-            background-color: #64748b; /* Slate 500 */
-        }
-        .hand-second {
-            width: 2px;
-            height: 40%;
-            background-color: #F58220; /* KMITL Orange */
-            z-index: 11;
-        }
+        .hand-hour { width: 4px; height: 25%; background-color: #1e293b; }
+        .hand-minute { width: 3px; height: 35%; background-color: #64748b; }
+        .hand-second { width: 2px; height: 40%; background-color: #F58220; z-index: 11; }
         .clock-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 8px;
-            height: 8px;
-            background-color: #1e293b;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 12;
-            border: 2px solid white;
+            position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
+            background-color: #1e293b; border-radius: 50%; transform: translate(-50%, -50%);
+            z-index: 12; border: 2px solid white;
         }
-        /* Markers */
         .clock-marker {
-            position: absolute;
-            width: 2px;
-            height: 6px;
-            background-color: #cbd5e1;
-            left: 50%;
-            top: 2px;
-            transform-origin: 50% 48px; /* Adjust based on clock size (100px / 2 - margin) */
-            transform: translateX(-50%);
+            position: absolute; width: 2px; height: 6px; background-color: #cbd5e1;
+            left: 50%; top: 2px; transform-origin: 50% 48px; transform: translateX(-50%);
         }
-        .marker-main {
-            height: 8px;
-            background-color: #94a3b8;
-            width: 3px;
+        .marker-main { height: 8px; background-color: #94a3b8; width: 3px; }
+
+        /* Capture Area for Image Generation - A4 Landscape */
+        #capture-preview-container {
+            border: 2px dashed #cbd5e1;
+            padding: 5px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: #f8fafc;
+            overflow-x: auto; /* Allow horizontal scroll */
+            max-width: 100%;
+        }
+        #capture-target {
+            background: white;
+            padding: 30px;
+            /* A4 Landscape Dimensions (approx at 96dpi) */
+            width: 1122px; 
+            height: 794px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #capture-target #share-grid-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+        #capture-target .timetable-grid {
+            min-width: 100%;
+            height: auto;
+            align-self: center;
+            flex-shrink: 0;
+            /* Scale down slightly to fit everything comfortably */
+            transform: scale(0.95); 
+        }
+        /* Override specific styles for capture-target */
+        #capture-target .timetable-wrapper {
+            overflow-x: hidden !important;
+            padding-bottom: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            width: 100%;
+        }
+        #capture-target .class-block {
+            font-size: 0.75rem; 
+            padding: 6px;
+        }
+        #capture-target .grid-header {
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- Navbar -->
-    <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
+    <!-- Navbar --><nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">
-                        K
-                    </div>
+                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">K</div>
                     <div class="leading-tight">
                         <h1 class="font-bold text-slate-800 text-lg">วิศวกรรมคอมพิวเตอร์ <span class="text-orange-500">Sec 2</span></h1>
                         <p class="text-xs text-slate-500">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <!-- Image Button (Top Nav) -->
-                     <button id="show-image-nav-btn" class="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors mr-2">
-                        <i class="fa-regular fa-image"></i> รูปตาราง
+                    <!-- Share/Save Button (Prominent) --><button id="share-schedule-btn" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg mr-1">
+                        <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
                     </button>
-                    <!-- Settings -->
                     <button id="settings-btn" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center">
                         <i class="fa-solid fa-gear"></i>
                     </button>
@@ -292,26 +272,18 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+    <!-- Main Content --><main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
         
-        <!-- Top Section: Clock & Controls -->
-        <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
-            
-            <!-- Clock & Date (Updated with Analog) -->
+        <!-- Top Section --><div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
             <div class="flex items-center gap-5 w-full lg:w-auto justify-start">
-                <!-- Analog Clock -->
                 <div class="analog-clock-container hidden sm:block flex-shrink-0">
                     <div class="clock-face" id="analog-clock">
                         <div class="clock-center"></div>
-                        <!-- Markers will be generated by JS -->
                         <div class="clock-hand hand-hour" id="hand-hour"></div>
                         <div class="clock-hand hand-minute" id="hand-minute"></div>
                         <div class="clock-hand hand-second" id="hand-second"></div>
                     </div>
                 </div>
-
-                <!-- Digital Clock -->
                 <div>
                     <div class="flex items-center gap-2 mb-1">
                         <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded">ปีการศึกษา 2568</span>
@@ -324,10 +296,7 @@
                 </div>
             </div>
 
-            <!-- Action Controls (Prominent Calendar) -->
             <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                
-                <!-- Google Calendar Button (Moved Here) -->
                 <button id="export-calendar-main-btn" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:border-orange-300 hover:text-orange-600 transition-all group">
                     <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors">
                         <i class="fa-brands fa-google"></i>
@@ -338,7 +307,6 @@
                     </div>
                 </button>
 
-                <!-- View Toggle -->
                 <div class="flex bg-slate-100 p-1 rounded-xl">
                     <button id="view-grid" class="px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center gap-2">
                         <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">ตาราง</span>
@@ -350,9 +318,7 @@
             </div>
         </div>
 
-        <!-- Semester Info Card (New Feature) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <!-- Status -->
+        <!-- Info Cards --><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
                 <div class="relative z-10">
                     <p class="text-slate-400 text-xs mb-1 uppercase tracking-wider">Current Status</p>
@@ -364,53 +330,31 @@
                     <i class="fa-solid fa-clock"></i>
                 </div>
             </div>
-
-            <!-- Key Dates (Based on Image) -->
             <div class="info-card p-4 col-span-1">
                 <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
                     <i class="fa-regular fa-calendar-days text-orange-500"></i> กำหนดการ เทอม 2/2568
                 </h3>
                 <div class="space-y-2 text-xs">
-                    <div class="flex justify-between items-center pb-2 border-b border-orange-100">
-                        <span class="text-slate-500">เปิดภาคเรียน</span>
-                        <span class="font-semibold text-green-600">24 พ.ย. 68</span>
-                    </div>
-                    <div class="flex justify-between items-center pb-2 border-b border-orange-100">
-                        <span class="text-slate-500">สอบกลางภาค</span>
-                        <span class="font-semibold text-orange-600">19-25 ม.ค. 69</span>
-                    </div>
-                     <div class="flex justify-between items-center pb-2 border-b border-orange-100">
-                        <span class="text-slate-500">สอบปลายภาค</span>
-                        <span class="font-semibold text-red-500">16-27 มี.ค. 69</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-500">ปิดภาคเรียน</span>
-                        <span class="font-semibold text-slate-800">28 มี.ค. 69</span>
-                    </div>
+                    <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">เปิดภาคเรียน</span><span class="font-semibold text-green-600">24 พ.ย. 68</span></div>
+                    <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">สอบกลางภาค</span><span class="font-semibold text-orange-600">19-25 ม.ค. 69</span></div>
+                    <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">สอบปลายภาค</span><span class="font-semibold text-red-500">16-27 มี.ค. 69</span></div>
+                    <div class="flex justify-between items-center"><span class="text-slate-500">ปิดภาคเรียน</span><span class="font-semibold text-slate-800">28 มี.ค. 69</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Content Area -->
-        <div id="main-container" class="animate-fade-in">
-            <!-- Grid View -->
+        <!-- Timetable Content --><div id="main-container" class="animate-fade-in">
             <div id="grid-view" class="timetable-wrapper">
                 <div id="timetable-grid" class="timetable-grid">
-                    <!-- Grid items generated by JS -->
                     <div id="real-time-indicator" class="hidden"></div>
                 </div>
             </div>
-
-            <!-- List/Timeline View -->
-            <div id="list-view" class="hidden max-w-3xl mx-auto">
-                <!-- List items generated by JS -->
-            </div>
+            <div id="list-view" class="hidden max-w-3xl mx-auto"></div>
         </div>
 
     </main>
 
-    <!-- New KMITL Footer -->
-    <footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
+    <!-- Footer with Teams Link --><footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                 <div>
@@ -426,8 +370,9 @@
                 <div class="text-sm">
                     <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>Google Classroom</a></li>
+                        <li><a href="https://reg.kmitl.ac.th" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
+                        <li><a href="https://classroom.google.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>Google Classroom</a></li>
+                        <li><a href="https://teams.microsoft.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-brands fa-microsoft text-orange-500 mr-2"></i>Microsoft Teams</a></li>
                         <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>ตารางสอบ</a></li>
                     </ul>
                 </div>
@@ -436,9 +381,9 @@
                     <div class="flex flex-col space-y-2 text-gray-400">
                         <p>จัดทำโดย: นศ. ปริญญาตรี Section 2</p>
                         <div class="flex space-x-4 mt-2">
-                            <a href="https://github.com/wasuratsomdet9009" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><i class="fa-brands fa-github"></i></a>
-                            <a href="https://www.instagram.com/raiwa_gu_wasurat/" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
-                            <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+                            <a href="https://github.com/wasuratsomdet9009" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><i class="fa-brands fa-github"></i></a>
+                            <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
                         </div>
                     </div>
                 </div>
@@ -449,18 +394,86 @@
         </div>
     </footer>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-slate-800">
-                    <i class="fa-solid fa-sliders text-orange-500 mr-2"></i>ตั้งค่า
-                </h3>
+    <!-- Share Modal (New) --><div id="share-modal" class="modal-overlay">
+        <div class="modal-box max-w-3xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-image text-orange-500 mr-2"></i>บันทึกรูปตาราง (A4 Landscape)</h3>
                 <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="space-y-4">
-                 <!-- Notifications -->
+                <!-- Custom Name Input --><div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อของคุณ (แสดงบนหัวตาราง)</label>
+                    <input type="text" id="share-name-input" placeholder="พิมพ์ชื่อเล่น หรือข้อความทักทาย..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all">
+                </div>
+
+                <!-- Capture Preview Container --><div class="flex justify-between items-end text-xs text-slate-500 mb-1">
+                    <span>พรีวิวรูปภาพ (ขนาด A4 แนวนอน):</span>
+                </div>
+                
+                <div id="capture-preview-container" class="overflow-x-auto shadow-inner bg-slate-100 border border-slate-300 rounded-lg">
+                    <!-- This is the hidden target that we will render into --><div id="capture-target">
+                        <!-- Header for the captured image --><div class="flex justify-between items-center mb-4 border-b-2 border-orange-500 pb-3">
+                            <!-- Left: KMITL Circle Logo -->
+                            <div class="flex items-center gap-4">
+                                <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/200px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
+                                     crossorigin="anonymous"
+                                     alt="KMITL Seal" class="h-20 w-20 object-contain">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h2>
+                                    <p class="text-lg text-slate-600">ภาคการศึกษาที่ 2/2568 (Section 2)</p>
+                                </div>
+                            </div>
+                            <!-- Right: CE Logo + Name -->
+                            <div class="text-right flex items-center gap-4">
+                                <div>
+                                    <p id="share-display-name" class="text-xl font-bold text-orange-600">My Schedule</p>
+                                    <p class="text-sm text-slate-400">KMITL Smart Schedule</p>
+                                </div>
+                                <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjbyEZoRq1s0FxSt3ZMcCU8tjRmIaQnldVF4uRzMPt1rmpJJITx5wLYetpeYEbR5NFPuOw9Uyn4c0XjohecGxyjc0PC1AOp-LNlCwKuq_LEA0rsCmH5anpqoh3VAr4l37jTGFFHN8E4ZXHZ3U5w05jqdxf_ztV2L4D6g_o66KGGR-q1DRg1gc4_0Dt3WYk" 
+                                     crossorigin="anonymous"
+                                     alt="CE Logo" class="h-16 object-contain">
+                            </div>
+                        </div>
+                        
+                        <!-- Clone of grid will be inserted here --><div id="share-grid-container" class="border border-slate-200 rounded-lg overflow-hidden"></div>
+                        
+                        <!-- Footer to the captured image --><div class="flex justify-between items-start text-sm text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-200 mt-auto">
+                            <div>
+                                <strong class="text-orange-500 text-base mb-1 block">กำหนดการสำคัญ:</strong>
+                                <div class="flex gap-6">
+                                    <span><i class="fa-regular fa-calendar-check mr-1"></i> เปิดเทอม: 24 พ.ย. 68</span>
+                                    <span><i class="fa-solid fa-pencil mr-1"></i> สอบกลางภาค: 19-25 ม.ค. 69</span>
+                                    <span><i class="fa-solid fa-file-pen mr-1"></i> สอบปลายภาค: 16-27 มี.ค. 69</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold text-slate-800">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons --><div class="flex gap-3 pt-2">
+                    <button id="do-download-btn" class="flex-1 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download"></i> บันทึกรูปภาพ
+                    </button>
+                    <button id="do-share-btn" class="flex-1 py-2.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-share-nodes"></i> แชร์ให้เพื่อน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-orange-500 mr-2"></i>ตั้งค่า</h3>
+                <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
                  <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <span class="text-sm font-medium text-slate-700">เตือนก่อนเรียน 15 นาที</span>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -468,15 +481,9 @@
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
                     </label>
                 </div>
-
-                <!-- Image View Button -->
-                <button id="show-image-btn" class="w-full py-3 bg-slate-800 text-white rounded-xl hover:bg-slate-900 transition-colors shadow-lg shadow-slate-200">
-                    <i class="fa-regular fa-image mr-2"></i> ดูรูปภาพตารางต้นฉบับ
-                </button>
             </div>
-            
             <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400">Version 2.1 (KMITL Edition with Date Fix)</p>
+                <p class="text-xs text-slate-400">Version 2.4 (KMITL A4 Share)</p>
             </div>
         </div>
     </div>
@@ -508,28 +515,15 @@
                         <p id="modal-instructor" class="font-bold text-slate-700 text-sm">-</p>
                     </div>
                 </div>
-                
                 <div class="mb-5">
                     <h4 class="font-bold text-slate-800 text-sm mb-2 border-l-4 border-orange-500 pl-2">รายละเอียดวิชา</h4>
                     <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed bg-white p-3 rounded-lg border border-slate-100 shadow-sm"></p>
                 </div>
-
                 <div>
                     <h4 class="font-bold text-slate-800 text-sm mb-2 border-l-4 border-orange-500 pl-2">หัวข้อการเรียนรู้</h4>
-                    <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-600 space-y-1 pl-2 marker:text-orange-500">
-                    </ul>
+                    <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-600 space-y-1 pl-2 marker:text-orange-500"></ul>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Image Modal -->
-    <div id="image-modal" class="modal-overlay">
-        <div class="relative max-w-4xl w-full mx-4">
-            <button class="modal-close absolute -top-12 right-0 text-white text-3xl hover:text-orange-400 transition-colors"><i class="fa-solid fa-circle-xmark"></i></button>
-            <img src="https://blogger.googleusercontent.com/img/a/AVvXsEinZ_z9UpLJQGIKuqpiRxhZHenQd91TLXEu3oFR8gYB1RQZ62Re3grUvx0oG3VL_xpQXUI19GEStpezAAeHDF3THxwE8_vip-V-MmJBUbjs-ruEOGGjiozfva-0QKEWZ6Lsf-RRVw3bflRyaEeE2fRQyPjDfu-gEf1QcpO1dwrXDQX7MNeM_auS_krR-pQ" 
-                 alt="ตารางเรียน" class="w-full rounded-xl shadow-2xl border-4 border-white">
-            <p class="text-white text-center mt-4 text-sm opacity-80">แตะพื้นที่ว่างเพื่อปิด</p>
         </div>
     </div>
 
@@ -562,28 +556,29 @@
         const timeIndicator = document.getElementById('real-time-indicator');
         const settingsModal = document.getElementById('settings-modal');
         const classModal = document.getElementById('class-modal');
-        const imageModal = document.getElementById('image-modal');
+        const shareModal = document.getElementById('share-modal');
 
         // --- Initialization ---
         function init() {
             renderGrid();
             renderList();
-            initAnalogClock(); // Init analog clock markers
+            initAnalogClock(); 
             updateClock();
             setInterval(updateClock, 1000);
             
-            // Event Listeners
-            document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
-            document.getElementById('view-list').addEventListener('click', () => switchView('list'));
-            document.getElementById('settings-btn').addEventListener('click', () => openModal(settingsModal));
-            
-            // Image Modal Triggers
-            const openImg = () => { closeModal(settingsModal); openModal(imageModal); };
-            document.getElementById('show-image-btn').addEventListener('click', openImg);
-            document.getElementById('show-image-nav-btn').addEventListener('click', openImg);
+            // Event Listeners Helper
+            const safeAddListener = (id, event, handler) => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener(event, handler);
+            };
+
+            safeAddListener('view-grid', 'click', () => switchView('grid'));
+            safeAddListener('view-list', 'click', () => switchView('list'));
+            safeAddListener('settings-btn', 'click', () => openModal(settingsModal));
+            safeAddListener('share-schedule-btn', 'click', openShareModal);
             
             // Export Calendar
-            document.getElementById('export-calendar-main-btn').addEventListener('click', generateICS);
+            safeAddListener('export-calendar-main-btn', 'click', generateICS);
             
             // Close Modals
             document.querySelectorAll('.modal-close').forEach(btn => {
@@ -597,7 +592,79 @@
                 });
             });
 
+            // Share Modal Logic
+            safeAddListener('share-name-input', 'input', (e) => {
+                const val = e.target.value;
+                document.getElementById('share-display-name').textContent = val ? val : 'My Schedule';
+            });
+            safeAddListener('do-download-btn', 'click', () => captureSchedule('download'));
+            safeAddListener('do-share-btn', 'click', () => captureSchedule('share'));
+
             switchView('grid');
+        }
+
+        function openShareModal() {
+            const mainGrid = document.getElementById('timetable-grid');
+            const previewContainer = document.getElementById('share-grid-container');
+            previewContainer.innerHTML = ''; 
+            
+            const clone = mainGrid.cloneNode(true);
+            const indicator = clone.querySelector('#real-time-indicator');
+            if(indicator) indicator.remove();
+            
+            clone.style.height = 'auto';
+            clone.style.minWidth = '100%';
+            clone.style.overflow = 'visible';
+            previewContainer.appendChild(clone);
+            
+            openModal(shareModal);
+        }
+
+        async function captureSchedule(action) {
+            const target = document.getElementById('capture-target');
+            const btn = action === 'download' ? document.getElementById('do-download-btn') : document.getElementById('do-share-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...`;
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(target, { scale: 2, useCORS: true });
+                
+                if (action === 'download') {
+                    const link = document.createElement('a');
+                    link.download = 'my-kmitl-schedule.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } else if (action === 'share') {
+                    canvas.toBlob(async (blob) => {
+                        const file = new File([blob], "schedule.png", { type: "image/png" });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'ตารางเรียนของฉัน',
+                                    text: 'นี่คือตารางเรียนวิศวะคอมพิวเตอร์ของฉัน'
+                                });
+                            } catch (err) {
+                                if (err.name !== 'AbortError') {
+                                    console.error("Share failed", err);
+                                    alert("ไม่สามารถแชร์ได้บนอุปกรณ์นี้ หรือเกิดข้อผิดพลาด กรุณาใช้ปุ่ม 'บันทึกรูปภาพ' แทน");
+                                } else {
+                                    console.log("Share canceled by user");
+                                }
+                            }
+                        } else {
+                            alert("อุปกรณ์ของคุณไม่รองรับการแชร์ไฟล์โดยตรง กรุณาใช้ปุ่มบันทึกรูปภาพแทน");
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+                alert("เกิดข้อผิดพลาดในการสร้างรูปภาพ");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // --- Core Logic ---
@@ -615,8 +682,8 @@
                 listView.classList.add('hidden');
                 btnGrid.classList.replace('bg-white', 'bg-orange-500');
                 btnGrid.classList.replace('text-orange-600', 'text-white');
-                btnList.classList.replace('bg-orange-500', 'bg-white'); // Reset list btn
-                btnList.classList.remove('text-white'); // Reset text color
+                btnList.classList.replace('bg-orange-500', 'bg-white');
+                btnList.classList.remove('text-white');
             } else {
                 gridView.classList.add('hidden');
                 listView.classList.remove('hidden');
@@ -642,7 +709,6 @@
             document.getElementById('modal-title').textContent = cls.name;
             document.getElementById('modal-code').textContent = cls.code;
             document.getElementById('modal-time').textContent = `${cls.start} - ${cls.end} (${daysTH[cls.day]})`;
-            // Fixed: Removed modal-room line that caused error
             document.getElementById('modal-room-tag').textContent = cls.room;
             document.getElementById('modal-instructor').textContent = cls.instructor;
             document.getElementById('modal-desc').textContent = cls.description;
@@ -780,7 +846,6 @@
 
         function initAnalogClock() {
             const clockFace = document.getElementById('analog-clock');
-            // Create 12 markers
             for (let i = 0; i < 12; i++) {
                 const marker = document.createElement('div');
                 marker.className = `clock-marker ${i % 3 === 0 ? 'marker-main' : ''}`;
@@ -797,11 +862,9 @@
             document.getElementById('clock-time').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             document.getElementById('clock-sec').textContent = String(now.getSeconds()).padStart(2, '0');
 
-            // Analog Clock Logic
             const seconds = now.getSeconds();
             const minutes = now.getMinutes();
             const hours = now.getHours();
-
             const secDeg = ((seconds / 60) * 360);
             const minDeg = ((minutes / 60) * 360) + ((seconds/60)*6);
             const hourDeg = ((hours / 12) * 360) + ((minutes/60)*30);
@@ -813,7 +876,7 @@
             const currentMin = now.getHours() * 60 + now.getMinutes();
             const currentDay = now.getDay();
             
-            // --- Real-time Indicator Logic (Moved up to show regardless of semester status) ---
+            // Real-time Indicator Logic
             if (currentMin >= startHour * 60 && currentMin <= endHour * 60) {
                 const gridEl = document.getElementById('timetable-grid');
                 const headerWidth = 60; 
@@ -832,7 +895,6 @@
             const semesterStart = new Date(2025, 10, 24); // Nov 24, 2025
             const semesterEnd = new Date(2026, 2, 28);   // Mar 28, 2026
             const isSemesterActive = now >= semesterStart && now <= semesterEnd;
-            
             const statusDiv = document.getElementById('status-container');
 
             if (!isSemesterActive) {
@@ -842,16 +904,12 @@
                         <p class="text-xs text-slate-300 mt-1 opacity-80">เปิดภาคเรียนวันที่ 24 พ.ย. 68</p>
                      `;
                  } else {
-                     statusDiv.innerHTML = `
-                        <p class="text-xl font-bold text-slate-500"><i class="fa-solid fa-school-lock mr-2"></i>ปิดภาคเรียนแล้ว</p>
-                     `;
+                     statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-500"><i class="fa-solid fa-school-lock mr-2"></i>ปิดภาคเรียนแล้ว</p>`;
                  }
-                 // Clear grid highlights if not active
                  document.querySelectorAll('.class-block').forEach(el => el.classList.remove('current'));
                  return; 
             }
             
-            // Normal Semester Logic
             let activeClass = null;
             let nextClass = null;
             let minDiffNext = Infinity;
@@ -860,12 +918,8 @@
                 if (cls.day === currentDay) {
                     const s = timeToMin(cls.start);
                     const e = timeToMin(cls.end);
-                    if (currentMin >= s && currentMin < e) {
-                        activeClass = cls;
-                    } else if (s > currentMin && (s - currentMin) < minDiffNext) {
-                        nextClass = cls;
-                        minDiffNext = s - currentMin;
-                    }
+                    if (currentMin >= s && currentMin < e) { activeClass = cls; } 
+                    else if (s > currentMin && (s - currentMin) < minDiffNext) { nextClass = cls; minDiffNext = s - currentMin; }
                 }
             });
 
@@ -892,23 +946,10 @@
             });
         }
 
-        // --- Google Calendar Generator (Updated Dates) ---
         function generateICS() {
-            // Dates from Image: Start 24 Nov 2025, End 28 Mar 2026
-            const startDate = new Date(2025, 10, 24); // Nov 24, 2025
-            const endDate = new Date(2026, 2, 15); // End generating recurring classes around mid-March before finals
-            
-            // Note: Actual semester ends 28 March, but classes usually stop 1-2 weeks before for finals (16-27 Mar).
-            // So we generate classes until March 15.
-
-            let icsContent = [
-                "BEGIN:VCALENDAR",
-                "VERSION:2.0",
-                "PRODID:-//KMITL//CE Schedule 2568//TH",
-                "CALSCALE:GREGORIAN",
-                "METHOD:PUBLISH"
-            ];
-
+            const startDate = new Date(2025, 10, 24);
+            const endDate = new Date(2026, 2, 15);
+            let icsContent = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//KMITL//CE Schedule 2568//TH","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
             const fmtDate = (date, timeStr) => {
                 const [h, m] = timeStr.split(':');
                 const y = date.getFullYear();
@@ -920,8 +961,7 @@
             let loopDate = new Date(startDate);
             while (loopDate <= endDate) {
                 const dayOfWeek = loopDate.getDay();
-                const classesToday = rawSchedule.filter(c => c.day === dayOfWeek); // Exclude lunch
-
+                const classesToday = rawSchedule.filter(c => c.day === dayOfWeek);
                 classesToday.forEach(cls => {
                     icsContent.push("BEGIN:VEVENT");
                     icsContent.push(`UID:${cls.code}-${loopDate.getTime()}@kmitl.ac.th`);
@@ -937,25 +977,19 @@
                 loopDate.setDate(loopDate.getDate() + 1);
             }
             
-            // Add Exam Events (Hardcoded based on image)
-            // Midterm: 19-25 Jan
             icsContent.push("BEGIN:VEVENT");
             icsContent.push(`UID:MIDTERM-2568@kmitl.ac.th`);
             icsContent.push(`DTSTART;VALUE=DATE:20260119`);
-            icsContent.push(`DTEND;VALUE=DATE:20260126`); // End date is exclusive in ICS
+            icsContent.push(`DTEND;VALUE=DATE:20260126`);
             icsContent.push(`SUMMARY:สอบกลางภาค (Midterm Exam)`);
-            icsContent.push(`DESCRIPTION:ช่วงสอบกลางภาคการศึกษาที่ 2/2568`);
             icsContent.push("END:VEVENT");
 
-            // Final: 16-27 Mar
             icsContent.push("BEGIN:VEVENT");
             icsContent.push(`UID:FINAL-2568@kmitl.ac.th`);
             icsContent.push(`DTSTART;VALUE=DATE:20260316`);
             icsContent.push(`DTEND;VALUE=DATE:20260328`);
             icsContent.push(`SUMMARY:สอบปลายภาค (Final Exam)`);
-            icsContent.push(`DESCRIPTION:ช่วงสอบปลายภาคการศึกษาที่ 2/2568`);
             icsContent.push("END:VEVENT");
-
             icsContent.push("END:VCALENDAR");
 
             const blob = new Blob([icsContent.join("\r\n")], { type: 'text/calendar;charset=utf-8' });
