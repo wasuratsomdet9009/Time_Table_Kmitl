@@ -200,8 +200,10 @@
             border-radius: 8px;
             margin-bottom: 1rem;
             background: #f8fafc;
-            overflow-x: auto; /* Allow horizontal scroll */
             max-width: 100%;
+            overflow: auto;              /* เลื่อนเฉพาะตอนจำเป็น */
+            display: flex;               /* จัดให้ภาพอยู่ตรงกลาง */
+            justify-content: center;
         }
         #capture-target {
             background: white;
@@ -246,6 +248,31 @@
         #capture-target .grid-header {
             font-size: 0.8rem;
         }
+        /* ให้พรีวิวตารางเห็นเต็มบนจอเล็ก (มือถือ / แท็บเล็ต) */
+            @media (max-width: 1024px) {
+                #capture-target {
+                    width: 100%;      /* ย่อตามความกว้างหน้าจอ */
+                    height: auto;     /* ปล่อยให้สูงตามสัดส่วน */
+                    padding: 20px;    /* ลด padding นิดนึงให้ไม่ชนขอบ */
+                }
+                
+                #capture-target .timetable-grid {
+                    transform: scale(0.9);      /* ย่อกริดลงนิดหน่อย */
+                    transform-origin: top left;
+                }
+            }
+
+            @media (max-width: 640px) {
+                #capture-target {
+                    padding: 16px;
+                }
+                
+                #capture-target .timetable-grid {
+                    transform: scale(0.8);
+                    transform-origin: top left;
+                }
+            }
+
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -254,7 +281,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-md">K</div>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" alt="KMITL Logo" class="w-10 h-10 rounded-full shadow-md object-cover bg-white"/>
                     <div class="leading-tight">
                         <h1 class="font-bold text-slate-800 text-lg">วิศวกรรมคอมพิวเตอร์ <span class="text-orange-500">Sec 2</span></h1>
                         <p class="text-xs text-slate-500">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
