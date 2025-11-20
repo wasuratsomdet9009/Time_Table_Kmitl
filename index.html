@@ -650,6 +650,43 @@
         </div>
     </div>
 
+    <!-- Class Detail Modal -->
+    <div id="class-modal" class="modal-overlay">
+        <div class="modal-box p-0 overflow-hidden">
+            <div id="modal-header-bg" class="h-32 bg-cover bg-center relative">
+                <div class="absolute inset-0 bg-black/40"></div>
+                <button class="modal-close absolute top-4 right-4 text-white hover:text-orange-500 text-2xl transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
+                <div class="absolute bottom-4 left-6 text-white z-10">
+                    <span id="modal-code" class="bg-orange-500 text-xs font-bold px-2 py-1 rounded mb-1 inline-block">CODE</span>
+                    <h3 id="modal-title" class="text-xl font-bold leading-tight">Course Name</h3>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-4 text-sm text-slate-600 mb-4 border-b border-slate-100 pb-4">
+                    <div class="flex items-center gap-2"><i class="fa-regular fa-clock text-orange-500"></i> <span id="modal-time">Time</span></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-orange-500"></i> <span id="modal-room-tag">Room</span></div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1">ผู้สอน</h4>
+                        <p id="modal-instructor" class="text-sm text-slate-600">Instructor Name</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1">รายละเอียดวิชา</h4>
+                        <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed">Description...</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1">หัวข้อที่เรียน</h4>
+                        <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-600 marker:text-orange-500">
+                            <!-- Topics injected here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // --- Data ---
         const rawSchedule = [
@@ -806,7 +843,7 @@
             try {
                 // Capture
                 const canvas = await html2canvas(clone, {
-                    scale: 2, 
+                    scale: 3, 
                     useCORS: true,
                     width: 1400,
                     height: 950,
@@ -890,7 +927,11 @@
 
         function showClassDetail(cls) {
             if (cls.type === 'break') return;
-            document.getElementById('modal-title').textContent = cls.name;
+            
+            const titleEl = document.getElementById('modal-title');
+            if (!titleEl) return; // Safety check
+            
+            titleEl.textContent = cls.name;
             document.getElementById('modal-code').textContent = cls.code;
             document.getElementById('modal-time').textContent = `${cls.start} - ${cls.end} (${daysTH[cls.day]})`;
             document.getElementById('modal-room-tag').textContent = cls.room;
