@@ -9,7 +9,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2canvas for Image Generation -->
@@ -29,17 +29,16 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse-border { 0% { box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(245, 130, 32, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 130, 32, 0); } }
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
 
-        /* Grid Layout */
+        /* --- Main Grid Layout --- */
         .timetable-wrapper {
             overflow-x: auto;
             padding-bottom: 1rem;
@@ -51,7 +50,7 @@
         .timetable-grid {
             display: grid;
             grid-template-columns: 60px repeat(12, minmax(90px, 1fr));
-            grid-template-rows: 50px repeat(7, minmax(110px, auto));
+            /* Rows set dynamically in JS */
             gap: 1px;
             background-color: #e2e8f0;
             border: 1px solid #e2e8f0;
@@ -60,7 +59,7 @@
         }
         
         .grid-header {
-            background-color: #fff7ed; /* Orange tint */
+            background-color: #fff7ed;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -72,11 +71,10 @@
         .grid-cell { background-color: white; transition: background-color 0.2s; }
         .grid-cell:hover { background-color: #fffaf0; }
 
-        /* Class Block */
         .class-block {
-            padding: 8px;
+            padding: 6px 8px;
             color: white;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -88,24 +86,40 @@
             border-radius: 6px;
             margin: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            line-height: 1.3;
+            /* Prepare for gradient overlay */
+            background-blend-mode: overlay; 
         }
-        .class-block::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7));
-            z-index: -1;
+
+        /* NEW: Black Gradient Overlay */
+        .class-block::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.85) 100%);
+            z-index: 1;
+            pointer-events: none;
         }
+
+        /* Ensure text is above the gradient */
+        .class-block > * {
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Add subtle text shadow for better readability */
+        }
+
         .class-block:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
             z-index: 20;
         }
         .class-block.current {
-            animation: pulse-border 2s infinite;
             border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #F58220;
             z-index: 10;
         }
 
-        /* Timeline Card */
+        /* List View */
         .timeline-card {
             background: white;
             border-radius: 1rem;
@@ -138,7 +152,7 @@
             border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid #ef4444;
         }
 
-        /* Schedule Info Card */
+        /* Info Cards */
         .info-card {
             background: linear-gradient(135deg, #fff 0%, #fff7ed 100%);
             border: 1px solid #fdba74;
@@ -173,122 +187,234 @@
         .analog-clock-container {
             width: 100px; height: 100px; border-radius: 50%; background: white;
             border: 4px solid #e2e8f0; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+        @media (max-width: 640px) {
+            .analog-clock-container {
+                width: 80px; height: 80px;
+                border-width: 3px;
+            }
+            .clock-marker { transform-origin: 50% 38px !important; } 
         }
         .clock-face { width: 100%; height: 100%; position: relative; }
-        .clock-hand {
-            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center;
-            border-radius: 4px; z-index: 10; transform: translateX(-50%);
-        }
+        .clock-hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; border-radius: 4px; z-index: 10; transform: translateX(-50%); }
         .hand-hour { width: 4px; height: 25%; background-color: #1e293b; }
         .hand-minute { width: 3px; height: 35%; background-color: #64748b; }
         .hand-second { width: 2px; height: 40%; background-color: #F58220; z-index: 11; }
-        .clock-center {
-            position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
-            background-color: #1e293b; border-radius: 50%; transform: translate(-50%, -50%);
-            z-index: 12; border: 2px solid white;
-        }
-        .clock-marker {
-            position: absolute; width: 2px; height: 6px; background-color: #cbd5e1;
-            left: 50%; top: 2px; transform-origin: 50% 48px; transform: translateX(-50%);
-        }
+        .clock-center { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background-color: #1e293b; border-radius: 50%; transform: translate(-50%, -50%); z-index: 12; border: 2px solid white; }
+        .clock-marker { position: absolute; width: 2px; height: 6px; background-color: #cbd5e1; left: 50%; top: 2px; transform-origin: 50% 48px; transform: translateX(-50%); }
         .marker-main { height: 8px; background-color: #94a3b8; width: 3px; }
 
-        /* Capture Area for Image Generation - A4 Landscape */
-        #capture-preview-container {
-            border: 2px dashed #cbd5e1;
-            padding: 5px;
+        /* === CAPTURE AREA STYLING (ULTRA HD) === */
+        #share-modal .modal-box {
+            max-width: 95vw; 
+            width: 100%; 
+            padding: 1.5rem;
+        }
+
+        #capture-preview-wrapper {
+            width: 100%;
+            overflow: hidden; 
+            background: #f1f5f9;
             border-radius: 8px;
-            margin-bottom: 1rem;
-            background: #f8fafc;
-            max-width: 100%;
-            overflow: auto;              /* เลื่อนเฉพาะตอนจำเป็น */
-            display: flex;               /* จัดให้ภาพอยู่ตรงกลาง */
-            justify-content: center;
-        }
-        #capture-target {
-            background: white;
-            padding: 30px;
-            /* A4 Landscape Dimensions (approx at 96dpi) */
-            width: 1122px; 
-            height: 794px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        #capture-target #share-grid-container {
-            flex-grow: 1;
+            border: 2px dashed #cbd5e1;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-            margin-bottom: 15px;
-            margin-top: 10px;
+            min-height: 200px; 
+            position: relative; 
         }
-        #capture-target .timetable-grid {
-            min-width: 100%;
-            height: auto;
-            align-self: center;
-            flex-shrink: 0;
-            /* Scale down slightly to fit everything comfortably */
-            transform: scale(0.95); 
-        }
-        /* Override specific styles for capture-target */
-        #capture-target .timetable-wrapper {
-            overflow-x: hidden !important;
-            padding-bottom: 0 !important;
-            border: none !important;
-            box-shadow: none !important;
-            background: transparent !important;
-            width: 100%;
-        }
-        #capture-target .class-block {
-            font-size: 0.75rem; 
-            padding: 6px;
-        }
-        #capture-target .grid-header {
-            font-size: 0.8rem;
-        }
-        /* ให้พรีวิวตารางเห็นเต็มบนจอเล็ก (มือถือ / แท็บเล็ต) */
-            @media (max-width: 1024px) {
-                #capture-target {
-                    width: 100%;      /* ย่อตามความกว้างหน้าจอ */
-                    height: auto;     /* ปล่อยให้สูงตามสัดส่วน */
-                    padding: 20px;    /* ลด padding นิดนึงให้ไม่ชนขอบ */
-                }
-                
-                #capture-target .timetable-grid {
-                    transform: scale(0.9);      /* ย่อกริดลงนิดหน่อย */
-                    transform-origin: top left;
-                }
-            }
 
-            @media (max-width: 640px) {
-                #capture-target {
-                    padding: 16px;
-                }
-                
-                #capture-target .timetable-grid {
-                    transform: scale(0.8);
-                    transform-origin: top left;
-                }
-            }
+        #capture-target {
+            background: white;
+            padding: 32px; /* Increased padding for spacing */
+            /* SUPER WIDE CANVAS for HD Text */
+            width: 1400px; 
+            height: 950px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transform-origin: top left; 
+            position: absolute;
+            top: 0; left: 0;
+            box-shadow: none;
+            box-sizing: border-box;
+            
+            /* Maximize Font Rendering Quality */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        #capture-target #share-grid-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+            margin: 15px 0; 
+        }
+        
+        /* Capture Grid */
+        #capture-target .timetable-grid {
+            width: 100%;
+            min-width: 100%;
+            height: 100%; 
+            border: 2px solid #cbd5e1;
+            gap: 1px;
+            /* Taller rows for text breathing room */
+            grid-template-rows: 55px repeat(auto-fit, minmax(0, 1fr)) !important; 
+        }
+
+        #capture-target .timetable-wrapper {
+            width: 100%;
+            height: 100%;
+            box-shadow: none;
+            border: none;
+            background: transparent;
+            overflow: visible;
+        }
+
+        #capture-target .grid-header {
+            font-size: 1rem; /* Clear Header */
+            background-color: #fff7ed;
+            color: #d97706;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        
+        /* === SUPER CLEAR FONTS for Capture === */
+        #capture-target .class-block {
+            /* Big font size for clarity */
+            font-size: 0.85rem; 
+            padding: 8px 12px;
+            box-shadow: none;
+            line-height: 1.3;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 3px;
+            word-break: break-word;
+            background-blend-mode: normal; 
+        }
+
+        /* Clear Overlay */
+        #capture-target .class-block::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.25); /* Lighter overlay */
+            z-index: 1;
+        }
+
+        #capture-target .class-block > * {
+            position: relative;
+            z-index: 10;
+            text-shadow: none; /* No blur shadow */
+        }
+
+        #capture-target .class-block span.font-bold {
+            font-size: 1rem; /* Main Subject Title */
+            font-weight: 800; 
+            margin-bottom: 3px;
+            line-height: 1.2;
+            display: block;
+            white-space: normal; 
+            letter-spacing: 0.3px;
+        }
+        
+        #capture-target .class-block .text-\[10px\] {
+             font-size: 0.8rem; /* Details */
+             font-weight: 600;
+             opacity: 1;
+             color: #f8fafc;
+        }
+
+        /* === LUNCH BLOCK === */
+        #capture-target .class-block.type-break {
+            justify-content: center; 
+            align-items: center;
+            text-align: center;
+            padding-top: 0; 
+        }
+        #capture-target .class-block.type-break::after {
+            background: transparent; 
+        }
+        #capture-target .class-block.type-break span.font-bold {
+            font-size: 1.1rem !important; 
+            margin-bottom: 0;
+            color: #475569; 
+            font-weight: 800;
+        }
+        #capture-target .class-block.type-break i {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            display: block;
+            color: #64748b;
+        }
+        #capture-target .class-block.type-break .text-\[10px\] {
+             display: none; 
+        }
+        
+        /* === Footer Styling (Robust) === */
+        #capture-footer {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem; 
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #capture-footer-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 70%; 
+        }
+        
+        #capture-footer strong {
+            font-size: 1.1rem;
+            color: #F58220;
+        }
+        
+        #capture-footer .date-list {
+            font-size: 0.9rem;
+            color: #334155;
+            margin-top: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem; /* Wide gap */
+        }
+
+        #capture-target .class-status-overlay,
+        #capture-target #real-time-indicator {
+            display: none !important;
+        }
 
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <!-- Navbar --><nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-3">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" alt="KMITL Logo" class="w-10 h-10 rounded-full shadow-md object-cover bg-white"/>
+                    <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/2048px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
+                         alt="KMITL Logo" class="w-10 h-10 object-contain">
                     <div class="leading-tight">
                         <h1 class="font-bold text-slate-800 text-lg">วิศวกรรมคอมพิวเตอร์ <span class="text-orange-500">Sec 2</span></h1>
                         <p class="text-xs text-slate-500">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <!-- Share/Save Button (Prominent) --><button id="share-schedule-btn" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg mr-1">
+                    <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg mr-1">
                         <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
                     </button>
                     <button id="settings-btn" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center">
@@ -299,11 +425,12 @@
         </div>
     </nav>
 
-    <!-- Main Content --><main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
-        
-        <!-- Top Section --><div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+        <!-- Top Section -->
+        <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
             <div class="flex items-center gap-5 w-full lg:w-auto justify-start">
-                <div class="analog-clock-container hidden sm:block flex-shrink-0">
+                <div class="analog-clock-container">
                     <div class="clock-face" id="analog-clock">
                         <div class="clock-center"></div>
                         <div class="clock-hand hand-hour" id="hand-hour"></div>
@@ -345,7 +472,8 @@
             </div>
         </div>
 
-        <!-- Info Cards --><div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
                 <div class="relative z-10">
                     <p class="text-slate-400 text-xs mb-1 uppercase tracking-wider">Current Status</p>
@@ -370,7 +498,8 @@
             </div>
         </div>
 
-        <!-- Timetable Content --><div id="main-container" class="animate-fade-in">
+        <!-- Timetable Content -->
+        <div id="main-container" class="animate-fade-in">
             <div id="grid-view" class="timetable-wrapper">
                 <div id="timetable-grid" class="timetable-grid">
                     <div id="real-time-indicator" class="hidden"></div>
@@ -378,10 +507,10 @@
             </div>
             <div id="list-view" class="hidden max-w-3xl mx-auto"></div>
         </div>
-
     </main>
 
-    <!-- Footer with Teams Link --><footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
+    <!-- Footer -->
+    <footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                 <div>
@@ -397,10 +526,10 @@
                 <div class="text-sm">
                     <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="https://reg.kmitl.ac.th" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
-                        <li><a href="https://classroom.google.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>Google Classroom</a></li>
+                        <li><a href="https://reg.kmitl.ac.th" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-globe text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
+                        <li><a href="https://classroom.google.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-chalkboard-user text-orange-500 mr-2"></i>Google Classroom</a></li>
                         <li><a href="https://teams.microsoft.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-brands fa-microsoft text-orange-500 mr-2"></i>Microsoft Teams</a></li>
-                        <li><a href="#" class="hover:text-white transition-colors"><i class="fa-solid fa-angle-right text-orange-500 mr-2"></i>ตารางสอบ</a></li>
+                        <li><a href="https://reg.kmitl.ac.th/education/exam_schedule" target="_blank" class="hover:text-white transition-colors"><i class="fa-regular fa-calendar-check text-orange-500 mr-2"></i>ตารางสอบ</a></li>
                     </ul>
                 </div>
                 <div class="text-sm">
@@ -421,67 +550,74 @@
         </div>
     </footer>
 
-    <!-- Share Modal (New) --><div id="share-modal" class="modal-overlay">
-        <div class="modal-box max-w-3xl">
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal-overlay">
+        <div class="modal-box">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-image text-orange-500 mr-2"></i>บันทึกรูปตาราง (A4 Landscape)</h3>
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-image text-orange-500 mr-2"></i>บันทึกรูปตาราง (High Quality)</h3>
                 <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
             <div class="space-y-4">
-                <!-- Custom Name Input --><div>
+                <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อของคุณ (แสดงบนหัวตาราง)</label>
                     <input type="text" id="share-name-input" placeholder="พิมพ์ชื่อเล่น หรือข้อความทักทาย..." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all">
                 </div>
 
-                <!-- Capture Preview Container --><div class="flex justify-between items-end text-xs text-slate-500 mb-1">
-                    <span>พรีวิวรูปภาพ (ขนาด A4 แนวนอน):</span>
+                <div class="flex justify-between items-end text-xs text-slate-500 mb-1">
+                    <span>พรีวิวรูปภาพ (เต็มแผ่น):</span>
                 </div>
                 
-                <div id="capture-preview-container" class="overflow-x-auto shadow-inner bg-slate-100 border border-slate-300 rounded-lg">
-                    <!-- This is the hidden target that we will render into --><div id="capture-target">
-                        <!-- Header for the captured image --><div class="flex justify-between items-center mb-4 border-b-2 border-orange-500 pb-3">
-                            <!-- Left: KMITL Circle Logo -->
+                <div id="capture-preview-wrapper">
+                    <div id="capture-target">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center mb-4 border-b-2 border-orange-500 pb-3">
                             <div class="flex items-center gap-4">
                                 <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/200px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
                                      crossorigin="anonymous"
-                                     alt="KMITL Seal" class="h-20 w-20 object-contain">
+                                     alt="KMITL Seal" class="h-24 w-24 object-contain">
                                 <div>
-                                    <h2 class="text-2xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h2>
-                                    <p class="text-lg text-slate-600">ภาคการศึกษาที่ 2/2568 (Section 2)</p>
+                                    <h2 class="text-3xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h2>
+                                    <p class="text-xl text-slate-600 mt-1">ภาคการศึกษาที่ 2/2568 (Section 2)</p>
                                 </div>
                             </div>
-                            <!-- Right: CE Logo + Name -->
                             <div class="text-right flex items-center gap-4">
                                 <div>
-                                    <p id="share-display-name" class="text-xl font-bold text-orange-600">My Schedule</p>
-                                    <p class="text-sm text-slate-400">KMITL Smart Schedule</p>
+                                    <p id="share-display-name" class="text-2xl font-bold text-orange-600">My Schedule</p>
+                                    <p class="text-base text-slate-400">KMITL Smart Schedule</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Grid Container -->
+                        <div id="share-grid-container"></div>
+                        
+                        <!-- Footer (STRICT LAYOUT) -->
+                        <div id="capture-footer">
+                            <div id="capture-footer-content">
+                                <strong class="text-orange-500 text-lg block mb-1" style="font-size: 1.1rem;">กำหนดการสำคัญ:</strong>
+                                <div class="flex flex-wrap gap-x-8 gap-y-1 text-base font-medium text-slate-700 mt-1 date-list">
+                                    <span class="flex items-center whitespace-nowrap"><i class="fa-regular fa-calendar-check mr-2 text-orange-500"></i> เปิดเทอม: 24 พ.ย. 68</span>
+                                    <span class="flex items-center whitespace-nowrap"><i class="fa-solid fa-pencil mr-2 text-orange-500"></i> สอบกลางภาค: 19-25 ม.ค. 69</span>
+                                    <span class="flex items-center whitespace-nowrap"><i class="fa-solid fa-file-pen mr-2 text-orange-500"></i> สอบปลายภาค: 16-27 มี.ค. 69</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-5 shrink-0">
+                                <div class="text-right">
+                                    <p class="font-bold text-slate-800 text-lg">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
+                                    <p class="text-sm text-slate-500">Generated by KMITL Smart Schedule</p>
                                 </div>
                                 <img src="https://blogger.googleusercontent.com/img/a/AVvXsEjbyEZoRq1s0FxSt3ZMcCU8tjRmIaQnldVF4uRzMPt1rmpJJITx5wLYetpeYEbR5NFPuOw9Uyn4c0XjohecGxyjc0PC1AOp-LNlCwKuq_LEA0rsCmH5anpqoh3VAr4l37jTGFFHN8E4ZXHZ3U5w05jqdxf_ztV2L4D6g_o66KGGR-q1DRg1gc4_0Dt3WYk" 
                                      crossorigin="anonymous"
                                      alt="CE Logo" class="h-16 object-contain">
                             </div>
                         </div>
-                        
-                        <!-- Clone of grid will be inserted here --><div id="share-grid-container" class="border border-slate-200 rounded-lg overflow-hidden"></div>
-                        
-                        <!-- Footer to the captured image --><div class="flex justify-between items-start text-sm text-slate-600 bg-slate-50 p-4 rounded-lg border border-slate-200 mt-auto">
-                            <div>
-                                <strong class="text-orange-500 text-base mb-1 block">กำหนดการสำคัญ:</strong>
-                                <div class="flex gap-6">
-                                    <span><i class="fa-regular fa-calendar-check mr-1"></i> เปิดเทอม: 24 พ.ย. 68</span>
-                                    <span><i class="fa-solid fa-pencil mr-1"></i> สอบกลางภาค: 19-25 ม.ค. 69</span>
-                                    <span><i class="fa-solid fa-file-pen mr-1"></i> สอบปลายภาค: 16-27 มี.ค. 69</span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-semibold text-slate-800">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons --><div class="flex gap-3 pt-2">
+                <!-- Buttons -->
+                <div class="flex gap-3 pt-2">
                     <button id="do-download-btn" class="flex-1 py-2.5 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors flex items-center justify-center gap-2">
                         <i class="fa-solid fa-download"></i> บันทึกรูปภาพ
                     </button>
@@ -510,46 +646,7 @@
                 </div>
             </div>
             <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400">Version 2.4 (KMITL A4 Share)</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Class Details Modal -->
-    <div id="class-modal" class="modal-overlay">
-        <div class="modal-box p-0 overflow-hidden">
-            <div id="modal-header-bg" class="h-36 bg-cover bg-center relative">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                <button class="modal-close absolute top-4 right-4 bg-black/20 hover:bg-black/40 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-colors border border-white/20">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                <div class="absolute bottom-4 left-6 text-white right-6">
-                    <div class="flex items-center gap-2 mb-2">
-                        <div id="modal-code" class="text-[10px] font-bold bg-orange-500 px-2 py-0.5 rounded shadow-sm">CODE</div>
-                        <div id="modal-room-tag" class="text-[10px] font-bold bg-white/20 backdrop-blur px-2 py-0.5 rounded border border-white/30">ROOM</div>
-                    </div>
-                    <h3 id="modal-title" class="text-xl font-bold leading-tight shadow-black drop-shadow-sm">Course Name</h3>
-                </div>
-            </div>
-            <div class="p-6">
-                <div class="grid grid-cols-2 gap-3 mb-6">
-                    <div class="bg-orange-50 p-3 rounded-xl border border-orange-100">
-                        <p class="text-[10px] uppercase text-orange-400 font-bold mb-1">Time</p>
-                        <p id="modal-time" class="font-bold text-slate-700 text-sm">-</p>
-                    </div>
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                        <p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Instructor / Loc</p>
-                        <p id="modal-instructor" class="font-bold text-slate-700 text-sm">-</p>
-                    </div>
-                </div>
-                <div class="mb-5">
-                    <h4 class="font-bold text-slate-800 text-sm mb-2 border-l-4 border-orange-500 pl-2">รายละเอียดวิชา</h4>
-                    <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed bg-white p-3 rounded-lg border border-slate-100 shadow-sm"></p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-800 text-sm mb-2 border-l-4 border-orange-500 pl-2">หัวข้อการเรียนรู้</h4>
-                    <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-600 space-y-1 pl-2 marker:text-orange-500"></ul>
-                </div>
+                <p class="text-xs text-slate-400">Version 3.5 (Max Clarity)</p>
             </div>
         </div>
     </div>
@@ -567,17 +664,25 @@
              { day: 5, start: '13:00', end: '17:00', name: 'TECH INNOVATION FOR LEARNING', code: 'IE1301', section: '7(n), 8(U)', room: 'IE1301', instructor: 'อาคารนวัตกรรมฯ', color: '#ca8a04', description: 'นวัตกรรมและเทคโนโลยีเพื่อการเรียนรู้ สื่อการสอนสมัยใหม่', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2028&auto=format&fit=crop', topics: ['EdTech', 'AI in Education', 'Multimedia'] }
         ];
 
-        // Add Lunch Breaks
+        // Calculate Active Days (Include Mon-Fri by default, check Sat-Sun)
+        const activeDaySet = new Set(rawSchedule.map(s => s.day));
+        const standardWeek = [1, 2, 3, 4, 5];
+        // Only add Sat (6) or Sun (0) if they exist in raw data
+        const weekendDays = Array.from(activeDaySet).filter(d => d === 0 || d === 6);
+        const displayDays = [...new Set([...standardWeek, ...weekendDays])].sort((a,b) => a-b);
+
         const schedule = [...rawSchedule];
-        for (let i = 1; i <= 5; i++) {
-            schedule.push({ day: i, start: '12:00', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#94a3b8', room: 'โรงอาหาร', code: 'LUNCH', image: '', description: 'พักผ่อนตามอัธยาศัย' });
-        }
+        // Add lunch for displayed weekdays
+        displayDays.forEach(d => {
+             if (d >= 1 && d <= 5) {
+                 schedule.push({ day: d, start: '12:00', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#e2e8f0', room: 'โรงอาหาร', code: 'LUNCH', image: '', description: 'พักผ่อนตามอัธยาศัย' });
+             }
+        });
 
         const daysTH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
         const startHour = 7;
         const endHour = 18;
 
-        // --- DOM Elements ---
         const gridView = document.getElementById('grid-view');
         const listView = document.getElementById('list-view');
         const timeIndicator = document.getElementById('real-time-indicator');
@@ -585,7 +690,6 @@
         const classModal = document.getElementById('class-modal');
         const shareModal = document.getElementById('share-modal');
 
-        // --- Initialization ---
         function init() {
             renderGrid();
             renderList();
@@ -593,7 +697,6 @@
             updateClock();
             setInterval(updateClock, 1000);
             
-            // Event Listeners Helper
             const safeAddListener = (id, event, handler) => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener(event, handler);
@@ -604,10 +707,8 @@
             safeAddListener('settings-btn', 'click', () => openModal(settingsModal));
             safeAddListener('share-schedule-btn', 'click', openShareModal);
             
-            // Export Calendar
             safeAddListener('export-calendar-main-btn', 'click', generateICS);
             
-            // Close Modals
             document.querySelectorAll('.modal-close').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     closeModal(e.target.closest('.modal-overlay'));
@@ -619,7 +720,6 @@
                 });
             });
 
-            // Share Modal Logic
             safeAddListener('share-name-input', 'input', (e) => {
                 const val = e.target.value;
                 document.getElementById('share-display-name').textContent = val ? val : 'My Schedule';
@@ -639,23 +739,84 @@
             const indicator = clone.querySelector('#real-time-indicator');
             if(indicator) indicator.remove();
             
-            clone.style.height = 'auto';
+            clone.style.height = '100%';
             clone.style.minWidth = '100%';
             clone.style.overflow = 'visible';
+            
+            // Clone doesn't copy dynamic grid-template-rows from JS style attribute perfectly sometimes
+            // Re-apply dynamic rows logic to clone
+            clone.style.gridTemplateRows = `50px repeat(${displayDays.length}, 1fr)`;
+
             previewContainer.appendChild(clone);
+            
+            fitPreviewToWrapper();
+            window.addEventListener('resize', fitPreviewToWrapper); 
             
             openModal(shareModal);
         }
 
-        async function captureSchedule(action) {
+        function fitPreviewToWrapper() {
+            const wrapper = document.getElementById('capture-preview-wrapper');
             const target = document.getElementById('capture-target');
+            if(!wrapper || !target) return;
+
+            const wrapperWidth = wrapper.offsetWidth;
+            const targetWidth = 1400; // Match CSS width
+            
+            let scale = Math.min(wrapperWidth / targetWidth, 1);
+            // Subtle padding
+            scale = scale * 0.96; 
+
+            target.style.transform = `scale(${scale})`;
+            // Update height wrapper to match scaled content + padding
+            wrapper.style.height = `${(950 * scale) + 20}px`; 
+        }
+
+        async function captureSchedule(action) {
+            const originalTarget = document.getElementById('capture-target');
             const btn = action === 'download' ? document.getElementById('do-download-btn') : document.getElementById('do-share-btn');
+            
             const originalText = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...`;
             btn.disabled = true;
 
+            // Create a clone to capture off-screen/overlay without UI constraints
+            const clone = originalTarget.cloneNode(true);
+            
+            // Setup container for the clone
+            const container = document.createElement('div');
+            container.style.position = 'fixed';
+            container.style.top = '0';
+            container.style.left = '0';
+            container.style.width = '1400px'; // Force full width
+            container.style.height = '950px'; // Force full height
+            container.style.zIndex = '-9999'; // Hide behind
+            container.style.overflow = 'visible'; // Ensure no clipping
+            container.style.transform = 'none'; // No pre-scaling
+            
+            // Reset clone styles just in case
+            clone.style.transform = 'scale(1)';
+            clone.style.transformOrigin = 'top left';
+            clone.style.width = '100%';
+            clone.style.height = '100%';
+            clone.style.boxShadow = 'none'; // Remove shadow for clean capture
+            
+            container.appendChild(clone);
+            document.body.appendChild(container);
+
             try {
-                const canvas = await html2canvas(target, { scale: 2, useCORS: true });
+                // Capture
+                const canvas = await html2canvas(clone, {
+                    scale: 2, 
+                    useCORS: true,
+                    width: 1400,
+                    height: 950,
+                    windowWidth: 1400,
+                    windowHeight: 950,
+                    scrollX: 0,
+                    scrollY: 0,
+                    backgroundColor: '#ffffff'
+                });
                 
                 if (action === 'download') {
                     const link = document.createElement('a');
@@ -673,12 +834,7 @@
                                     text: 'นี่คือตารางเรียนวิศวะคอมพิวเตอร์ของฉัน'
                                 });
                             } catch (err) {
-                                if (err.name !== 'AbortError') {
-                                    console.error("Share failed", err);
-                                    alert("ไม่สามารถแชร์ได้บนอุปกรณ์นี้ หรือเกิดข้อผิดพลาด กรุณาใช้ปุ่ม 'บันทึกรูปภาพ' แทน");
-                                } else {
-                                    console.log("Share canceled by user");
-                                }
+                                if (err.name !== 'AbortError') alert("เกิดข้อผิดพลาดในการแชร์");
                             }
                         } else {
                             alert("อุปกรณ์ของคุณไม่รองรับการแชร์ไฟล์โดยตรง กรุณาใช้ปุ่มบันทึกรูปภาพแทน");
@@ -689,12 +845,12 @@
                 console.error(err);
                 alert("เกิดข้อผิดพลาดในการสร้างรูปภาพ");
             } finally {
+                document.body.removeChild(container);
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         }
 
-        // --- Core Logic ---
         function timeToMin(time) {
             const [h, m] = time.split(':').map(Number);
             return h * 60 + m;
@@ -728,11 +884,13 @@
         function closeModal(modal) {
             modal.classList.remove('visible');
             document.body.style.overflow = 'auto';
+            if(modal.id === 'share-modal') {
+                window.removeEventListener('resize', fitPreviewToWrapper);
+            }
         }
 
         function showClassDetail(cls) {
             if (cls.type === 'break') return;
-            
             document.getElementById('modal-title').textContent = cls.name;
             document.getElementById('modal-code').textContent = cls.code;
             document.getElementById('modal-time').textContent = `${cls.start} - ${cls.end} (${daysTH[cls.day]})`;
@@ -752,18 +910,18 @@
                     topicsList.appendChild(li);
                 });
             }
-            
             openModal(classModal);
         }
 
-        // --- Rendering ---
         function renderGrid() {
             const grid = document.getElementById('timetable-grid');
             Array.from(grid.children).forEach(c => {
                 if (c.id !== 'real-time-indicator') grid.removeChild(c);
             });
 
-            const headerRow = 1;
+            // Dynamic Rows for Main View
+            grid.style.gridTemplateRows = `50px repeat(${displayDays.length}, minmax(110px, auto))`;
+
             for (let h = startHour; h <= endHour; h++) {
                 const div = document.createElement('div');
                 div.className = 'grid-header sticky top-0 z-20 bg-[#fff7ed] border-b border-orange-200';
@@ -773,11 +931,11 @@
                 grid.appendChild(div);
             }
 
-            daysTH.forEach((day, idx) => {
+            displayDays.forEach((dayIndex, idx) => {
                 const row = idx + 2;
                 const dayHeader = document.createElement('div');
                 dayHeader.className = 'grid-header sticky left-0 z-20 bg-white border-r border-orange-100 text-xs font-bold text-slate-600';
-                dayHeader.textContent = day;
+                dayHeader.textContent = daysTH[dayIndex];
                 dayHeader.style.gridRow = row;
                 dayHeader.style.gridColumn = 1;
                 grid.appendChild(dayHeader);
@@ -792,16 +950,18 @@
             });
 
             schedule.forEach(cls => {
+                if (!displayDays.includes(cls.day)) return;
+
                 const startM = timeToMin(cls.start);
                 const endM = timeToMin(cls.end);
-                const row = cls.day + 2;
+                const visualRowIndex = displayDays.indexOf(cls.day) + 2;
                 const startCol = ((startM - (startHour * 60)) / 60) + 2;
                 const endCol = ((endM - (startHour * 60)) / 60) + 2;
 
                 if (startCol >= 2) {
                     const el = document.createElement('div');
-                    el.className = `class-block ${cls.type === 'break' ? 'opacity-70 grayscale' : ''}`;
-                    el.style.gridRow = row;
+                    el.className = `class-block ${cls.type === 'break' ? 'opacity-90' : ''}`;
+                    el.style.gridRow = visualRowIndex;
                     el.style.gridColumn = `${startCol} / ${endCol}`;
                     el.style.backgroundColor = cls.type === 'break' ? '#cbd5e1' : cls.color;
                     
@@ -810,10 +970,16 @@
                         el.style.backgroundSize = 'cover';
                     }
 
+                    const timeRange = `${cls.start} - ${cls.end}`;
+                    
                     el.innerHTML = `
-                        <div class="font-bold truncate text-white shadow-sm">${cls.name}</div>
-                        <div class="flex justify-between items-end mt-auto">
-                            <span class="bg-black/30 px-1.5 rounded text-[10px] backdrop-blur-md border border-white/20">${cls.room}</span>
+                        <div class="flex justify-between items-start">
+                            <span class="font-bold truncate">${cls.name}</span>
+                            ${cls.type === 'break' ? '<i class="fa-solid fa-utensils text-xs opacity-70"></i>' : ''}
+                        </div>
+                        <div class="text-[10px] opacity-90 mt-0.5 font-medium">${timeRange}</div>
+                        <div class="flex justify-between items-end mt-auto pt-1">
+                            <span class="bg-black/20 px-1.5 rounded text-[10px] backdrop-blur-md border border-white/20 shadow-sm">${cls.room}</span>
                         </div>
                     `;
                     
@@ -836,6 +1002,7 @@
             });
 
             Object.keys(grouped).sort().forEach(dayIdx => {
+                if (!displayDays.includes(parseInt(dayIdx))) return;
                 if (grouped[dayIdx].length === 0) return;
                 grouped[dayIdx].sort((a, b) => timeToMin(a.start) - timeToMin(b.start));
 
@@ -903,7 +1070,6 @@
             const currentMin = now.getHours() * 60 + now.getMinutes();
             const currentDay = now.getDay();
             
-            // Real-time Indicator Logic
             if (currentMin >= startHour * 60 && currentMin <= endHour * 60) {
                 const gridEl = document.getElementById('timetable-grid');
                 const headerWidth = 60; 
@@ -913,14 +1079,20 @@
                 
                 timeIndicator.classList.remove('hidden');
                 timeIndicator.style.left = `${leftPos}px`;
-                timeIndicator.style.gridRow = `${currentDay + 2} / ${currentDay + 3}`;
+                
+                if (displayDays.includes(currentDay)) {
+                    const visualRow = displayDays.indexOf(currentDay) + 2;
+                    timeIndicator.style.gridRow = `${visualRow} / ${visualRow + 1}`;
+                } else {
+                    timeIndicator.classList.add('hidden');
+                }
             } else {
                 timeIndicator.classList.add('hidden');
             }
 
             // Semester Dates Logic
-            const semesterStart = new Date(2025, 10, 24); // Nov 24, 2025
-            const semesterEnd = new Date(2026, 2, 28);   // Mar 28, 2026
+            const semesterStart = new Date(2025, 10, 24); 
+            const semesterEnd = new Date(2026, 2, 28);   
             const isSemesterActive = now >= semesterStart && now <= semesterEnd;
             const statusDiv = document.getElementById('status-container');
 
@@ -1017,6 +1189,7 @@
             icsContent.push(`DTEND;VALUE=DATE:20260328`);
             icsContent.push(`SUMMARY:สอบปลายภาค (Final Exam)`);
             icsContent.push("END:VEVENT");
+
             icsContent.push("END:VCALENDAR");
 
             const blob = new Blob([icsContent.join("\r\n")], { type: 'text/calendar;charset=utf-8' });
