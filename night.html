@@ -3,170 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Epic Lucky Wheel - Wasurat Somdet</title>
+    <title>Vibrant Lucky Wheel - Wasurat Somdet</title>
     <style>
-        /* --- 1. SETTINGS & VARS --- */
+        /* --- 1. VIBRANT THEME VARIABLES --- */
         :root {
-            --glass-bg: rgba(20, 20, 35, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-highlight: rgba(255, 255, 255, 0.05);
-            --primary-gold: #FFD700;
-            --primary-accent: #FDB931; 
-            --text-main: #FFFFFF;
-            --danger: #FF453A;
-            --success: #30D158;
-            --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            /* พื้นหลังสีสดใส ไล่เฉดสีชมพู-ม่วง-ฟ้า */
+            --bg-gradient: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%); 
+            --bg-gradient-2: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            --glass-bg: rgba(255, 255, 255, 0.75); /* กระจกฝ้าสีขาว */
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --text-main: #333333; /* ตัวหนังสือสีเข้มเพื่อให้อ่านง่ายบนพื้นสว่าง */
+            --primary-btn: #FF5733;
+            --font-main: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
 
         body {
-            background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d); /* Epic Sunset Gradient */
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* Deep Space */
+            background-image: linear-gradient( 109.6deg,  rgba(245,56,148,1) 11.2%, rgba(245,89,84,1) 91.1% );
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            color: white;
-            perspective: 1000px; /* For 3D effects */
+            color: var(--text-main);
         }
 
-        /* Ambient Particles Background */
-        .stars {
+        /* Moving Background Pattern */
+        .bg-pattern {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 200px 200px;
-            animation: zoom 50s infinite linear;
+            background-image: radial-gradient(#ffffff 20%, transparent 20%), radial-gradient(#ffffff 20%, transparent 20%);
+            background-color: transparent;
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+            opacity: 0.1;
             z-index: -1;
-            opacity: 0.3;
+            animation: moveBg 60s linear infinite;
         }
-
-        @keyframes zoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.5); }
-        }
+        @keyframes moveBg { from {background-position: 0 0, 50px 50px;} to {background-position: 1000px 1000px, 1050px 1050px;} }
 
         /* --- 2. LAYOUT --- */
         .main-stage {
             display: flex;
             flex-wrap: wrap;
             gap: 40px;
-            width: 90%;
+            width: 95%;
             max-width: 1200px;
             justify-content: center;
             align-items: center;
             z-index: 10;
         }
 
-        /* --- 3. WHEEL CONTAINER (LEFT) --- */
+        /* --- 3. WHEEL CONTAINER --- */
         .wheel-container {
             position: relative;
-            width: 450px;
-            height: 450px;
+            width: 480px;
+            height: 480px;
             display: flex;
             justify-content: center;
             align-items: center;
-            filter: drop-shadow(0 0 30px rgba(0,0,0,0.5));
-            transition: transform 0.5s ease;
+            filter: drop-shadow(0 15px 35px rgba(0,0,0,0.2));
         }
 
-        /* The actual canvas wheel */
         #wheelCanvas {
             border-radius: 50%;
-            border: 8px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 
-                inset 0 0 20px rgba(0,0,0,0.8),
-                0 0 15px rgba(255, 215, 0, 0.2); /* Gold glow */
-            transition: transform 4s cubic-bezier(0.2, 0.8, 0.1, 1); /* Custom easing */
+            border: 10px solid white;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+            /* เราจะหมุน Canvas ด้วย JS แทน CSS transition เพื่อจับจังหวะเสียง */
         }
 
-        /* The Stopper/Pointer */
+        /* The Stopper (Triangle) */
         .stopper {
             position: absolute;
-            top: -25px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 50px;
-            height: 60px;
-            background: linear-gradient(to bottom, #FFD700, #FDB931);
-            clip-path: polygon(100% 0, 50% 100%, 0 0);
+            width: 0; 
+            height: 0; 
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid #FF3366; /* เข็มสีชมพูสด */
             z-index: 20;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
         }
 
-        /* Center Hub */
         .wheel-hub {
             position: absolute;
-            width: 70px;
-            height: 70px;
-            background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+            width: 60px;
+            height: 60px;
+            background: white;
             border-radius: 50%;
             z-index: 15;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .wheel-hub::after {
-            content: '★';
-            color: #333;
             font-size: 24px;
         }
 
-        /* --- 4. CONTROLS (RIGHT) --- */
+        /* --- 4. CONTROLS --- */
         .controls-panel {
             flex: 1;
             min-width: 300px;
             max-width: 400px;
             background: var(--glass-bg);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid white;
             border-radius: 30px;
             padding: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         h1 {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #FF3366;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 5px;
+            text-shadow: 2px 2px 0px white;
         }
 
         .input-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
-            letter-spacing: 1.5px;
-            margin-bottom: 8px;
-            display: block;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.9rem;
         }
 
         textarea {
             width: 100%;
-            height: 150px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            height: 120px;
+            background: rgba(255,255,255,0.8);
+            border: 2px solid #eee;
             border-radius: 15px;
             padding: 15px;
-            color: white;
+            color: #333;
             font-size: 1rem;
             resize: none;
             outline: none;
@@ -174,161 +150,126 @@
         }
         
         textarea:focus {
-            background: rgba(0,0,0,0.5);
-            border-color: rgba(255,255,255,0.3);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border-color: #FF3366;
+            background: white;
         }
 
         .btn-spin {
-            background: linear-gradient(45deg, #FFD700, #FDB931);
-            color: #333;
-            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            background: linear-gradient(45deg, #FF512F, #DD2476);
+            color: white;
+            box-shadow: 0 10px 20px rgba(221, 36, 118, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+
         .btn-spin:active { transform: scale(0.95); }
-        .btn-spin:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-spin:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
 
         .btn-reset {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            max-width: 80px;
+            background: transparent;
+            border: 2px solid #ccc;
+            padding: 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #666;
+            font-weight: bold;
+            margin-top: 5px;
         }
-        .btn-reset:hover { background: rgba(255,255,255,0.2); }
+        .btn-reset:hover { background: #eee; }
 
-        /* --- 5. RESULT MODAL --- */
+        /* --- 5. POPUP MODAL --- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
             z-index: 100;
             display: none;
             justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: opacity 0.5s;
         }
-
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
 
         .winner-card {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 50px;
+            background: white;
+            padding: 40px 60px;
             border-radius: 40px;
             text-align: center;
-            transform: scale(0.5);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
-        }
-
-        .modal-overlay.active .winner-card {
-            transform: scale(1);
-        }
-
-        .winner-title {
-            font-size: 1.2rem;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transform: scale(0.8);
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            border: 5px solid #FFD700;
         }
 
         .winner-name {
             font-size: 4rem;
             font-weight: 900;
-            margin: 20px 0;
-            background: linear-gradient(to right, #FFD700, #FFA500, #FFD700);
-            background-size: 200%;
+            margin: 10px 0;
+            background: linear-gradient(to right, #FF512F, #DD2476);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: shine 3s linear infinite;
-        }
-
-        @keyframes shine {
-            to { background-position: 200% center; }
         }
 
         .btn-close {
-            background: white;
-            color: black;
+            background: #333;
+            color: white;
             padding: 12px 30px;
-            border-radius: 50px;
+            border-radius: 30px;
             border: none;
-            font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
-            margin-top: 20px;
         }
 
-        /* --- 6. COPYRIGHT --- */
+        @keyframes popUp { to { transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- COPYRIGHT --- */
         .footer {
             position: absolute;
-            bottom: 20px;
+            bottom: 15px;
+            color: rgba(255,255,255,0.6);
             font-size: 0.8rem;
-            color: rgba(255,255,255,0.3);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-align: center;
-            width: 100%;
+            font-weight: 600;
+            letter-spacing: 1px;
         }
 
-        /* Canvas for Confetti */
-        #confettiCanvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 150;
-        }
+        /* Confetti Canvas */
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 150; }
 
-        /* Responsive */
         @media (max-width: 800px) {
-            .wheel-container { width: 320px; height: 320px; }
-            .winner-name { font-size: 3rem; }
+            .wheel-container { width: 340px; height: 340px; }
+            .winner-name { font-size: 2.5rem; }
+            .winner-card { padding: 30px; width: 90%; }
         }
     </style>
 </head>
 <body>
 
-    <div class="stars"></div>
+    <div class="bg-pattern"></div>
     <canvas id="confettiCanvas"></canvas>
 
     <div class="main-stage">
-        <!-- Wheel Section -->
         <div class="wheel-container">
             <div class="stopper"></div>
-            <div class="wheel-hub"></div>
+            <div class="wheel-hub">🎁</div>
             <canvas id="wheelCanvas" width="500" height="500"></canvas>
         </div>
 
-        <!-- Controls Section -->
         <div class="controls-panel">
-            <div>
+            <div style="text-align:center;">
                 <h1>Lucky Draw</h1>
-                <p style="color:rgba(255,255,255,0.5); font-size:0.9rem;">The Ultimate Randomizer</p>
+                <p style="color:#666;">Party Edition 🎉</p>
             </div>
 
             <div>
-                <label class="input-label">รายชื่อผู้เข้าร่วม (ขึ้นบรรทัดใหม่เพื่อแยก)</label>
-                <textarea id="namesInput" placeholder="Wasurat&#10;Somdet&#10;Steve Jobs&#10;Elon Musk&#10;Lisa Blackpink">1
+                <label class="input-label">รายชื่อผู้โชคดี (1 บรรทัด = 1 ชื่อ)</label>
+                <textarea id="namesInput" placeholder="ใส่ชื่อที่นี่...">1
 2
 3
 4
@@ -340,23 +281,20 @@
 10</textarea>
             </div>
 
-            <div class="btn-group">
-                <button class="btn-spin" id="spinBtn" onclick="spinWheel()">SPIN THE WHEEL</button>
-                <button class="btn-reset" onclick="resetNames()">↺</button>
-            </div>
+            <button class="btn-spin" id="spinBtn" onclick="spinWheel()">หมุนวงล้อ!</button>
+            <button class="btn-reset" onclick="resetNames()">เริ่มใหม่ทั้งหมด</button>
             
-            <p style="text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">
-                * รายชื่อที่ได้รางวัลจะถูกลบออกอัตโนมัติ
+            <p style="text-align:center; font-size:0.75rem; color:#888; margin-top:5px;">
+                * ชื่อที่ได้รางวัลจะถูกลบออกอัตโนมัติ
             </p>
         </div>
     </div>
 
-    <!-- Result Modal -->
     <div class="modal-overlay" id="resultModal">
         <div class="winner-card">
-            <div class="winner-title">Winner Is</div>
-            <div class="winner-name" id="winnerName">???</div>
-            <button class="btn-close" onclick="closeModal()">CONTINUE</button>
+            <div style="font-size:1.2rem; color:#888; text-transform:uppercase;">ขอแสดงความยินดีกับ</div>
+            <div class="winner-name" id="winnerName">...</div>
+            <button class="btn-close" onclick="closeModal()">ไปต่อเลย!</button>
         </div>
     </div>
 
@@ -371,254 +309,296 @@
         const spinBtn = document.getElementById('spinBtn');
         const namesInput = document.getElementById('namesInput');
         
-        // Colors palette (Apple/Modern style)
+        // ชุดสีสดใส (Vibrant Palette)
         const colors = [
-            '#FF3B30', // Red
-            '#FF9500', // Orange
-            '#FFCC00', // Yellow
-            '#34C759', // Green
-            '#007AFF', // Blue
-            '#5856D6', // Purple
-            '#AF52DE', // Pink
-            '#5AC8FA'  // Teal
+            '#FF5733', '#FFC300', '#DAF7A6', '#33FF57', 
+            '#33FFF5', '#3355FF', '#A933FF', '#FF33A8',
+            '#FF8C00', '#00CED1'
         ];
 
         let candidates = [];
-        let startAngle = 0;
-        let arc = 0;
-        let spinTimeout = null;
-        let spinAngleStart = 10;
-        let spinTime = 0;
-        let spinTimeTotal = 0;
+        let currentRotation = 0; // องศาปัจจุบันของล้อ
         let isSpinning = false;
-        let currentRotation = 0;
+        
+        // Audio Context Setup
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        /* --- SOUND GENERATOR (ไม่ต้องใช้ไฟล์) --- */
+        function playTickSound() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'triangle'; // เสียงแหลมกังวานนิดๆ
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); // ความถี่เสียง (Hz)
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playWinSound() {
+            // เสียง Fanfare ง่ายๆ
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C E G C
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                
+                const now = audioCtx.currentTime;
+                const time = now + (i * 0.1);
+                
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.5, time + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + 0.4);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(time);
+                osc.stop(time + 0.5);
+            });
+        }
 
         /* --- INITIALIZATION --- */
         function init() {
             parseNames();
-            drawWheel();
-            
-            // Auto update wheel when typing
+            drawWheel(currentRotation);
             namesInput.addEventListener('input', () => {
                 if(!isSpinning) {
                     parseNames();
-                    drawWheel();
+                    drawWheel(currentRotation);
                 }
             });
         }
 
         function parseNames() {
-            const text = namesInput.value;
-            // Split by newline, filter empty strings
-            candidates = text.split('\n').filter(name => name.trim() !== '');
+            candidates = namesInput.value.split('\n').filter(name => name.trim() !== '');
         }
 
         function resetNames() {
-            if(confirm("รีเซ็ตรายชื่อทั้งหมด?")) {
+            if(confirm("ล้างข้อมูลและเริ่มใหม่?")) {
                 namesInput.value = "1\n2\n3\n4\n5\n6\n7\n8\n9\n10";
                 parseNames();
-                drawWheel();
+                currentRotation = 0;
+                drawWheel(0);
             }
         }
 
-        /* --- DRAWING THE WHEEL --- */
-        function drawWheel() {
-            if (canvas.getContext) {
-                const outsideRadius = 240;
-                const textRadius = 180;
-                const insideRadius = 50;
+        /* --- DRAWING --- */
+        function drawWheel(rotationAngle) {
+            const width = canvas.width;
+            const height = canvas.height;
+            const outsideRadius = 230;
+            const textRadius = 160;
+            const insideRadius = 40;
+            const centerX = width / 2;
+            const centerY = height / 2;
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, width, height);
+            
+            // Save context to rotate the whole wheel
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(rotationAngle * Math.PI / 180);
+            ctx.translate(-centerX, -centerY);
 
-                if (candidates.length === 0) {
-                    // Draw placeholder if empty
-                    ctx.font = 'bold 30px sans-serif';
-                    ctx.fillStyle = '#fff';
-                    ctx.fillText("Please Add Names", 130, 250);
-                    return;
-                }
-
-                arc = Math.PI * 2 / candidates.length;
-
-                for (let i = 0; i < candidates.length; i++) {
-                    const angle = startAngle + i * arc;
-                    
-                    // Draw Segment
-                    ctx.fillStyle = colors[i % colors.length];
-                    ctx.beginPath();
-                    ctx.arc(250, 250, outsideRadius, angle, angle + arc, false);
-                    ctx.arc(250, 250, insideRadius, angle + arc, angle, true);
-                    ctx.stroke();
-                    ctx.fill();
-
-                    // Draw Text
-                    ctx.save();
-                    ctx.shadowColor = "rgba(0,0,0,0.5)";
-                    ctx.shadowBlur = 4;
-                    ctx.fillStyle = "white";
-                    ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius, 
-                                  250 + Math.sin(angle + arc / 2) * textRadius);
-                    ctx.rotate(angle + arc / 2 + Math.PI / 2); // Rotate text towards center
-                    
-                    const text = candidates[i];
-                    // Dynamic font size based on name length
-                    if(text.length > 15) ctx.font = 'bold 14px Arial';
-                    else if(text.length > 10) ctx.font = 'bold 18px Arial';
-                    else ctx.font = 'bold 24px Arial';
-                    
-                    ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
-                    ctx.restore();
-                }
-            }
-        }
-
-        /* --- SPIN LOGIC --- */
-        function spinWheel() {
-            if(isSpinning) return;
-            if(candidates.length < 1) {
-                alert("กรุณาใส่รายชื่ออย่างน้อย 1 ชื่อ");
+            if (candidates.length === 0) {
+                ctx.font = 'bold 30px sans-serif';
+                ctx.fillStyle = '#333';
+                ctx.textAlign = 'center';
+                ctx.fillText("ใส่ชื่อก่อนนะ", centerX, centerY);
+                ctx.restore();
                 return;
             }
 
-            isSpinning = true;
-            spinBtn.disabled = true;
-            
-            // Random physics parameters
-            const spinDuration = 5000 + Math.random() * 2000; // 5-7 seconds
-            const extraSpins = 5 + Math.random() * 5; // Spin at least 5 times
-            
-            // Calculate exact landing angle
-            // We want to land on a random index
-            const winningIndex = Math.floor(Math.random() * candidates.length);
-            
-            // Calculate the angle to stop at
-            // The canvas draws 0 at 3 o'clock. We need to account for that.
-            // Also the pointer is at top (270deg or -90deg)
-            
-            // Simple Animation Logic using CSS Transform for smoothness
-            // We will actually rotate the CANVAS element, not redraw it every frame
-            
-            const segmentAngle = 360 / candidates.length;
-            
-            // Calculate rotation needed to land `winningIndex` at top (270deg)
-            // Current Rotation + Extra Spins + Offset to Index
-            
-            // Note: Canvas draws clockwise. 
-            // Index 0 starts at 0deg. Index 1 at arc.
-            // To get Index X to top (270deg):
-            // Rotation = 270 - (Index * arc_degrees) - (arc_degrees / 2)
-            
-            const randomOffset = Math.floor(Math.random() * (segmentAngle - 2)) + 1; // Randomize within segment
-            
-            // We calculate total degrees to rotate
-            const targetRotation = 360 * extraSpins + (270 - (winningIndex * segmentAngle) - (segmentAngle/2));
-            
-            currentRotation = targetRotation; // Accumulate or Set? Set is easier if we reset transform
-            
-            // Apply CSS Transform
-            canvas.style.transition = `transform ${spinDuration/1000}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
-            canvas.style.transform = `rotate(${currentRotation}deg)`;
+            const arc = Math.PI * 2 / candidates.length;
 
-            // Wait for animation to end
-            setTimeout(() => {
-                showResult(candidates[winningIndex]);
-                removeWinner(winningIndex);
-                isSpinning = false;
-                spinBtn.disabled = false;
-            }, spinDuration);
+            for (let i = 0; i < candidates.length; i++) {
+                const angle = i * arc; // เริ่มที่ 0 เสมอ เพราะเราหมุน Canvas เอา
+                
+                // Draw Segment
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, outsideRadius, angle, angle + arc, false);
+                ctx.arc(centerX, centerY, insideRadius, angle + arc, angle, true);
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = "#ffffff";
+                ctx.stroke();
+
+                // Draw Text
+                ctx.save();
+                ctx.fillStyle = "white";
+                ctx.shadowColor = "rgba(0,0,0,0.2)";
+                ctx.shadowBlur = 4;
+                
+                // Move to text position
+                ctx.translate(centerX + Math.cos(angle + arc / 2) * textRadius, 
+                              centerY + Math.sin(angle + arc / 2) * textRadius);
+                ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                
+                const text = candidates[i];
+                if(text.length > 15) ctx.font = 'bold 16px Prompt';
+                else ctx.font = 'bold 22px Prompt';
+                ctx.textAlign = 'center';
+                ctx.fillText(text, 0, 0);
+                ctx.restore();
+            }
+            ctx.restore();
         }
 
-        function showResult(name) {
+        /* --- SPINNING LOGIC (Physics + Sound) --- */
+        function spinWheel() {
+            if(isSpinning) return;
+            if(candidates.length < 1) return alert("ขออย่างน้อย 1 ชื่อครับ");
+
+            // Init Audio Context on user gesture
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            // คำนวณหาผู้ชนะล่วงหน้า
+            const winningIndex = Math.floor(Math.random() * candidates.length);
+            const sliceDeg = 360 / candidates.length;
+            
+            // คำนวณองศาที่จะไปหยุด (หมุนอย่างน้อย 5 รอบ + ไปหยุดที่ Index นั้น)
+            // เข็มชี้ที่ 270 องศา (ด้านบน)
+            // ต้องหมุนกลับด้านเพื่อให้ index ที่ต้องการไปอยู่ด้านบน
+            const stopOffset = 270 - (winningIndex * sliceDeg) - (sliceDeg / 2);
+            // เพิ่มความไม่แน่นอนในช่องนั้นๆ
+            const randomInSlice = (Math.random() * sliceDeg * 0.8) - (sliceDeg * 0.4); 
+            
+            const extraSpins = 360 * 6; // หมุน 6 รอบ
+            const targetRotation = currentRotation + extraSpins + (360 - (currentRotation % 360)) + stopOffset + randomInSlice;
+            
+            const duration = 6000; // 6 วินาที
+            let startTime = null;
+            let lastSoundAngle = currentRotation;
+
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = timestamp - startTime;
+                const pct = Math.min(progress / duration, 1);
+                
+                // Easing Function (EaseOutQuart) - หมุนเร็วแล้วค่อยๆ ช้าลง
+                const ease = 1 - Math.pow(1 - pct, 4);
+                
+                const newRotation = currentRotation + (targetRotation - currentRotation) * ease;
+                
+                drawWheel(newRotation);
+
+                // --- SOUND LOGIC ---
+                // ตรวจสอบว่าองศาข้ามเส้นแบ่งช่องหรือไม่ (Check crossing segment boundary)
+                // 1. หาว่าเราผ่านไปกี่องศาแล้ว
+                // 2. ถ้าองศาที่เปลี่ยนไป ข้ามผ่านเส้น grid (ทุกๆ sliceDeg) ให้เล่นเสียง
+                const currentGrid = Math.floor(newRotation / sliceDeg);
+                const lastGrid = Math.floor(lastSoundAngle / sliceDeg);
+
+                if (currentGrid > lastGrid) {
+                    playTickSound();
+                    lastSoundAngle = newRotation;
+                } else {
+                    // Update tracking even if sound didn't play (rare case)
+                     lastSoundAngle = newRotation; 
+                }
+
+                if (progress < duration) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // จบการหมุน
+                    currentRotation = newRotation; // Save final state
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                    showResult(candidates[winningIndex], winningIndex);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function showResult(name, index) {
+            playWinSound();
+            fireConfetti();
+            
             const modal = document.getElementById('resultModal');
             document.getElementById('winnerName').innerText = name;
             modal.classList.add('active');
-            fireConfetti();
+            
+            // เตรียมลบชื่อ (เมื่อปิด Modal)
+            modal.dataset.removeIndex = index;
         }
 
         function closeModal() {
-            document.getElementById('resultModal').classList.remove('active');
-            // Reset wheel rotation visual (optional, but keeps it clean)
-            canvas.style.transition = 'none';
-            canvas.style.transform = `rotate(${currentRotation % 360}deg)`;
+            const modal = document.getElementById('resultModal');
+            modal.classList.remove('active');
             
-            // Redraw wheel with removed name
-            drawWheel();
+            // ลบชื่อที่ชนะออก
+            const indexToRemove = parseInt(modal.dataset.removeIndex);
+            if (!isNaN(indexToRemove)) {
+                candidates.splice(indexToRemove, 1);
+                namesInput.value = candidates.join('\n');
+                
+                // วาดใหม่ (โดยไม่เปลี่ยนองศา ให้มันดูต่อเนื่อง)
+                // แต่เนื่องจากวงล้อเปลี่ยนจำนวนช่อง องศามันจะเพี้ยนเล็กน้อย 
+                // เราจึงวาดใหม่เลยเพื่อให้ช่องขยายเต็มวง
+                drawWheel(currentRotation); 
+            }
         }
 
-        function removeWinner(index) {
-            // Remove from array
-            const winner = candidates[index];
-            candidates.splice(index, 1);
-            
-            // Update Textarea
-            namesInput.value = candidates.join('\n');
-            
-            // Note: DrawWheel is called in closeModal after user acknowledges
-        }
-
-        /* --- CONFETTI EFFECT (Canvas) --- */
+        /* --- CONFETTI (Colorful) --- */
         const confettiCanvas = document.getElementById('confettiCanvas');
-        const confettiCtx = confettiCanvas.getContext('2d');
+        const cfCtx = confettiCanvas.getContext('2d');
         confettiCanvas.width = window.innerWidth;
         confettiCanvas.height = window.innerHeight;
-        
-        let confettiParticles = [];
+        let particles = [];
 
         function fireConfetti() {
-            confettiParticles = [];
-            for (let i = 0; i < 300; i++) {
-                confettiParticles.push({
-                    x: window.innerWidth / 2,
-                    y: window.innerHeight / 2,
-                    w: Math.random() * 10 + 5,
-                    h: Math.random() * 10 + 5,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    vx: (Math.random() - 0.5) * 20,
-                    vy: (Math.random() - 0.5) * 20,
-                    gravity: 0.2,
-                    rotation: Math.random() * 360,
-                    rotationSpeed: (Math.random() - 0.5) * 10
+            particles = [];
+            for(let i=0; i<300; i++) {
+                particles.push({
+                    x: window.innerWidth/2, y: window.innerHeight/2,
+                    w: Math.random()*15+5, h: Math.random()*15+5,
+                    vx: (Math.random()-0.5)*30, vy: (Math.random()-0.5)*30,
+                    color: colors[Math.floor(Math.random()*colors.length)],
+                    life: 200
                 });
             }
             requestAnimationFrame(renderConfetti);
         }
 
         function renderConfetti() {
-            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-            
+            cfCtx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
             let active = false;
-            confettiParticles.forEach((p, i) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += p.gravity;
-                p.rotation += p.rotationSpeed;
-                p.vx *= 0.96; // air resistance
-                p.vy *= 0.96;
-
-                confettiCtx.save();
-                confettiCtx.translate(p.x, p.y);
-                confettiCtx.rotate(p.rotation * Math.PI / 180);
-                confettiCtx.fillStyle = p.color;
-                confettiCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-                confettiCtx.restore();
-
-                if (p.y < window.innerHeight) active = true;
+            particles.forEach(p => {
+                if(p.life > 0) {
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.5; // Gravity
+                    p.vx *= 0.95; p.vy *= 0.95; // Friction
+                    p.life--;
+                    
+                    cfCtx.fillStyle = p.color;
+                    cfCtx.fillRect(p.x, p.y, p.w, p.h);
+                    active = true;
+                }
             });
-
-            if (active) requestAnimationFrame(renderConfetti);
+            if(active) requestAnimationFrame(renderConfetti);
         }
         
-        // Handle Resize
         window.addEventListener('resize', () => {
             confettiCanvas.width = window.innerWidth;
             confettiCanvas.height = window.innerHeight;
-            drawWheel();
+            drawWheel(currentRotation);
         });
 
-        // Start
         init();
-
     </script>
 </body>
 </html>
-
