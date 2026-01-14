@@ -2,351 +2,623 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Year Lucky Draw</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Epic Lucky Wheel - Wasurat Somdet</title>
     <style>
-        /* --- CORE VARIABLES & RESET --- */
+        /* --- 1. SETTINGS & VARS --- */
         :root {
-            --glass-bg: rgba(255, 255, 255, 0.15);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            --primary-color: #007AFF; /* Apple Blue */
+            --glass-bg: rgba(20, 20, 35, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
+            --primary-gold: #FFD700;
+            --primary-accent: #FDB931; 
             --text-main: #FFFFFF;
-            --text-secondary: rgba(255, 255, 255, 0.7);
-            --danger-color: #FF3B30;
+            --danger: #FF453A;
+            --success: #30D158;
+            --font-main: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
 
         body {
+            background: radial-gradient(circle at center, #1a2a6c, #b21f1f, #fdbb2d); /* Epic Sunset Gradient */
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); /* Deep Space */
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: white;
+            perspective: 1000px; /* For 3D effects */
+        }
+
+        /* Ambient Particles Background */
+        .stars {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0));
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: zoom 50s infinite linear;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        @keyframes zoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.5); }
+        }
+
+        /* --- 2. LAYOUT --- */
+        .main-stage {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            width: 90%;
+            max-width: 1200px;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* --- 3. WHEEL CONTAINER (LEFT) --- */
+        .wheel-container {
+            position: relative;
+            width: 450px;
+            height: 450px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #0F2027, #203A43, #2C5364); /* Deep elegant background */
-            overflow: hidden;
-            position: relative;
+            filter: drop-shadow(0 0 30px rgba(0,0,0,0.5));
+            transition: transform 0.5s ease;
         }
 
-        /* --- BACKGROUND ANIMATION (Abstract Blobs) --- */
-        .blob {
+        /* The actual canvas wheel */
+        #wheelCanvas {
+            border-radius: 50%;
+            border: 8px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                inset 0 0 20px rgba(0,0,0,0.8),
+                0 0 15px rgba(255, 215, 0, 0.2); /* Gold glow */
+            transition: transform 4s cubic-bezier(0.2, 0.8, 0.1, 1); /* Custom easing */
+        }
+
+        /* The Stopper/Pointer */
+        .stopper {
             position: absolute;
-            filter: blur(80px);
-            z-index: 0;
-            opacity: 0.6;
-            animation: float 10s infinite ease-in-out alternate;
-        }
-        .blob-1 { top: 10%; left: 10%; width: 300px; height: 300px; background: #8E2DE2; animation-delay: 0s; }
-        .blob-2 { bottom: 20%; right: 10%; width: 350px; height: 350px; background: #4A00E0; animation-delay: -2s; }
-        .blob-3 { top: 40%; left: 40%; width: 250px; height: 250px; background: #00C6FF; animation-delay: -4s; }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(20px, -40px) scale(1.1); }
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 60px;
+            background: linear-gradient(to bottom, #FFD700, #FDB931);
+            clip-path: polygon(100% 0, 50% 100%, 0 0);
+            z-index: 20;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
         }
 
-        /* --- GLASS CARD CONTAINER --- */
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 90%;
-            max-width: 480px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            padding: 40px 30px;
-            text-align: center;
-            color: var(--text-main);
-            transition: transform 0.3s ease;
-        }
-
-        .container:hover {
-            transform: translateY(-5px);
-        }
-
-        /* --- TYPOGRAPHY & UI --- */
-        h1 {
-            font-weight: 700;
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        p.subtitle {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-        }
-
-        /* --- INPUT GROUP --- */
-        .settings-group {
+        /* Center Hub */
+        .wheel-hub {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+            border-radius: 50%;
+            z-index: 15;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
+            align-items: center;
             justify-content: center;
         }
-
-        .input-wrapper {
-            position: relative;
-            width: 45%;
+        
+        .wheel-hub::after {
+            content: '★';
+            color: #333;
+            font-size: 24px;
         }
 
-        label {
+        /* --- 4. CONTROLS (RIGHT) --- */
+        .controls-panel {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.6);
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
             display: block;
-            text-align: left;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            margin-left: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        textarea:focus {
+            background: rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        input[type="number"] {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.2);
+        .btn-spin {
+            background: linear-gradient(45deg, #FFD700, #FDB931);
+            color: #333;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+        }
+        .btn-spin:active { transform: scale(0.95); }
+        .btn-spin:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-reset {
+            background: rgba(255,255,255,0.1);
             color: white;
-            font-size: 1.1rem;
-            font-weight: 500;
-            outline: none;
-            transition: all 0.2s ease;
-            text-align: center;
+            max-width: 80px;
         }
+        .btn-reset:hover { background: rgba(255,255,255,0.2); }
 
-        input[type="number"]:focus {
-            background: rgba(0, 0, 0, 0.4);
-            border-color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* --- DISPLAY RESULT AREA --- */
-        .result-box {
-            margin: 20px 0 40px 0;
-            height: 120px;
-            display: flex;
+        /* --- 5. RESULT MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
             justify-content: center;
             align-items: center;
-            position: relative;
+            opacity: 0;
+            transition: opacity 0.5s;
         }
 
-        #result {
-            font-size: 5rem;
-            font-weight: 800;
-            background: -webkit-linear-gradient(90deg, #fff, #b4b4b4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            line-height: 1;
-            letter-spacing: -2px;
-            opacity: 0.5; /* Initial state */
-            transform: scale(0.9);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        #result.active {
+        .modal-overlay.active {
+            display: flex;
             opacity: 1;
+        }
+
+        .winner-card {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 50px;
+            border-radius: 40px;
+            text-align: center;
+            transform: scale(0.5);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+        }
+
+        .modal-overlay.active .winner-card {
             transform: scale(1);
         }
 
-        #result.rolling {
-            opacity: 0.8;
-            transform: scale(1.1);
-            -webkit-text-fill-color: white; /* Solid white while rolling */
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+        .winner-title {
+            font-size: 1.2rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
-        /* --- BUTTONS --- */
-        .btn {
-            width: 100%;
-            padding: 16px;
+        .winner-name {
+            font-size: 4rem;
+            font-weight: 900;
+            margin: 20px 0;
+            background: linear-gradient(to right, #FFD700, #FFA500, #FFD700);
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .btn-close {
+            background: white;
+            color: black;
+            padding: 12px 30px;
+            border-radius: 50px;
             border: none;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            margin-bottom: 15px;
-            position: relative;
-            overflow: hidden;
+            margin-top: 20px;
         }
 
-        .btn-primary {
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        /* --- 6. COPYRIGHT --- */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            width: 100%;
         }
 
-        .btn-primary:hover {
-            background: #FFFFFF;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        /* Canvas for Confetti */
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 150;
         }
 
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            padding: 10px;
-        }
-
-        .btn-secondary:hover {
-            color: var(--text-main);
-            background: rgba(255,255,255,0.1);
-        }
-
-        /* --- STATUS & HISTORY --- */
-        .status-text {
-            margin-top: 10px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            min-height: 20px;
-        }
-
-        /* Mobile Optimization */
-        @media (max-width: 480px) {
-            .container {
-                width: 95%;
-                padding: 30px 20px;
-            }
-            #result {
-                font-size: 4rem;
-            }
+        /* Responsive */
+        @media (max-width: 800px) {
+            .wheel-container { width: 320px; height: 320px; }
+            .winner-name { font-size: 3rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+    <div class="stars"></div>
+    <canvas id="confettiCanvas"></canvas>
 
-    <div class="container">
-        <h1>Lucky Draw</h1>
-        <p class="subtitle">สุ่มผู้โชคดี รับของขวัญปีใหม่</p>
-
-        <div class="settings-group">
-            <div class="input-wrapper">
-                <label for="minNum">เริ่มต้น</label>
-                <input type="number" id="minNum" value="1" min="0">
-            </div>
-            <div class="input-wrapper">
-                <label for="maxNum">สิ้นสุด</label>
-                <input type="number" id="maxNum" value="50" min="1">
-            </div>
+    <div class="main-stage">
+        <!-- Wheel Section -->
+        <div class="wheel-container">
+            <div class="stopper"></div>
+            <div class="wheel-hub"></div>
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
         </div>
 
-        <div class="result-box">
-            <div id="result">00</div>
+        <!-- Controls Section -->
+        <div class="controls-panel">
+            <div>
+                <h1>Lucky Draw</h1>
+                <p style="color:rgba(255,255,255,0.5); font-size:0.9rem;">The Ultimate Randomizer</p>
+            </div>
+
+            <div>
+                <label class="input-label">รายชื่อผู้เข้าร่วม (ขึ้นบรรทัดใหม่เพื่อแยก)</label>
+                <textarea id="namesInput" placeholder="Wasurat&#10;Somdet&#10;Steve Jobs&#10;Elon Musk&#10;Lisa Blackpink">1
+2
+3
+4
+5
+6
+7
+8
+9
+10</textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-spin" id="spinBtn" onclick="spinWheel()">SPIN THE WHEEL</button>
+                <button class="btn-reset" onclick="resetNames()">↺</button>
+            </div>
+            
+            <p style="text-align:center; font-size:0.8rem; color:rgba(255,255,255,0.4);">
+                * รายชื่อที่ได้รางวัลจะถูกลบออกอัตโนมัติ
+            </p>
         </div>
+    </div>
 
-        <button class="btn btn-primary" onclick="startRandom()">สุ่มผู้โชคดี</button>
-        <button class="btn btn-secondary" onclick="resetData()">รีเซ็ตข้อมูลใหม่</button>
+    <!-- Result Modal -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="winner-card">
+            <div class="winner-title">Winner Is</div>
+            <div class="winner-name" id="winnerName">???</div>
+            <button class="btn-close" onclick="closeModal()">CONTINUE</button>
+        </div>
+    </div>
 
-        <div class="status-text" id="status">พร้อมสุ่มรางวัล</div>
+    <div class="footer">
+        © Copyright by Wasurat Somdet
     </div>
 
     <script>
-        // State Management
-        let drawnNumbers = new Set();
-        let isAnimating = false;
+        /* --- CONFIGURATION --- */
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const namesInput = document.getElementById('namesInput');
         
-        // Audio Effect (Optional: You can add a sound file here)
-        // const tickSound = new Audio('tick.mp3');
+        // Colors palette (Apple/Modern style)
+        const colors = [
+            '#FF3B30', // Red
+            '#FF9500', // Orange
+            '#FFCC00', // Yellow
+            '#34C759', // Green
+            '#007AFF', // Blue
+            '#5856D6', // Purple
+            '#AF52DE', // Pink
+            '#5AC8FA'  // Teal
+        ];
 
-        function startRandom() {
-            if (isAnimating) return;
+        let candidates = [];
+        let startAngle = 0;
+        let arc = 0;
+        let spinTimeout = null;
+        let spinAngleStart = 10;
+        let spinTime = 0;
+        let spinTimeTotal = 0;
+        let isSpinning = false;
+        let currentRotation = 0;
 
-            const min = parseInt(document.getElementById('minNum').value);
-            const max = parseInt(document.getElementById('maxNum').value);
-            const statusEl = document.getElementById('status');
-            const resultEl = document.getElementById('result');
+        /* --- INITIALIZATION --- */
+        function init() {
+            parseNames();
+            drawWheel();
+            
+            // Auto update wheel when typing
+            namesInput.addEventListener('input', () => {
+                if(!isSpinning) {
+                    parseNames();
+                    drawWheel();
+                }
+            });
+        }
 
-            // Validation
-            if (min >= max) {
-                statusEl.style.color = 'var(--danger-color)';
-                statusEl.textContent = 'เลขเริ่มต้นต้องน้อยกว่าเลขสิ้นสุด';
+        function parseNames() {
+            const text = namesInput.value;
+            // Split by newline, filter empty strings
+            candidates = text.split('\n').filter(name => name.trim() !== '');
+        }
+
+        function resetNames() {
+            if(confirm("รีเซ็ตรายชื่อทั้งหมด?")) {
+                namesInput.value = "1\n2\n3\n4\n5\n6\n7\n8\n9\n10";
+                parseNames();
+                drawWheel();
+            }
+        }
+
+        /* --- DRAWING THE WHEEL --- */
+        function drawWheel() {
+            if (canvas.getContext) {
+                const outsideRadius = 240;
+                const textRadius = 180;
+                const insideRadius = 50;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                if (candidates.length === 0) {
+                    // Draw placeholder if empty
+                    ctx.font = 'bold 30px sans-serif';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText("Please Add Names", 130, 250);
+                    return;
+                }
+
+                arc = Math.PI * 2 / candidates.length;
+
+                for (let i = 0; i < candidates.length; i++) {
+                    const angle = startAngle + i * arc;
+                    
+                    // Draw Segment
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.beginPath();
+                    ctx.arc(250, 250, outsideRadius, angle, angle + arc, false);
+                    ctx.arc(250, 250, insideRadius, angle + arc, angle, true);
+                    ctx.stroke();
+                    ctx.fill();
+
+                    // Draw Text
+                    ctx.save();
+                    ctx.shadowColor = "rgba(0,0,0,0.5)";
+                    ctx.shadowBlur = 4;
+                    ctx.fillStyle = "white";
+                    ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius, 
+                                  250 + Math.sin(angle + arc / 2) * textRadius);
+                    ctx.rotate(angle + arc / 2 + Math.PI / 2); // Rotate text towards center
+                    
+                    const text = candidates[i];
+                    // Dynamic font size based on name length
+                    if(text.length > 15) ctx.font = 'bold 14px Arial';
+                    else if(text.length > 10) ctx.font = 'bold 18px Arial';
+                    else ctx.font = 'bold 24px Arial';
+                    
+                    ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                    ctx.restore();
+                }
+            }
+        }
+
+        /* --- SPIN LOGIC --- */
+        function spinWheel() {
+            if(isSpinning) return;
+            if(candidates.length < 1) {
+                alert("กรุณาใส่รายชื่ออย่างน้อย 1 ชื่อ");
                 return;
             }
 
-            // Calculate available numbers
-            const totalNumbers = max - min + 1;
+            isSpinning = true;
+            spinBtn.disabled = true;
             
-            if (drawnNumbers.size >= totalNumbers) {
-                statusEl.style.color = 'var(--danger-color)';
-                statusEl.textContent = 'จับฉลากครบทุกเลขแล้ว! กรุณารีเซ็ต';
-                resultEl.textContent = "End";
-                return;
-            }
-
-            // Start Logic
-            isAnimating = true;
-            statusEl.style.color = 'var(--text-secondary)';
-            statusEl.textContent = 'กำลังสุ่ม...';
-            resultEl.classList.remove('active');
-            resultEl.classList.add('rolling');
-
-            let counter = 0;
-            const duration = 2000; // Animation duration in ms
-            const intervalTime = 50; // Speed of number change
+            // Random physics parameters
+            const spinDuration = 5000 + Math.random() * 2000; // 5-7 seconds
+            const extraSpins = 5 + Math.random() * 5; // Spin at least 5 times
             
-            const animation = setInterval(() => {
-                // Generate fake random number for effect
-                const tempRand = Math.floor(Math.random() * (max - min + 1)) + min;
-                resultEl.textContent = tempRand;
-                
-                // Optional: tickSound.play();
-                counter += intervalTime;
-            }, intervalTime);
+            // Calculate exact landing angle
+            // We want to land on a random index
+            const winningIndex = Math.floor(Math.random() * candidates.length);
+            
+            // Calculate the angle to stop at
+            // The canvas draws 0 at 3 o'clock. We need to account for that.
+            // Also the pointer is at top (270deg or -90deg)
+            
+            // Simple Animation Logic using CSS Transform for smoothness
+            // We will actually rotate the CANVAS element, not redraw it every frame
+            
+            const segmentAngle = 360 / candidates.length;
+            
+            // Calculate rotation needed to land `winningIndex` at top (270deg)
+            // Current Rotation + Extra Spins + Offset to Index
+            
+            // Note: Canvas draws clockwise. 
+            // Index 0 starts at 0deg. Index 1 at arc.
+            // To get Index X to top (270deg):
+            // Rotation = 270 - (Index * arc_degrees) - (arc_degrees / 2)
+            
+            const randomOffset = Math.floor(Math.random() * (segmentAngle - 2)) + 1; // Randomize within segment
+            
+            // We calculate total degrees to rotate
+            const targetRotation = 360 * extraSpins + (270 - (winningIndex * segmentAngle) - (segmentAngle/2));
+            
+            currentRotation = targetRotation; // Accumulate or Set? Set is easier if we reset transform
+            
+            // Apply CSS Transform
+            canvas.style.transition = `transform ${spinDuration/1000}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-            // Final Result Logic
+            // Wait for animation to end
             setTimeout(() => {
-                clearInterval(animation);
-                
-                let finalNumber;
-                do {
-                    finalNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-                } while (drawnNumbers.has(finalNumber));
-
-                // Save result
-                drawnNumbers.add(finalNumber);
-                
-                // UI Update
-                resultEl.textContent = finalNumber;
-                resultEl.classList.remove('rolling');
-                resultEl.classList.add('active');
-                
-                // Update Status
-                statusEl.textContent = `ยินดีด้วย! เบอร์ ${finalNumber} (เหลือ ${totalNumbers - drawnNumbers.size})`;
-                isAnimating = false;
-
-            }, duration);
+                showResult(candidates[winningIndex]);
+                removeWinner(winningIndex);
+                isSpinning = false;
+                spinBtn.disabled = false;
+            }, spinDuration);
         }
 
-        function resetData() {
-            if(confirm('ต้องการลบประวัติการสุ่มทั้งหมดใช่หรือไม่?')) {
-                drawnNumbers.clear();
-                document.getElementById('result').textContent = "00";
-                document.getElementById('result').classList.remove('active');
-                document.getElementById('status').textContent = "รีเซ็ตข้อมูลเรียบร้อย";
-                document.getElementById('status').style.color = 'var(--text-secondary)';
+        function showResult(name) {
+            const modal = document.getElementById('resultModal');
+            document.getElementById('winnerName').innerText = name;
+            modal.classList.add('active');
+            fireConfetti();
+        }
+
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('active');
+            // Reset wheel rotation visual (optional, but keeps it clean)
+            canvas.style.transition = 'none';
+            canvas.style.transform = `rotate(${currentRotation % 360}deg)`;
+            
+            // Redraw wheel with removed name
+            drawWheel();
+        }
+
+        function removeWinner(index) {
+            // Remove from array
+            const winner = candidates[index];
+            candidates.splice(index, 1);
+            
+            // Update Textarea
+            namesInput.value = candidates.join('\n');
+            
+            // Note: DrawWheel is called in closeModal after user acknowledges
+        }
+
+        /* --- CONFETTI EFFECT (Canvas) --- */
+        const confettiCanvas = document.getElementById('confettiCanvas');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+        
+        let confettiParticles = [];
+
+        function fireConfetti() {
+            confettiParticles = [];
+            for (let i = 0; i < 300; i++) {
+                confettiParticles.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    w: Math.random() * 10 + 5,
+                    h: Math.random() * 10 + 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 0.5) * 20,
+                    gravity: 0.2,
+                    rotation: Math.random() * 360,
+                    rotationSpeed: (Math.random() - 0.5) * 10
+                });
             }
+            requestAnimationFrame(renderConfetti);
         }
+
+        function renderConfetti() {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            
+            let active = false;
+            confettiParticles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += p.gravity;
+                p.rotation += p.rotationSpeed;
+                p.vx *= 0.96; // air resistance
+                p.vy *= 0.96;
+
+                confettiCtx.save();
+                confettiCtx.translate(p.x, p.y);
+                confettiCtx.rotate(p.rotation * Math.PI / 180);
+                confettiCtx.fillStyle = p.color;
+                confettiCtx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+                confettiCtx.restore();
+
+                if (p.y < window.innerHeight) active = true;
+            });
+
+            if (active) requestAnimationFrame(renderConfetti);
+        }
+        
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            drawWheel();
+        });
+
+        // Start
+        init();
+
     </script>
 </body>
 </html>
+
