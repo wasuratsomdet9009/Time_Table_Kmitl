@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wasurat Somdet - Portfolio</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Kanit (Thai) & Inter (English) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Kanit', 'sans-serif'],
+                        thai: ['Kanit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            orange: '#FF7F00', // สีส้มธีมหลัก
+                            dark: '#1c1c1e',   // Apple Dark Grey
+                            light: '#f5f5f7',  // Apple Light Grey
+                        }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(50px) scale(0.95)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Glassmorphism Classes */
+        .glass {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .dark .glass {
+            background: rgba(28, 28, 30, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Apple Style Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+
+        /* Skeleton Loading Animation */
+        .skeleton {
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        .dark .skeleton {
+            background: linear-gradient(90deg, #2d2d2d 25%, #3d3d3d 50%, #2d2d2d 75%);
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Image Carousel Transition */
+        .slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out, filter 1s ease-in-out;
+            filter: blur(5px);
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+        .slide.active {
+            opacity: 1;
+            filter: blur(0);
+        }
+
+        /* Modal Transitions */
+        .modal-overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        body {
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+    </style>
+</head>
+<body class="bg-brand-light text-gray-800 dark:bg-black dark:text-gray-100 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-brand-orange selection:text-white">
+
+    <!-- Skeleton Loader Overlay -->
+    <div id="loading-screen" class="fixed inset-0 z-50 bg-brand-light dark:bg-black flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-16 h-16 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mb-4"></div>
+        <div class="skeleton w-32 h-6"></div>
+    </div>
+
+    <!-- Contact Modal Form -->
+    <div id="contact-modal" class="modal-overlay fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+        <div class="glass w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl relative transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            <!-- Close Button -->
+            <button onclick="closeContactModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+            
+            <h3 class="text-2xl font-bold mb-1 text-brand-orange flex items-center gap-2">
+                <i class="fas fa-paper-plane"></i> <span data-i18n="modalTitle">Contact Me</span>
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6" data-i18n="modalSubtitle">Send me a message and I'll get back to you.</p>
+            
+            <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" data-i18n="labelName">Your Name</label>
+                    <input type="text" required class="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all placeholder-gray-400" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" data-i18n="labelEmail">Email Address</label>
+                    <input type="email" required class="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all placeholder-gray-400" placeholder="john@example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" data-i18n="labelMessage">Message</label>
+                    <textarea required rows="4" class="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all resize-none placeholder-gray-400" placeholder="Hello Wasurat..."></textarea>
+                </div>
+                
+                <button type="submit" class="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-3 rounded-xl shadow-lg hover:shadow-orange-500/30 transition-all transform active:scale-95 flex justify-center items-center gap-2">
+                    <span data-i18n="btnSend">Send Message</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Background Shapes (Decorative) -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-orange/20 rounded-full blur-[100px] animate-pulse-slow"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 1s;"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8 max-w-7xl mb-24 transition-opacity duration-700 opacity-0" id="main-content">
+        
+        <!-- Breadcrumb & Header Controls -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 glass rounded-2xl p-4 shadow-sm">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
+                <a href="#" class="hover:text-brand-orange transition-colors"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a>
+                <span class="text-gray-300 dark:text-gray-600">/</span>
+                <span class="text-brand-orange font-medium" data-i18n="portfolio">Portfolio</span>
+            </nav>
+
+            <!-- Controls -->
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors w-10 h-10 flex items-center justify-center">
+                    <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                    <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
+                </button>
+                
+                <!-- NEW: Segmented Control Language Switcher -->
+                <div class="bg-gray-200 dark:bg-gray-700 p-1 rounded-full flex relative w-32 h-10 cursor-pointer">
+                    <!-- Sliding Background -->
+                    <div id="lang-slider" class="absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out z-0"></div>
+                    
+                    <button onclick="switchLanguage('th')" class="flex-1 z-10 text-xs font-bold text-center flex items-center justify-center gap-2 transition-colors duration-300 text-gray-800 dark:text-white" id="btn-th">
+                        <img src="https://flagcdn.com/w40/th.png" class="w-4 h-3 rounded-[2px]"> TH
+                    </button>
+                    <button onclick="switchLanguage('en')" class="flex-1 z-10 text-xs font-bold text-center flex items-center justify-center gap-2 transition-colors duration-300 text-gray-500 dark:text-gray-400" id="btn-en">
+                        <img src="https://flagcdn.com/w40/gb.png" class="w-4 h-3 rounded-[2px]"> EN
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Bento Grid Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-auto">
+
+            <!-- 1. Profile Card (Large) -->
+            <div class="glass col-span-1 md:col-span-2 lg:col-span-2 row-span-2 p-8 rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden group">
+                <div class="z-10 relative">
+                    <div class="inline-block px-3 py-1 bg-brand-orange/10 text-brand-orange rounded-full text-xs font-bold mb-4 tracking-wider uppercase">
+                        Computer Technology
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-bold mb-2 tracking-tight">
+                        <span data-i18n="namePrefix">Mr.</span> <span class="text-brand-orange">Wasurat</span> Somdet
+                    </h1>
+                    <h2 class="text-xl md:text-2xl text-gray-500 dark:text-gray-400 mb-6 font-thai" data-i18n="thaiName">นายวสุรัชต์ สมเด็จ</h2>
+                    
+                    <div class="space-y-3 text-sm md:text-base text-gray-600 dark:text-gray-300">
+                        <p class="flex items-center gap-3">
+                            <i class="fas fa-cake-candles text-brand-orange w-5"></i>
+                            <span data-i18n="dob">Born: 2 June 2007</span> 
+                            <span class="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs ml-2 border border-gray-200 dark:border-gray-700 font-mono text-brand-orange">
+                                <span id="age-display">Loading...</span> <span data-i18n="yearsOld">Years Old</span>
+                            </span>
+                        </p>
+                        <p class="flex items-center gap-3">
+                            <i class="fas fa-map-marker-alt text-brand-orange w-5"></i>
+                            <span data-i18n="location">Saraburi / Bangkok, Thailand</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Decorative Circle behind text -->
+                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-gradient-to-br from-brand-orange to-red-500 rounded-full opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+            </div>
+
+            <!-- 2. Image Carousel -->
+            <div class="glass col-span-1 md:col-span-1 lg:col-span-2 row-span-2 rounded-[2rem] shadow-lg overflow-hidden relative min-h-[300px] group">
+                <div id="carousel-container" class="w-full h-full relative bg-gray-200 dark:bg-gray-800">
+                    <!-- Images will be inserted via JS or manually below. Using placeholders. -->
+                    <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2070&auto=format&fit=crop" class="slide active" alt="Coding Setup">
+                    <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop" class="slide" alt="Laptop Work">
+                    <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop" class="slide" alt="Tech Environment">
+                </div>
+                
+                <!-- Carousel Overlay Text -->
+                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+                    <p class="text-white font-medium text-sm flex items-center gap-2">
+                        <i class="fas fa-camera"></i> <span data-i18n="gallery">My Gallery</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3. Education -->
+            <div class="glass col-span-1 md:col-span-1 lg:col-span-1 p-6 rounded-[2rem] shadow-lg flex flex-col justify-center items-center text-center hover:bg-white/40 dark:hover:bg-black/40 transition-colors cursor-default">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-2xl text-brand-orange">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="font-bold text-lg mb-1" data-i18n="educationTitle">Education</h3>
+                <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide">KMITL</p>
+                <p class="text-sm text-gray-700 dark:text-gray-300 leading-tight" data-i18n="degree">
+                    B.Sc. Industrial Education<br>(Computer Technology)
+                </p>
+            </div>
+
+            <!-- 4. Why Hire Me -->
+            <div class="glass col-span-1 md:col-span-2 lg:col-span-2 p-8 rounded-[2rem] shadow-lg flex flex-col justify-center relative overflow-hidden bg-brand-orange text-white border-none">
+                <i class="fas fa-quote-right absolute top-4 right-6 text-6xl text-white/20"></i>
+                <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-rocket"></i> <span data-i18n="whyHireTitle">Why Hire Me?</span>
+                </h3>
+                <p class="text-white/90 leading-relaxed font-light text-lg" data-i18n="whyHireText">
+                    I blend technical expertise with creative problem-solving. My passion for clean code and intuitive UX/UI design ensures that every project isn't just functional, but also delightful to use. I'm adaptable, eager to learn, and ready to contribute from day one.
+                </p>
+            </div>
+
+            <!-- 5. Tech Stack & Tools -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-1 p-6 rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
+                    <i class="fas fa-tools text-brand-orange"></i> <span data-i18n="skillsTitle">Skills</span>
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    <!-- Skill Tags -->
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">HTML5</span>
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">CSS3</span>
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">JavaScript</span>
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">UX/UI Design</span>
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">Responsive</span>
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">Git</span>
+                </div>
+            </div>
+
+            <!-- 6. Social & Contact -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-8 rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-xl mb-6 text-center" data-i18n="connectTitle">Let's Connect</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <a href="https://github.com/wasuratsomdet9009" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fab fa-github text-3xl mb-2 text-gray-800 dark:text-white group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-xs font-medium">GitHub</span>
+                    </a>
+                    <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fab fa-instagram text-3xl mb-2 text-pink-600 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-xs font-medium">Instagram</span>
+                    </a>
+                    <a href="https://discord.com/users/721665946795900980" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fab fa-discord text-3xl mb-2 text-indigo-500 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-xs font-medium">Discord</span>
+                    </a>
+                    <a href="mailto:wasuratsomdet@gmail.com" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fas fa-envelope text-3xl mb-2 text-red-500 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-xs font-medium">Email</span>
+                    </a>
+                    <a href="tel:0830334694" class="col-span-2 md:col-span-1 flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fas fa-phone text-3xl mb-2 text-green-500 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-xs font-medium">Phone</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 7. FAQ Accordion -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-8 rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-xl mb-4 text-brand-orange" data-i18n="faqTitle">Frequently Asked Questions</h3>
+                <div class="space-y-3">
+                    <details class="group bg-white/40 dark:bg-black/20 rounded-xl">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4">
+                            <span data-i18n="faq1Q">What services do you offer?</span>
+                            <span class="transition group-open:rotate-180"><i class="fas fa-chevron-down text-xs"></i></span>
+                        </summary>
+                        <div class="text-gray-600 dark:text-gray-300 mt-0 px-4 pb-4 text-sm animate-fade-in" data-i18n="faq1A">
+                            I specialize in Frontend Development, UX/UI Design, and creating responsive web applications suited for all devices.
+                        </div>
+                    </details>
+                    <details class="group bg-white/40 dark:bg-black/20 rounded-xl">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4">
+                            <span data-i18n="faq2Q">Can you work remotely?</span>
+                            <span class="transition group-open:rotate-180"><i class="fas fa-chevron-down text-xs"></i></span>
+                        </summary>
+                        <div class="text-gray-600 dark:text-gray-300 mt-0 px-4 pb-4 text-sm animate-fade-in" data-i18n="faq2A">
+                            Yes! I am available for remote work and can travel between Saraburi and Bangkok if necessary.
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+        </div> <!-- End Grid -->
+    </div> <!-- End Main Container -->
+
+    <!-- Footer -->
+    <footer class="text-center py-8 text-sm text-gray-500 glass mt-12 mb-0 rounded-t-[2rem]">
+        <p>© 2024 Wasurat Somdet. All Rights Reserved.</p>
+        <p class="text-xs mt-1 opacity-70">Designed with <i class="fas fa-heart text-red-400"></i> & Glassmorphism</p>
+    </footer>
+
+    <!-- Floating Contact Bubble (Modified to Open Modal) -->
+    <button onclick="openContactModal()" class="fixed bottom-6 right-6 z-40 bg-brand-orange text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform hover:rotate-12 group border-4 border-white/20">
+        <i class="fas fa-comment-dots text-xl group-hover:animate-pulse"></i>
+        <span class="absolute right-full mr-3 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap" data-i18n="hireMe">Contact Me!</span>
+    </button>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- 1. Data & Translations ---
+        const content = {
+            th: {
+                home: "หน้าแรก",
+                portfolio: "ผลงาน",
+                namePrefix: "นาย",
+                thaiName: "นายวสุรัชต์ สมเด็จ",
+                dob: "เกิด: 2 มิถุนายน 2550",
+                yearsOld: "ปี",
+                location: "สระบุรี / กรุงเทพฯ",
+                gallery: "แกลเลอรี่ของฉัน",
+                educationTitle: "การศึกษา",
+                degree: "ครุศาสตร์อุตสาหกรรมบัณฑิต\n(เทคโนโลยีคอมพิวเตอร์)",
+                whyHireTitle: "ทำไมต้องจ้างผม?",
+                whyHireText: "ผมผสมผสานความรู้ด้านเทคนิคเข้ากับการแก้ปัญหาอย่างสร้างสรรค์ ใส่ใจในการเขียนโค้ดที่สะอาดและการออกแบบ UX/UI ที่ใช้งานง่าย เพื่อให้ทุกโปรเจกต์ไม่ได้มีดีแค่ฟังก์ชัน แต่ยังน่าใช้งาน ผมพร้อมเรียนรู้ ปรับตัว และทุ่มเทให้กับงาน",
+                skillsTitle: "ทักษะและเครื่องมือ",
+                connectTitle: "ช่องทางติดต่อ",
+                faqTitle: "คำถามที่พบบ่อย",
+                faq1Q: "คุณให้บริการด้านใดบ้าง?",
+                faq1A: "ผมเชี่ยวชาญด้าน Frontend Development, การออกแบบ UX/UI และการสร้างเว็บแอปพลิเคชันที่รองรับทุกหน้าจอ",
+                faq2Q: "คุณสามารถทำงานระยะไกล (Remote) ได้ไหม?",
+                faq2A: "ได้ครับ! ผมสะดวกทำงานแบบ Remote และสามารถเดินทางไปมาระหว่างสระบุรีและกรุงเทพฯ ได้หากจำเป็น",
+                hireMe: "ติดต่อฉัน!",
+                // Modal Translations
+                modalTitle: "ติดต่อฉัน",
+                modalSubtitle: "ส่งข้อความหาผม แล้วผมจะรีบตอบกลับครับ",
+                labelName: "ชื่อของคุณ",
+                labelEmail: "อีเมล",
+                labelMessage: "ข้อความ",
+                btnSend: "ส่งข้อความ"
+            },
+            en: {
+                home: "Home",
+                portfolio: "Portfolio",
+                namePrefix: "Mr.",
+                thaiName: "Wasurat Somdet",
+                dob: "Born: 2 June 2007",
+                yearsOld: "Years Old",
+                location: "Saraburi / Bangkok",
+                gallery: "My Gallery",
+                educationTitle: "Education",
+                degree: "B.Sc. Industrial Education\n(Computer Technology)",
+                whyHireTitle: "Why Hire Me?",
+                whyHireText: "I blend technical expertise with creative problem-solving. My passion for clean code and intuitive UX/UI design ensures that every project isn't just functional, but also delightful to use. I'm adaptable, eager to learn, and ready to contribute from day one.",
+                skillsTitle: "Skills & Tools",
+                connectTitle: "Let's Connect",
+                faqTitle: "Frequently Asked Questions",
+                faq1Q: "What services do you offer?",
+                faq1A: "I specialize in Frontend Development, UX/UI Design, and creating responsive web applications suited for all devices.",
+                faq2Q: "Can you work remotely?",
+                faq2A: "Yes! I am available for remote work and can travel between Saraburi and Bangkok if necessary.",
+                hireMe: "Contact Me!",
+                // Modal Translations
+                modalTitle: "Contact Me",
+                modalSubtitle: "Send me a message and I'll get back to you.",
+                labelName: "Your Name",
+                labelEmail: "Email Address",
+                labelMessage: "Message",
+                btnSend: "Send Message"
+            }
+        };
+
+        // --- 2. State Management ---
+        let currentLang = 'th';
+
+        // --- 3. Functions ---
+
+        // Calculate Age
+        function calculateAge() {
+            const birthDate = new Date('2007-06-02');
+            const now = new Date();
+            let age = now.getFullYear() - birthDate.getFullYear();
+            const m = now.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && now.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            document.getElementById('age-display').textContent = age;
+        }
+
+        // Switch Language (Updated for Segmented Control)
+        function switchLanguage(lang) {
+            currentLang = lang;
+            
+            // Update Text
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (content[lang][key]) {
+                    el.innerText = content[lang][key];
+                }
+            });
+
+            // Update UI (Slider Animation)
+            const slider = document.getElementById('lang-slider');
+            const btnTh = document.getElementById('btn-th');
+            const btnEn = document.getElementById('btn-en');
+            
+            if (lang === 'th') {
+                slider.style.transform = 'translateX(0)';
+                btnTh.classList.remove('text-gray-500', 'dark:text-gray-400');
+                btnTh.classList.add('text-gray-800', 'dark:text-white');
+                
+                btnEn.classList.add('text-gray-500', 'dark:text-gray-400');
+                btnEn.classList.remove('text-gray-800', 'dark:text-white');
+            } else {
+                slider.style.transform = 'translateX(100%) translateX(0px)'; // Adjust based on parent padding/width logic if needed, but 100% of sibling works well in flex
+                // Correct logic for absolute positioning based on flex parent width division isn't automatic with %, 
+                // but here parent is w-32, left-1 (4px). 
+                // Let's use left property toggle or transform. 
+                // Since slider is absolute left-1, transform translateX(100%) moves it by its own width.
+                // Width is calc(50% - 4px). So it moves to the other side.
+                // Wait, transform percentage refers to element itself. 
+                // Let's use simple class toggle for left position or just transform.
+                // Actually, simply moving it by approx 60px (half of 128px parent) is safer or use flex-order logic?
+                // CSS Transform is best.
+                // Slider width is ~56px. Parent padding 4px gap.
+                // Moving 100% + 8px gap.
+                slider.style.transform = 'translateX(calc(100% + 8px))';
+                
+                btnEn.classList.remove('text-gray-500', 'dark:text-gray-400');
+                btnEn.classList.add('text-gray-800', 'dark:text-white');
+                
+                btnTh.classList.add('text-gray-500', 'dark:text-gray-400');
+                btnTh.classList.remove('text-gray-800', 'dark:text-white');
+            }
+        }
+
+        // Modal Logic
+        function openContactModal() {
+            const modal = document.getElementById('contact-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.add('open');
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }
+
+        function closeContactModal() {
+            const modal = document.getElementById('contact-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                modal.classList.remove('open');
+            }, 300);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('contact-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeContactModal();
+            }
+        });
+
+        // Handle Form Submit
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            // Loading State
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+
+            // Simulate API Call
+            setTimeout(() => {
+                // Success State
+                btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
+                btn.classList.remove('bg-brand-orange', 'hover:bg-orange-600');
+                btn.classList.add('bg-green-500', 'hover:bg-green-600');
+                
+                setTimeout(() => {
+                    closeContactModal();
+                    // Reset form after closing
+                    setTimeout(() => {
+                        e.target.reset();
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-75', 'bg-green-500', 'hover:bg-green-600');
+                        btn.classList.add('bg-brand-orange', 'hover:bg-orange-600');
+                    }, 500);
+                }, 1000);
+            }, 1500);
+        }
+
+        // Auto Theme based on Time
+        function initTheme() {
+            const html = document.documentElement;
+            const hour = new Date().getHours();
+            const isDayTime = hour >= 6 && hour < 18;
+            
+            if (isDayTime) {
+                html.classList.remove('dark');
+            } else {
+                html.classList.add('dark');
+            }
+        }
+
+        // Manual Theme Toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Carousel Logic
+        function startCarousel() {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+
+            setInterval(() => {
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }, 4000);
+        }
+
+        // Skeleton Loading Simulation
+        function simulateLoading() {
+            const loader = document.getElementById('loading-screen');
+            const content = document.getElementById('main-content');
+            
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                loader.style.pointerEvents = 'none';
+                content.style.opacity = '1';
+                calculateAge();
+            }, 1500);
+        }
+
+        // --- 4. Initialization ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            switchLanguage('th'); 
+            simulateLoading();
+            startCarousel();
+        });
+
+    </script>
+</body>
+</html>
