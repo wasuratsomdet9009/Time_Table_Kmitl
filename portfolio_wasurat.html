@@ -119,6 +119,19 @@
             visibility: visible;
         }
 
+        /* Timeline CSS */
+        .timeline-line {
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        .dark .timeline-line {
+            background-color: #374151;
+        }
+
         body {
             transition: background-color 0.5s ease, color 0.5s ease;
         }
@@ -193,7 +206,7 @@
                     <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
                 </button>
                 
-                <!-- NEW: Segmented Control Language Switcher -->
+                <!-- Segmented Control Language Switcher -->
                 <div class="bg-gray-200 dark:bg-gray-700 p-1 rounded-full flex relative w-32 h-10 cursor-pointer">
                     <!-- Sliding Background -->
                     <div id="lang-slider" class="absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out z-0"></div>
@@ -211,9 +224,18 @@
         <!-- Bento Grid Layout -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-auto">
 
-            <!-- 1. Profile Card (Large) -->
+            <!-- 1. Profile Card (Updated with Profile Picture) -->
             <div class="glass col-span-1 md:col-span-2 lg:col-span-2 row-span-2 p-8 rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden group">
-                <div class="z-10 relative">
+                
+                <!-- Profile Picture (Top Right) -->
+                <div class="absolute top-6 right-6 z-20 hidden md:block group-hover:scale-105 transition-transform duration-500">
+                    <div class="w-28 h-28 lg:w-32 lg:h-32 rounded-full border-4 border-white/40 dark:border-white/10 shadow-xl overflow-hidden glass p-1">
+                        <!-- Placeholder Profile Image -->
+                        <img src="https://ui-avatars.com/api/?name=Wasurat+Somdet&background=FF7F00&color=fff&size=256" alt="Wasurat Somdet" class="w-full h-full rounded-full object-cover">
+                    </div>
+                </div>
+
+                <div class="z-10 relative mt-4 md:mt-0 max-w-[70%]">
                     <div class="inline-block px-3 py-1 bg-brand-orange/10 text-brand-orange rounded-full text-xs font-bold mb-4 tracking-wider uppercase">
                         Computer Technology
                     </div>
@@ -241,10 +263,9 @@
                 <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-gradient-to-br from-brand-orange to-red-500 rounded-full opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
             </div>
 
-            <!-- 2. Image Carousel -->
+            <!-- 2. Image Carousel (Gallery) -->
             <div class="glass col-span-1 md:col-span-1 lg:col-span-2 row-span-2 rounded-[2rem] shadow-lg overflow-hidden relative min-h-[300px] group">
                 <div id="carousel-container" class="w-full h-full relative bg-gray-200 dark:bg-gray-800">
-                    <!-- Images will be inserted via JS or manually below. Using placeholders. -->
                     <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2070&auto=format&fit=crop" class="slide active" alt="Coding Setup">
                     <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop" class="slide" alt="Laptop Work">
                     <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop" class="slide" alt="Tech Environment">
@@ -253,21 +274,22 @@
                 <!-- Carousel Overlay Text -->
                 <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
                     <p class="text-white font-medium text-sm flex items-center gap-2">
-                        <i class="fas fa-camera"></i> <span data-i18n="gallery">My Gallery</span>
+                        <i class="fas fa-images"></i> <span data-i18n="gallery">My Activity Gallery</span>
                     </p>
                 </div>
             </div>
 
-            <!-- 3. Education -->
+            <!-- 3. Education (Updated Focus) -->
             <div class="glass col-span-1 md:col-span-1 lg:col-span-1 p-6 rounded-[2rem] shadow-lg flex flex-col justify-center items-center text-center hover:bg-white/40 dark:hover:bg-black/40 transition-colors cursor-default">
-                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-md mb-4 text-2xl text-brand-orange">
-                    <i class="fas fa-graduation-cap"></i>
+                <div class="w-16 h-16 bg-white dark:bg-white/10 rounded-full flex items-center justify-center shadow-md mb-4 text-2xl text-brand-orange">
+                    <i class="fas fa-laptop-code"></i>
                 </div>
-                <h3 class="font-bold text-lg mb-1" data-i18n="educationTitle">Education</h3>
-                <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide">KMITL</p>
-                <p class="text-sm text-gray-700 dark:text-gray-300 leading-tight" data-i18n="degree">
-                    B.Sc. Industrial Education<br>(Computer Technology)
-                </p>
+                <h3 class="font-bold text-lg mb-1" data-i18n="educationTitle">Major</h3>
+                <p class="text-lg font-semibold text-brand-orange mb-1" data-i18n="majorName">Computer Technology</p>
+                <div class="inline-block px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                    <i class="fas fa-chalkboard-teacher mr-1"></i> <span data-i18n="teachingCap">Teaching Capable</span>
+                </div>
+                <p class="text-xs text-gray-400 mt-2" data-i18n="degreeName">Industrial Education (KMITL)</p>
             </div>
 
             <!-- 4. Why Hire Me -->
@@ -281,19 +303,57 @@
                 </p>
             </div>
 
-            <!-- 5. Tech Stack & Tools -->
+            <!-- 5. Tech Stack & Tools (Updated) -->
             <div class="glass col-span-1 md:col-span-3 lg:col-span-1 p-6 rounded-[2rem] shadow-lg">
                 <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
                     <i class="fas fa-tools text-brand-orange"></i> <span data-i18n="skillsTitle">Skills</span>
                 </h3>
                 <div class="flex flex-wrap gap-2">
-                    <!-- Skill Tags -->
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">HTML5</span>
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">CSS3</span>
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">JavaScript</span>
+                    <!-- Standard Tech -->
+                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">HTML/CSS/JS</span>
                     <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">UX/UI Design</span>
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">Responsive</span>
                     <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">Git</span>
+                    
+                    <!-- NEW Skills -->
+                    <span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-lg text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Digital Marketing</span>
+                    <span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-lg text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Live Streaming (OBS)</span>
+                    <span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-lg text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Graphic Design</span>
+                </div>
+            </div>
+
+            <!-- NEW: Timeline Section -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-8 rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-xl mb-6 flex items-center gap-2 text-gray-800 dark:text-white">
+                    <i class="fas fa-history text-brand-orange"></i> <span data-i18n="timelineTitle">Experience & Journey</span>
+                </h3>
+                
+                <div class="relative pl-6 space-y-8">
+                    <!-- Vertical Line -->
+                    <div class="timeline-line rounded-full bg-gray-200 dark:bg-gray-700"></div>
+
+                    <!-- Timeline Item 1 (Placeholder) -->
+                    <div class="relative z-10">
+                        <div class="absolute -left-6 top-1 w-3 h-3 bg-brand-orange rounded-full ring-4 ring-white dark:ring-gray-800"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
+                            <h4 class="font-bold text-lg" data-i18n="timelineNowTitle">Open to Opportunities</h4>
+                            <span class="text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded" data-i18n="timelineNowDate">Present</span>
+                        </div>
+                        <p class="text-sm text-gray-600 dark:text-gray-300" data-i18n="timelineNowDesc">
+                            Looking for internship or junior positions in Web Development or Digital Marketing.
+                        </p>
+                    </div>
+
+                    <!-- Timeline Item 2 (Education Project Example) -->
+                    <div class="relative z-10 opacity-75 hover:opacity-100 transition-opacity">
+                        <div class="absolute -left-6 top-1 w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full ring-4 ring-white dark:ring-gray-800"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
+                            <h4 class="font-bold text-md text-gray-700 dark:text-gray-300" data-i18n="timelineEduTitle">Computer Technology Student</h4>
+                            <span class="text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">2023 - Present</span>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="timelineEduDesc">
+                            Studying at KMITL. Focusing on Web Technologies, Network Basics, and Graphic Design.
+                        </p>
+                    </div>
                 </div>
             </div>
 
@@ -358,7 +418,7 @@
         <p class="text-xs mt-1 opacity-70">Designed with <i class="fas fa-heart text-red-400"></i> & Glassmorphism</p>
     </footer>
 
-    <!-- Floating Contact Bubble (Modified to Open Modal) -->
+    <!-- Floating Contact Bubble -->
     <button onclick="openContactModal()" class="fixed bottom-6 right-6 z-40 bg-brand-orange text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform hover:rotate-12 group border-4 border-white/20">
         <i class="fas fa-comment-dots text-xl group-hover:animate-pulse"></i>
         <span class="absolute right-full mr-3 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap" data-i18n="hireMe">Contact Me!</span>
@@ -376,26 +436,35 @@
                 dob: "เกิด: 2 มิถุนายน 2550",
                 yearsOld: "ปี",
                 location: "สระบุรี / กรุงเทพฯ",
-                gallery: "แกลเลอรี่ของฉัน",
-                educationTitle: "การศึกษา",
-                degree: "ครุศาสตร์อุตสาหกรรมบัณฑิต\n(เทคโนโลยีคอมพิวเตอร์)",
+                gallery: "ภาพกิจกรรม",
+                educationTitle: "วิชาเอก",
+                majorName: "เทคโนโลยีคอมพิวเตอร์",
+                teachingCap: "สามารถสอนได้",
+                degreeName: "ครุศาสตร์อุตสาหกรรม (สจล.)",
                 whyHireTitle: "ทำไมต้องจ้างผม?",
                 whyHireText: "ผมผสมผสานความรู้ด้านเทคนิคเข้ากับการแก้ปัญหาอย่างสร้างสรรค์ ใส่ใจในการเขียนโค้ดที่สะอาดและการออกแบบ UX/UI ที่ใช้งานง่าย เพื่อให้ทุกโปรเจกต์ไม่ได้มีดีแค่ฟังก์ชัน แต่ยังน่าใช้งาน ผมพร้อมเรียนรู้ ปรับตัว และทุ่มเทให้กับงาน",
                 skillsTitle: "ทักษะและเครื่องมือ",
                 connectTitle: "ช่องทางติดต่อ",
                 faqTitle: "คำถามที่พบบ่อย",
                 faq1Q: "คุณให้บริการด้านใดบ้าง?",
-                faq1A: "ผมเชี่ยวชาญด้าน Frontend Development, การออกแบบ UX/UI และการสร้างเว็บแอปพลิเคชันที่รองรับทุกหน้าจอ",
+                faq1A: "ผมเชี่ยวชาญด้าน Frontend Development, การออกแบบ UX/UI, กราฟิกดีไซน์ และการควบคุมระบบไลฟ์สด (Live Streaming)",
                 faq2Q: "คุณสามารถทำงานระยะไกล (Remote) ได้ไหม?",
                 faq2A: "ได้ครับ! ผมสะดวกทำงานแบบ Remote และสามารถเดินทางไปมาระหว่างสระบุรีและกรุงเทพฯ ได้หากจำเป็น",
                 hireMe: "ติดต่อฉัน!",
-                // Modal Translations
+                // Modal
                 modalTitle: "ติดต่อฉัน",
                 modalSubtitle: "ส่งข้อความหาผม แล้วผมจะรีบตอบกลับครับ",
                 labelName: "ชื่อของคุณ",
                 labelEmail: "อีเมล",
                 labelMessage: "ข้อความ",
-                btnSend: "ส่งข้อความ"
+                btnSend: "ส่งข้อความ",
+                // Timeline
+                timelineTitle: "เส้นทางและประสบการณ์",
+                timelineNowTitle: "กำลังมองหาโอกาส",
+                timelineNowDate: "ปัจจุบัน",
+                timelineNowDesc: "กำลังมองหาที่ฝึกงานหรือตำแหน่งงานด้าน Web Development, การตลาดดิจิทัล หรือ กราฟิก",
+                timelineEduTitle: "นักศึกษาเทคโนโลยีคอมพิวเตอร์",
+                timelineEduDesc: "กำลังศึกษาที่ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง เน้นการพัฒนาเว็บ กราฟิก และระบบเครือข่าย"
             },
             en: {
                 home: "Home",
@@ -405,26 +474,35 @@
                 dob: "Born: 2 June 2007",
                 yearsOld: "Years Old",
                 location: "Saraburi / Bangkok",
-                gallery: "My Gallery",
-                educationTitle: "Education",
-                degree: "B.Sc. Industrial Education\n(Computer Technology)",
+                gallery: "Activity Gallery",
+                educationTitle: "Major",
+                majorName: "Computer Technology",
+                teachingCap: "Teaching Capable",
+                degreeName: "Industrial Education (KMITL)",
                 whyHireTitle: "Why Hire Me?",
                 whyHireText: "I blend technical expertise with creative problem-solving. My passion for clean code and intuitive UX/UI design ensures that every project isn't just functional, but also delightful to use. I'm adaptable, eager to learn, and ready to contribute from day one.",
                 skillsTitle: "Skills & Tools",
                 connectTitle: "Let's Connect",
                 faqTitle: "Frequently Asked Questions",
                 faq1Q: "What services do you offer?",
-                faq1A: "I specialize in Frontend Development, UX/UI Design, and creating responsive web applications suited for all devices.",
+                faq1A: "I specialize in Frontend Development, UX/UI Design, Graphic Design, and Live Streaming Operations.",
                 faq2Q: "Can you work remotely?",
                 faq2A: "Yes! I am available for remote work and can travel between Saraburi and Bangkok if necessary.",
                 hireMe: "Contact Me!",
-                // Modal Translations
+                // Modal
                 modalTitle: "Contact Me",
                 modalSubtitle: "Send me a message and I'll get back to you.",
                 labelName: "Your Name",
                 labelEmail: "Email Address",
                 labelMessage: "Message",
-                btnSend: "Send Message"
+                btnSend: "Send Message",
+                // Timeline
+                timelineTitle: "Experience & Journey",
+                timelineNowTitle: "Open to Opportunities",
+                timelineNowDate: "Present",
+                timelineNowDesc: "Looking for internship or junior positions in Web Development, Digital Marketing, or Graphic Design.",
+                timelineEduTitle: "Computer Technology Student",
+                timelineEduDesc: "Studying at KMITL. Focusing on Web Technologies, Graphic Design, and System Operations."
             }
         };
 
@@ -445,7 +523,7 @@
             document.getElementById('age-display').textContent = age;
         }
 
-        // Switch Language (Updated for Segmented Control)
+        // Switch Language
         function switchLanguage(lang) {
             currentLang = lang;
             
@@ -470,18 +548,6 @@
                 btnEn.classList.add('text-gray-500', 'dark:text-gray-400');
                 btnEn.classList.remove('text-gray-800', 'dark:text-white');
             } else {
-                slider.style.transform = 'translateX(100%) translateX(0px)'; // Adjust based on parent padding/width logic if needed, but 100% of sibling works well in flex
-                // Correct logic for absolute positioning based on flex parent width division isn't automatic with %, 
-                // but here parent is w-32, left-1 (4px). 
-                // Let's use left property toggle or transform. 
-                // Since slider is absolute left-1, transform translateX(100%) moves it by its own width.
-                // Width is calc(50% - 4px). So it moves to the other side.
-                // Wait, transform percentage refers to element itself. 
-                // Let's use simple class toggle for left position or just transform.
-                // Actually, simply moving it by approx 60px (half of 128px parent) is safer or use flex-order logic?
-                // CSS Transform is best.
-                // Slider width is ~56px. Parent padding 4px gap.
-                // Moving 100% + 8px gap.
                 slider.style.transform = 'translateX(calc(100% + 8px))';
                 
                 btnEn.classList.remove('text-gray-500', 'dark:text-gray-400');
@@ -513,7 +579,6 @@
             }, 300);
         }
 
-        // Close modal when clicking outside
         document.getElementById('contact-modal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeContactModal();
@@ -565,7 +630,6 @@
             }
         }
 
-        // Manual Theme Toggle
         document.getElementById('theme-toggle').addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
         });
