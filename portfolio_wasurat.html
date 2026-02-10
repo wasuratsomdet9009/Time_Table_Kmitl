@@ -8,6 +8,9 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- html2canvas for Image Export -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
     <!-- Google Fonts: Kanit (Thai) & Inter (English) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
     
@@ -135,12 +138,62 @@
         body {
             transition: background-color 0.5s ease, color 0.5s ease;
         }
+
+        /* --- PRINT STYLES (For PDF Export) --- */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+            }
+            .glass {
+                background: white !important;
+                border: 1px solid #ddd !important;
+                box-shadow: none !important;
+                backdrop-filter: none !important;
+            }
+            /* Hide non-printable elements */
+            #theme-toggle, #lang-slider-container, .no-print, #contact-modal, #loading-screen, .fixed-bg-shapes, header button, .floating-contact {
+                display: none !important;
+            }
+            /* Adjust Layout for Paper */
+            .container {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            header {
+                box-shadow: none !important;
+                border: none !important;
+                padding-bottom: 0 !important;
+                margin-bottom: 20px !important;
+            }
+            /* Force Grid to be readable */
+            .grid {
+                display: block !important;
+            }
+            .grid > div {
+                margin-bottom: 20px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                border: 1px solid #eee;
+            }
+            /* Text adjustments */
+            .text-white {
+                color: black !important;
+            }
+            .bg-brand-orange {
+                background-color: #FF7F00 !important;
+                color: white !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-brand-light text-gray-800 dark:bg-black dark:text-gray-100 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-brand-orange selection:text-white">
 
     <!-- Skeleton Loader Overlay -->
-    <div id="loading-screen" class="fixed inset-0 z-50 bg-brand-light dark:bg-black flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="loading-screen" class="fixed inset-0 z-[100] bg-brand-light dark:bg-black flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-16 h-16 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mb-4"></div>
         <div class="skeleton w-32 h-6"></div>
     </div>
@@ -181,228 +234,248 @@
     </div>
 
     <!-- Background Shapes (Decorative) -->
-    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none fixed-bg-shapes">
         <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-brand-orange/20 rounded-full blur-[100px] animate-pulse-slow"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 1s;"></div>
     </div>
 
     <!-- Main Container -->
-    <div class="container mx-auto px-4 py-8 max-w-7xl mb-24 transition-opacity duration-700 opacity-0" id="main-content">
+    <!-- Modified: Added id="capture-area" for image export logic -->
+    <div id="capture-area" class="container mx-auto px-4 py-4 md:py-8 max-w-6xl mb-24 transition-opacity duration-700 opacity-0" >
         
         <!-- Breadcrumb & Header Controls -->
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 glass rounded-2xl p-4 shadow-sm">
+        <!-- Modified: Compact padding (p-4 -> p-3) and added Export Buttons -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-6 glass rounded-2xl p-3 md:p-4 shadow-sm">
             <!-- Breadcrumb -->
-            <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
+            <nav class="flex items-center space-x-2 text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-3 md:mb-0">
                 <a href="#" class="hover:text-brand-orange transition-colors"><i class="fas fa-home"></i> <span data-i18n="home">Home</span></a>
                 <span class="text-gray-300 dark:text-gray-600">/</span>
                 <span class="text-brand-orange font-medium" data-i18n="portfolio">Portfolio</span>
             </nav>
 
             <!-- Controls -->
-            <div class="flex items-center gap-4">
+            <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 no-print">
+                
+                <!-- NEW: Export Buttons -->
+                <div class="flex items-center gap-2 mr-2 border-r border-gray-300 dark:border-gray-700 pr-4">
+                    <button onclick="exportToImage()" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-xs font-medium transition-all flex items-center gap-2" title="Save as Image">
+                        <i class="fas fa-camera text-brand-orange"></i> <span class="hidden sm:inline">Save Image</span>
+                    </button>
+                    <button onclick="exportToPDF()" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-xs font-medium transition-all flex items-center gap-2" title="Save as PDF">
+                        <i class="fas fa-file-pdf text-red-500"></i> <span class="hidden sm:inline">PDF / Print</span>
+                    </button>
+                </div>
+
                 <!-- Theme Toggle -->
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors w-10 h-10 flex items-center justify-center">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors w-9 h-9 flex items-center justify-center">
                     <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
                     <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
                 </button>
                 
                 <!-- Segmented Control Language Switcher -->
-                <div class="bg-gray-200 dark:bg-gray-700 p-1 rounded-full flex relative w-32 h-10 cursor-pointer">
+                <div id="lang-slider-container" class="bg-gray-200 dark:bg-gray-700 p-1 rounded-full flex relative w-28 h-9 cursor-pointer">
                     <!-- Sliding Background -->
                     <div id="lang-slider" class="absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-white dark:bg-gray-500 rounded-full shadow-sm transition-all duration-300 ease-out z-0"></div>
                     
-                    <button onclick="switchLanguage('th')" class="flex-1 z-10 text-xs font-bold text-center flex items-center justify-center gap-2 transition-colors duration-300 text-gray-800 dark:text-white" id="btn-th">
-                        <img src="https://flagcdn.com/w40/th.png" class="w-4 h-3 rounded-[2px]"> TH
+                    <button onclick="switchLanguage('th')" class="flex-1 z-10 text-[10px] md:text-xs font-bold text-center flex items-center justify-center gap-1 transition-colors duration-300 text-gray-800 dark:text-white" id="btn-th">
+                        <img src="https://flagcdn.com/w40/th.png" class="w-3 h-2.5 rounded-[1px]"> TH
                     </button>
-                    <button onclick="switchLanguage('en')" class="flex-1 z-10 text-xs font-bold text-center flex items-center justify-center gap-2 transition-colors duration-300 text-gray-500 dark:text-gray-400" id="btn-en">
-                        <img src="https://flagcdn.com/w40/gb.png" class="w-4 h-3 rounded-[2px]"> EN
+                    <button onclick="switchLanguage('en')" class="flex-1 z-10 text-[10px] md:text-xs font-bold text-center flex items-center justify-center gap-1 transition-colors duration-300 text-gray-500 dark:text-gray-400" id="btn-en">
+                        <img src="https://flagcdn.com/w40/gb.png" class="w-3 h-2.5 rounded-[1px]"> EN
                     </button>
                 </div>
             </div>
         </header>
 
         <!-- Bento Grid Layout -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-auto">
+        <!-- Modified: Reduced gap from gap-6 to gap-3/gap-4 for compactness -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-4 auto-rows-auto">
 
-            <!-- 1. Profile Card (Updated with Profile Picture) -->
-            <div class="glass col-span-1 md:col-span-2 lg:col-span-2 row-span-2 p-8 rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden group">
+            <!-- 1. Profile Card -->
+            <!-- Modified: Reduced p-8 to p-5, added Mobile Profile Pic support -->
+            <div class="glass col-span-1 md:col-span-2 lg:col-span-2 row-span-2 p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden group">
                 
                 <!-- Profile Picture (Top Right) -->
-                <div class="absolute top-6 right-6 z-20 hidden md:block group-hover:scale-105 transition-transform duration-500">
-                    <div class="w-28 h-28 lg:w-32 lg:h-32 rounded-full border-4 border-white/40 dark:border-white/10 shadow-xl overflow-hidden glass p-1">
-                        <!-- Placeholder Profile Image -->
+                <!-- Modified: Visible on mobile now (smaller size) -->
+                <div class="absolute top-4 right-4 md:top-6 md:right-6 z-20 group-hover:scale-105 transition-transform duration-500">
+                    <div class="w-16 h-16 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full border-2 md:border-4 border-white/40 dark:border-white/10 shadow-xl overflow-hidden glass p-0.5 md:p-1">
                         <img src="https://ui-avatars.com/api/?name=Wasurat+Somdet&background=FF7F00&color=fff&size=256" alt="Wasurat Somdet" class="w-full h-full rounded-full object-cover">
                     </div>
                 </div>
 
-                <div class="z-10 relative mt-4 md:mt-0 max-w-[70%]">
-                    <div class="inline-block px-3 py-1 bg-brand-orange/10 text-brand-orange rounded-full text-xs font-bold mb-4 tracking-wider uppercase">
+                <div class="z-10 relative mt-2 md:mt-0 max-w-[85%] md:max-w-[70%]">
+                    <div class="inline-block px-2 py-0.5 md:px-3 md:py-1 bg-brand-orange/10 text-brand-orange rounded-full text-[10px] md:text-xs font-bold mb-3 tracking-wider uppercase">
                         Computer Technology
                     </div>
-                    <h1 class="text-3xl md:text-5xl font-bold mb-2 tracking-tight">
+                    <!-- Modified: Text sizes for mobile -->
+                    <h1 class="text-2xl md:text-5xl font-bold mb-1 tracking-tight">
                         <span data-i18n="namePrefix">Mr.</span> <span class="text-brand-orange">Wasurat</span> Somdet
                     </h1>
-                    <h2 class="text-xl md:text-2xl text-gray-500 dark:text-gray-400 mb-6 font-thai" data-i18n="thaiName">นายวสุรัชต์ สมเด็จ</h2>
+                    <h2 class="text-lg md:text-2xl text-gray-500 dark:text-gray-400 mb-4 font-thai" data-i18n="thaiName">นายวสุรัชต์ สมเด็จ</h2>
                     
-                    <div class="space-y-3 text-sm md:text-base text-gray-600 dark:text-gray-300">
-                        <p class="flex items-center gap-3">
-                            <i class="fas fa-cake-candles text-brand-orange w-5"></i>
+                    <div class="space-y-2 text-xs md:text-base text-gray-600 dark:text-gray-300">
+                        <p class="flex items-center gap-2 md:gap-3">
+                            <i class="fas fa-cake-candles text-brand-orange w-4 md:w-5"></i>
                             <span data-i18n="dob">Born: 2 June 2007</span> 
-                            <span class="bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs ml-2 border border-gray-200 dark:border-gray-700 font-mono text-brand-orange">
-                                <span id="age-display">Loading...</span> <span data-i18n="yearsOld">Years Old</span>
+                            <span class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-[10px] md:text-xs ml-1 border border-gray-200 dark:border-gray-700 font-mono text-brand-orange">
+                                <span id="age-display">Loading...</span> <span data-i18n="yearsOld">Y/O</span>
                             </span>
                         </p>
-                        <p class="flex items-center gap-3">
-                            <i class="fas fa-map-marker-alt text-brand-orange w-5"></i>
+                        <p class="flex items-center gap-2 md:gap-3">
+                            <i class="fas fa-map-marker-alt text-brand-orange w-4 md:w-5"></i>
                             <span data-i18n="location">Saraburi / Bangkok, Thailand</span>
                         </p>
                     </div>
                 </div>
                 
-                <!-- Decorative Circle behind text -->
-                <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-gradient-to-br from-brand-orange to-red-500 rounded-full opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
+                <!-- Decorative Circle -->
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 md:w-64 md:h-64 bg-gradient-to-br from-brand-orange to-red-500 rounded-full opacity-10 blur-3xl group-hover:opacity-20 transition-opacity duration-500"></div>
             </div>
 
-            <!-- 2. Image Carousel (Gallery) -->
-            <div class="glass col-span-1 md:col-span-1 lg:col-span-2 row-span-2 rounded-[2rem] shadow-lg overflow-hidden relative min-h-[300px] group">
+            <!-- 2. Image Carousel -->
+            <!-- Modified: Reduced min-height slightly for mobile -->
+            <div class="glass col-span-1 md:col-span-1 lg:col-span-2 row-span-2 rounded-[1.5rem] md:rounded-[2rem] shadow-lg overflow-hidden relative min-h-[200px] md:min-h-[300px] group">
                 <div id="carousel-container" class="w-full h-full relative bg-gray-200 dark:bg-gray-800">
                     <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2070&auto=format&fit=crop" class="slide active" alt="Coding Setup">
                     <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop" class="slide" alt="Laptop Work">
                     <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop" class="slide" alt="Tech Environment">
                 </div>
                 
-                <!-- Carousel Overlay Text -->
-                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
-                    <p class="text-white font-medium text-sm flex items-center gap-2">
+                <div class="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-black/80 to-transparent">
+                    <p class="text-white font-medium text-xs md:text-sm flex items-center gap-2">
                         <i class="fas fa-images"></i> <span data-i18n="gallery">My Activity Gallery</span>
                     </p>
                 </div>
             </div>
 
-            <!-- 3. Education (Updated Focus) -->
-            <div class="glass col-span-1 md:col-span-1 lg:col-span-1 p-6 rounded-[2rem] shadow-lg flex flex-col justify-center items-center text-center hover:bg-white/40 dark:hover:bg-black/40 transition-colors cursor-default">
-                <div class="w-16 h-16 bg-white dark:bg-white/10 rounded-full flex items-center justify-center shadow-md mb-4 text-2xl text-brand-orange">
+            <!-- 3. Education -->
+            <!-- Modified: Reduced padding p-6 -> p-5 -->
+            <div class="glass col-span-1 md:col-span-1 lg:col-span-1 p-5 rounded-[1.5rem] md:rounded-[2rem] shadow-lg flex flex-col justify-center items-center text-center hover:bg-white/40 dark:hover:bg-black/40 transition-colors cursor-default">
+                <div class="w-12 h-12 md:w-16 md:h-16 bg-white dark:bg-white/10 rounded-full flex items-center justify-center shadow-md mb-3 text-xl md:text-2xl text-brand-orange">
                     <i class="fas fa-laptop-code"></i>
                 </div>
-                <h3 class="font-bold text-lg mb-1" data-i18n="educationTitle">Major</h3>
-                <p class="text-lg font-semibold text-brand-orange mb-1" data-i18n="majorName">Computer Technology</p>
+                <h3 class="font-bold text-base md:text-lg mb-0.5" data-i18n="educationTitle">Major</h3>
+                <p class="text-base md:text-lg font-semibold text-brand-orange mb-1" data-i18n="majorName">Computer Tech</p>
                 <div class="inline-block px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                     <i class="fas fa-chalkboard-teacher mr-1"></i> <span data-i18n="teachingCap">Teaching Capable</span>
                 </div>
-                <p class="text-xs text-gray-400 mt-2" data-i18n="degreeName">Industrial Education (KMITL)</p>
+                <p class="text-[10px] md:text-xs text-gray-400 mt-1" data-i18n="degreeName">Industrial Education (KMITL)</p>
             </div>
 
             <!-- 4. Why Hire Me -->
-            <div class="glass col-span-1 md:col-span-2 lg:col-span-2 p-8 rounded-[2rem] shadow-lg flex flex-col justify-center relative overflow-hidden bg-brand-orange text-white border-none">
-                <i class="fas fa-quote-right absolute top-4 right-6 text-6xl text-white/20"></i>
-                <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+            <!-- Modified: Reduced padding, tweaked text size -->
+            <div class="glass col-span-1 md:col-span-2 lg:col-span-2 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg flex flex-col justify-center relative overflow-hidden bg-brand-orange text-white border-none">
+                <i class="fas fa-quote-right absolute top-4 right-6 text-4xl md:text-6xl text-white/20"></i>
+                <h3 class="text-xl md:text-2xl font-bold mb-3 flex items-center gap-2">
                     <i class="fas fa-rocket"></i> <span data-i18n="whyHireTitle">Why Hire Me?</span>
                 </h3>
-                <p class="text-white/90 leading-relaxed font-light text-lg" data-i18n="whyHireText">
-                    I blend technical expertise with creative problem-solving. My passion for clean code and intuitive UX/UI design ensures that every project isn't just functional, but also delightful to use. I'm adaptable, eager to learn, and ready to contribute from day one.
+                <p class="text-white/90 leading-relaxed font-light text-sm md:text-lg" data-i18n="whyHireText">
+                    I blend technical expertise with creative problem-solving. Clean code and intuitive UX/UI design ensure that every project isn't just functional, but delightful.
                 </p>
             </div>
 
-            <!-- 5. Tech Stack & Tools (Updated) -->
-            <div class="glass col-span-1 md:col-span-3 lg:col-span-1 p-6 rounded-[2rem] shadow-lg">
-                <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-gray-800 dark:text-white">
+            <!-- 5. Tech Stack & Tools -->
+            <!-- Modified: Reduced padding -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-1 p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-base md:text-lg mb-3 flex items-center gap-2 text-gray-800 dark:text-white">
                     <i class="fas fa-tools text-brand-orange"></i> <span data-i18n="skillsTitle">Skills</span>
                 </h3>
-                <div class="flex flex-wrap gap-2">
-                    <!-- Standard Tech -->
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">HTML/CSS/JS</span>
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">UX/UI Design</span>
-                    <span class="px-3 py-1 bg-white dark:bg-gray-700 rounded-lg text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">Git</span>
+                <div class="flex flex-wrap gap-1.5 md:gap-2">
+                    <span class="px-2 py-1 bg-white dark:bg-gray-700 rounded-md text-[10px] md:text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">HTML/CSS/JS</span>
+                    <span class="px-2 py-1 bg-white dark:bg-gray-700 rounded-md text-[10px] md:text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">UX/UI</span>
+                    <span class="px-2 py-1 bg-white dark:bg-gray-700 rounded-md text-[10px] md:text-xs font-semibold shadow-sm border border-gray-100 dark:border-gray-600">Git</span>
                     
-                    <!-- NEW Skills -->
-                    <span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-lg text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Digital Marketing</span>
-                    <span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-lg text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Live Streaming (OBS)</span>
-                    <span class="px-3 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-lg text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Graphic Design</span>
+                    <span class="px-2 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-md text-[10px] md:text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Marketing</span>
+                    <span class="px-2 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-md text-[10px] md:text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">OBS / Streaming</span>
+                    <span class="px-2 py-1 bg-orange-50 dark:bg-orange-900/30 text-brand-orange rounded-md text-[10px] md:text-xs font-semibold shadow-sm border border-orange-100 dark:border-orange-800/30">Graphic Design</span>
                 </div>
             </div>
 
-            <!-- NEW: Timeline Section -->
-            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-8 rounded-[2rem] shadow-lg">
-                <h3 class="font-bold text-xl mb-6 flex items-center gap-2 text-gray-800 dark:text-white">
+            <!-- 6. Timeline Section -->
+            <!-- Modified: Reduced padding -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-2 text-gray-800 dark:text-white">
                     <i class="fas fa-history text-brand-orange"></i> <span data-i18n="timelineTitle">Experience & Journey</span>
                 </h3>
                 
-                <div class="relative pl-6 space-y-8">
+                <div class="relative pl-4 md:pl-6 space-y-6 md:space-y-8">
                     <!-- Vertical Line -->
                     <div class="timeline-line rounded-full bg-gray-200 dark:bg-gray-700"></div>
 
-                    <!-- Timeline Item 1 (Placeholder) -->
+                    <!-- Timeline Item 1 -->
                     <div class="relative z-10">
-                        <div class="absolute -left-6 top-1 w-3 h-3 bg-brand-orange rounded-full ring-4 ring-white dark:ring-gray-800"></div>
-                        <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
-                            <h4 class="font-bold text-lg" data-i18n="timelineNowTitle">Open to Opportunities</h4>
-                            <span class="text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded" data-i18n="timelineNowDate">Present</span>
+                        <div class="absolute -left-4 md:-left-6 top-1.5 w-2.5 h-2.5 bg-brand-orange rounded-full ring-2 ring-white dark:ring-gray-800"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 md:gap-2 mb-1">
+                            <h4 class="font-bold text-sm md:text-lg" data-i18n="timelineNowTitle">Open to Opportunities</h4>
+                            <span class="text-[10px] md:text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded w-fit" data-i18n="timelineNowDate">Present</span>
                         </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300" data-i18n="timelineNowDesc">
+                        <p class="text-xs md:text-sm text-gray-600 dark:text-gray-300" data-i18n="timelineNowDesc">
                             Looking for internship or junior positions in Web Development or Digital Marketing.
                         </p>
                     </div>
 
-                    <!-- Timeline Item 2 (Education Project Example) -->
+                    <!-- Timeline Item 2 -->
                     <div class="relative z-10 opacity-75 hover:opacity-100 transition-opacity">
-                        <div class="absolute -left-6 top-1 w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full ring-4 ring-white dark:ring-gray-800"></div>
-                        <div class="flex flex-col sm:flex-row sm:items-baseline gap-2 mb-1">
-                            <h4 class="font-bold text-md text-gray-700 dark:text-gray-300" data-i18n="timelineEduTitle">Computer Technology Student</h4>
-                            <span class="text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">2024 - Present</span>
+                        <div class="absolute -left-4 md:-left-6 top-1.5 w-2.5 h-2.5 bg-gray-300 dark:bg-gray-600 rounded-full ring-2 ring-white dark:ring-gray-800"></div>
+                        <div class="flex flex-col sm:flex-row sm:items-baseline gap-1 md:gap-2 mb-1">
+                            <h4 class="font-bold text-sm md:text-md text-gray-700 dark:text-gray-300" data-i18n="timelineEduTitle">Computer Technology Student</h4>
+                            <span class="text-[10px] md:text-xs font-mono text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded w-fit">2024 - Present</span>
                         </div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="timelineEduDesc">
+                        <p class="text-xs md:text-sm text-gray-500 dark:text-gray-400" data-i18n="timelineEduDesc">
                             Studying at KMITL. Focusing on Web Technologies, Network Basics, and Graphic Design.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- 6. Social & Contact -->
-            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-8 rounded-[2rem] shadow-lg">
-                <h3 class="font-bold text-xl mb-6 text-center" data-i18n="connectTitle">Let's Connect</h3>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <a href="https://github.com/wasuratsomdet9009" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
-                        <i class="fab fa-github text-3xl mb-2 text-gray-800 dark:text-white group-hover:text-brand-orange transition-colors"></i>
-                        <span class="text-xs font-medium">GitHub</span>
+            <!-- 7. Social & Contact -->
+            <!-- Modified: Compact padding and smaller icons -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-lg md:text-xl mb-4 text-center" data-i18n="connectTitle">Let's Connect</h3>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <a href="https://github.com/wasuratsomdet9009" target="_blank" class="flex flex-col items-center justify-center p-3 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fab fa-github text-2xl md:text-3xl mb-1 text-gray-800 dark:text-white group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-[10px] md:text-xs font-medium">GitHub</span>
                     </a>
-                    <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
-                        <i class="fab fa-instagram text-3xl mb-2 text-pink-600 group-hover:text-brand-orange transition-colors"></i>
-                        <span class="text-xs font-medium">Instagram</span>
+                    <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" class="flex flex-col items-center justify-center p-3 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fab fa-instagram text-2xl md:text-3xl mb-1 text-pink-600 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-[10px] md:text-xs font-medium">Instagram</span>
                     </a>
-                    <a href="https://discord.com/users/721665946795900980" target="_blank" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
-                        <i class="fab fa-discord text-3xl mb-2 text-indigo-500 group-hover:text-brand-orange transition-colors"></i>
-                        <span class="text-xs font-medium">Discord</span>
+                    <a href="https://discord.com/users/721665946795900980" target="_blank" class="flex flex-col items-center justify-center p-3 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fab fa-discord text-2xl md:text-3xl mb-1 text-indigo-500 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-[10px] md:text-xs font-medium">Discord</span>
                     </a>
-                    <a href="mailto:wasuratsomdet@gmail.com" class="flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
-                        <i class="fas fa-envelope text-3xl mb-2 text-red-500 group-hover:text-brand-orange transition-colors"></i>
-                        <span class="text-xs font-medium">Email</span>
+                    <a href="mailto:wasuratsomdet@gmail.com" class="flex flex-col items-center justify-center p-3 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fas fa-envelope text-2xl md:text-3xl mb-1 text-red-500 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-[10px] md:text-xs font-medium">Email</span>
                     </a>
-                    <a href="tel:0830334694" class="col-span-2 md:col-span-1 flex flex-col items-center justify-center p-4 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
-                        <i class="fas fa-phone text-3xl mb-2 text-green-500 group-hover:text-brand-orange transition-colors"></i>
-                        <span class="text-xs font-medium">Phone</span>
+                    <a href="tel:0830334694" class="col-span-2 md:col-span-1 flex flex-col items-center justify-center p-3 bg-white/50 dark:bg-black/20 rounded-xl hover:scale-105 transition-transform hover:bg-white dark:hover:bg-gray-800 cursor-pointer group">
+                        <i class="fas fa-phone text-2xl md:text-3xl mb-1 text-green-500 group-hover:text-brand-orange transition-colors"></i>
+                        <span class="text-[10px] md:text-xs font-medium">Phone</span>
                     </a>
                 </div>
             </div>
 
-            <!-- 7. FAQ Accordion -->
-            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-8 rounded-[2rem] shadow-lg">
-                <h3 class="font-bold text-xl mb-4 text-brand-orange" data-i18n="faqTitle">Frequently Asked Questions</h3>
-                <div class="space-y-3">
+            <!-- 8. FAQ Accordion -->
+            <!-- Modified: Reduced padding -->
+            <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
+                <h3 class="font-bold text-lg md:text-xl mb-3 text-brand-orange" data-i18n="faqTitle">Frequently Asked Questions</h3>
+                <div class="space-y-2">
                     <details class="group bg-white/40 dark:bg-black/20 rounded-xl">
-                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-3 text-sm">
                             <span data-i18n="faq1Q">What services do you offer?</span>
                             <span class="transition group-open:rotate-180"><i class="fas fa-chevron-down text-xs"></i></span>
                         </summary>
-                        <div class="text-gray-600 dark:text-gray-300 mt-0 px-4 pb-4 text-sm animate-fade-in" data-i18n="faq1A">
+                        <div class="text-gray-600 dark:text-gray-300 mt-0 px-3 pb-3 text-xs md:text-sm animate-fade-in" data-i18n="faq1A">
                             I specialize in Frontend Development, UX/UI Design, and creating responsive web applications suited for all devices.
                         </div>
                     </details>
                     <details class="group bg-white/40 dark:bg-black/20 rounded-xl">
-                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none p-3 text-sm">
                             <span data-i18n="faq2Q">Can you work remotely?</span>
                             <span class="transition group-open:rotate-180"><i class="fas fa-chevron-down text-xs"></i></span>
                         </summary>
-                        <div class="text-gray-600 dark:text-gray-300 mt-0 px-4 pb-4 text-sm animate-fade-in" data-i18n="faq2A">
+                        <div class="text-gray-600 dark:text-gray-300 mt-0 px-3 pb-3 text-xs md:text-sm animate-fade-in" data-i18n="faq2A">
                             Yes! I am available for remote work and can travel between Saraburi and Bangkok if necessary.
                         </div>
                     </details>
@@ -413,58 +486,56 @@
     </div> <!-- End Main Container -->
 
     <!-- Footer -->
-    <footer class="text-center py-8 text-sm text-gray-500 glass mt-12 mb-0 rounded-t-[2rem]">
+    <footer class="text-center py-6 text-xs md:text-sm text-gray-500 glass mt-8 mb-0 rounded-t-[2rem]">
         <p>© 2026 Wasurat Somdet. All Rights Reserved.</p>
-        <p class="text-xs mt-1 opacity-70">Designed with <i class="fas fa-heart text-red-400"></i> & Glassmorphism</p>
+        <p class="text-[10px] mt-1 opacity-70">Designed with <i class="fas fa-heart text-red-400"></i> & Glassmorphism</p>
     </footer>
 
     <!-- Floating Contact Bubble -->
-    <button onclick="openContactModal()" class="fixed bottom-6 right-6 z-40 bg-brand-orange text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform hover:rotate-12 group border-4 border-white/20">
-        <i class="fas fa-comment-dots text-xl group-hover:animate-pulse"></i>
+    <button onclick="openContactModal()" class="floating-contact fixed bottom-6 right-6 z-40 bg-brand-orange text-white w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform hover:rotate-12 group border-4 border-white/20">
+        <i class="fas fa-comment-dots text-lg md:text-xl group-hover:animate-pulse"></i>
         <span class="absolute right-full mr-3 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap" data-i18n="hireMe">Contact Me!</span>
     </button>
 
     <!-- JavaScript Logic -->
     <script>
-        // --- 1. Data & Translations ---
+        // --- 1. Data & Translations (Unchanged Content) ---
         const content = {
             th: {
                 home: "หน้าแรก",
                 portfolio: "ผลงาน",
                 namePrefix: "นาย",
                 thaiName: "นายวสุรัชต์ สมเด็จ",
-                dob: "เกิด: 2 มิถุนายน 2550",
+                dob: "เกิด: 2 มิ.ย. 2550",
                 yearsOld: "ปี",
-                location: "สระบุรี / กรุงเทพฯ",
+                location: "สระบุรี / กทม.",
                 gallery: "ภาพกิจกรรม",
                 educationTitle: "วิชาเอก",
-                majorName: "เทคโนโลยีคอมพิวเตอร์",
-                teachingCap: "สามารถสอนได้",
-                degreeName: "ครุศาสตร์อุตสาหกรรม (สจล.)",
+                majorName: "เทคโนฯ คอมพิวเตอร์",
+                teachingCap: "สอนได้",
+                degreeName: "ครุศาสตร์ฯ (สจล.)",
                 whyHireTitle: "ทำไมต้องจ้างผม?",
-                whyHireText: "ผมผสมผสานความรู้ด้านเทคนิคเข้ากับการแก้ปัญหาอย่างสร้างสรรค์ ใส่ใจในการเขียนโค้ดที่สะอาดและการออกแบบ UX/UI ที่ใช้งานง่าย เพื่อให้ทุกโปรเจกต์ไม่ได้มีดีแค่ฟังก์ชัน แต่ยังน่าใช้งาน ผมพร้อมเรียนรู้ ปรับตัว และทุ่มเทให้กับงาน",
+                whyHireText: "ผมผสมผสานความรู้ด้านเทคนิคเข้ากับการแก้ปัญหาอย่างสร้างสรรค์ ใส่ใจในการเขียนโค้ดที่สะอาดและการออกแบบ UX/UI ที่ใช้งานง่าย เพื่อให้ทุกโปรเจกต์ไม่ได้มีดีแค่ฟังก์ชัน แต่ยังน่าใช้งาน",
                 skillsTitle: "ทักษะและเครื่องมือ",
                 connectTitle: "ช่องทางติดต่อ",
                 faqTitle: "คำถามที่พบบ่อย",
                 faq1Q: "คุณให้บริการด้านใดบ้าง?",
                 faq1A: "ผมเชี่ยวชาญด้าน Frontend Development, การออกแบบ UX/UI, กราฟิกดีไซน์ และการควบคุมระบบไลฟ์สด (Live Streaming)",
-                faq2Q: "คุณสามารถทำงานระยะไกล (Remote) ได้ไหม?",
-                faq2A: "ได้ครับ! ผมสะดวกทำงานแบบ Remote และสามารถเดินทางไปมาระหว่างสระบุรีและกรุงเทพฯ ได้หากจำเป็น",
+                faq2Q: "ทำงานระยะไกล (Remote) ได้ไหม?",
+                faq2A: "ได้ครับ! ผมสะดวกทำงานแบบ Remote และสามารถเดินทางไปมาระหว่างสระบุรีและกรุงเทพฯ ได้",
                 hireMe: "ติดต่อฉัน!",
-                // Modal
                 modalTitle: "ติดต่อฉัน",
                 modalSubtitle: "ส่งข้อความหาผม แล้วผมจะรีบตอบกลับครับ",
                 labelName: "ชื่อของคุณ",
                 labelEmail: "อีเมล",
                 labelMessage: "ข้อความ",
                 btnSend: "ส่งข้อความ",
-                // Timeline
                 timelineTitle: "เส้นทางและประสบการณ์",
                 timelineNowTitle: "กำลังมองหาโอกาส",
                 timelineNowDate: "ปัจจุบัน",
-                timelineNowDesc: "กำลังมองหาที่ฝึกงานหรือตำแหน่งงานด้าน Web Development, การตลาดดิจิทัล หรือ กราฟิก",
+                timelineNowDesc: "มองหาที่ฝึกงานหรือตำแหน่งงานด้าน Web Development, การตลาดดิจิทัล หรือ กราฟิก",
                 timelineEduTitle: "นักศึกษาเทคโนโลยีคอมพิวเตอร์",
-                timelineEduDesc: "กำลังศึกษาที่ สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง เน้นการพัฒนาเว็บ กราฟิก และระบบเครือข่าย"
+                timelineEduDesc: "กำลังศึกษาที่ สจล. เน้นการพัฒนาเว็บ กราฟิก และระบบเครือข่าย"
             },
             en: {
                 home: "Home",
@@ -472,15 +543,15 @@
                 namePrefix: "Mr.",
                 thaiName: "Wasurat Somdet",
                 dob: "Born: 2 June 2007",
-                yearsOld: "Years Old",
+                yearsOld: "Y/O",
                 location: "Saraburi / Bangkok",
-                gallery: "Activity Gallery",
+                gallery: "Gallery",
                 educationTitle: "Major",
-                majorName: "Computer Technology",
-                teachingCap: "Teaching Capable",
-                degreeName: "Industrial Education (KMITL)",
+                majorName: "Computer Tech",
+                teachingCap: "Teacher Ready",
+                degreeName: "Ind. Edu (KMITL)",
                 whyHireTitle: "Why Hire Me?",
-                whyHireText: "I blend technical expertise with creative problem-solving. My passion for clean code and intuitive UX/UI design ensures that every project isn't just functional, but also delightful to use. I'm adaptable, eager to learn, and ready to contribute from day one.",
+                whyHireText: "I blend technical expertise with creative problem-solving. My passion for clean code and intuitive UX/UI design ensures that every project isn't just functional, but also delightful to use.",
                 skillsTitle: "Skills & Tools",
                 connectTitle: "Let's Connect",
                 faqTitle: "Frequently Asked Questions",
@@ -489,19 +560,17 @@
                 faq2Q: "Can you work remotely?",
                 faq2A: "Yes! I am available for remote work and can travel between Saraburi and Bangkok if necessary.",
                 hireMe: "Contact Me!",
-                // Modal
                 modalTitle: "Contact Me",
                 modalSubtitle: "Send me a message and I'll get back to you.",
                 labelName: "Your Name",
                 labelEmail: "Email Address",
                 labelMessage: "Message",
                 btnSend: "Send Message",
-                // Timeline
                 timelineTitle: "Experience & Journey",
                 timelineNowTitle: "Open to Opportunities",
                 timelineNowDate: "Present",
                 timelineNowDesc: "Looking for internship or junior positions in Web Development, Digital Marketing, or Graphic Design.",
-                timelineEduTitle: "Computer Technology Student",
+                timelineEduTitle: "Computer Tech Student",
                 timelineEduDesc: "Studying at KMITL. Focusing on Web Technologies, Graphic Design, and System Operations."
             }
         };
@@ -649,14 +718,61 @@
         // Skeleton Loading Simulation
         function simulateLoading() {
             const loader = document.getElementById('loading-screen');
-            const content = document.getElementById('main-content');
+            // 'main-content' id was replaced by 'capture-area' in the HTML, so we use that.
+            const content = document.getElementById('capture-area');
             
             setTimeout(() => {
-                loader.style.opacity = '0';
-                loader.style.pointerEvents = 'none';
-                content.style.opacity = '1';
+                if(loader) {
+                    loader.style.opacity = '0';
+                    loader.style.pointerEvents = 'none';
+                }
+                if(content) {
+                    content.style.opacity = '1';
+                }
                 calculateAge();
             }, 1500);
+        }
+
+        // --- NEW: Export Functions ---
+
+        // 1. Export as PDF (using Print)
+        function exportToPDF() {
+            // The @media print CSS handles the styling adjustments
+            window.print();
+        }
+
+        // 2. Export as Image (using html2canvas)
+        function exportToImage() {
+            const element = document.getElementById('capture-area');
+            const originalBg = document.body.style.background;
+            
+            // Temporary styling to ensure good capture
+            // Check if dark mode is active
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            // html2canvas config
+            html2canvas(element, {
+                backgroundColor: isDark ? '#111111' : '#f5f5f7', // Capture background color
+                scale: 2, // High resolution
+                logging: false,
+                useCORS: true, // For external images
+                ignoreElements: (element) => {
+                    // Ignore buttons during capture
+                    return element.tagName === 'BUTTON' || element.classList.contains('no-print');
+                }
+            }).then(canvas => {
+                // Convert to image
+                const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+                
+                // Trigger download
+                const link = document.createElement('a');
+                link.download = 'Wasurat-Portfolio.png';
+                link.href = image;
+                link.click();
+            }).catch(err => {
+                console.error("Image export failed:", err);
+                alert("Could not export image. Please try again.");
+            });
         }
 
         // --- 4. Initialization ---
