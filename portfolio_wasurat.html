@@ -217,17 +217,14 @@
             <form id="contact-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" data-i18n="labelName">Your Name</label>
-                    <!-- Added name="from_name" for EmailJS -->
                     <input type="text" name="from_name" required class="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all placeholder-gray-400" placeholder="John Doe">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" data-i18n="labelEmail">Email Address</label>
-                    <!-- Added name="email" for EmailJS -->
                     <input type="email" name="email" required class="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all placeholder-gray-400" placeholder="john@example.com">
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300" data-i18n="labelMessage">Message</label>
-                    <!-- Added name="message" for EmailJS -->
                     <textarea name="message" required rows="4" class="w-full px-4 py-2 rounded-xl bg-white/50 dark:bg-black/30 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all resize-none placeholder-gray-400" placeholder="Hello Wasurat..."></textarea>
                 </div>
                 
@@ -246,11 +243,9 @@
     </div>
 
     <!-- Main Container -->
-    <!-- Modified: Added id="capture-area" for image export logic -->
     <div id="capture-area" class="container mx-auto px-4 py-4 md:py-8 max-w-6xl mb-24 transition-opacity duration-700 opacity-0" >
         
         <!-- Breadcrumb & Header Controls -->
-        <!-- Modified: Compact padding (p-4 -> p-3) and added Export Buttons -->
         <header class="flex flex-col md:flex-row justify-between items-center mb-6 glass rounded-2xl p-3 md:p-4 shadow-sm">
             <!-- Breadcrumb -->
             <nav class="flex items-center space-x-2 text-xs md:text-sm text-gray-500 dark:text-gray-400 mb-3 md:mb-0">
@@ -262,7 +257,7 @@
             <!-- Controls -->
             <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 no-print">
                 
-                <!-- NEW: Export Buttons -->
+                <!-- Export Buttons -->
                 <div class="flex items-center gap-2 mr-2 border-r border-gray-300 dark:border-gray-700 pr-4">
                     <button onclick="exportToImage()" class="px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-xs font-medium transition-all flex items-center gap-2" title="Save as Image">
                         <i class="fas fa-camera text-brand-orange"></i> <span class="hidden sm:inline">Save Image</span>
@@ -294,15 +289,12 @@
         </header>
 
         <!-- Bento Grid Layout -->
-        <!-- Modified: Reduced gap from gap-6 to gap-3/gap-4 for compactness -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-4 auto-rows-auto">
 
             <!-- 1. Profile Card -->
-            <!-- Modified: Reduced p-8 to p-5, added Mobile Profile Pic support -->
             <div class="glass col-span-1 md:col-span-2 lg:col-span-2 row-span-2 p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-lg flex flex-col justify-between relative overflow-hidden group">
                 
                 <!-- Profile Picture (Top Right) -->
-                <!-- Modified: Visible on mobile now (smaller size) -->
                 <div class="absolute top-4 right-4 md:top-6 md:right-6 z-20 group-hover:scale-105 transition-transform duration-500">
                     <div class="w-16 h-16 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full border-2 md:border-4 border-white/40 dark:border-white/10 shadow-xl overflow-hidden glass p-0.5 md:p-1">
                         <img src="https://ui-avatars.com/api/?name=Wasurat+Somdet&background=FF7F00&color=fff&size=256" alt="Wasurat Somdet" class="w-full h-full rounded-full object-cover">
@@ -313,7 +305,6 @@
                     <div class="inline-block px-2 py-0.5 md:px-3 md:py-1 bg-brand-orange/10 text-brand-orange rounded-full text-[10px] md:text-xs font-bold mb-3 tracking-wider uppercase">
                         Computer Technology
                     </div>
-                    <!-- Modified: Text sizes for mobile -->
                     <h1 class="text-2xl md:text-5xl font-bold mb-1 tracking-tight">
                         <span data-i18n="namePrefix">Mr.</span> <span class="text-brand-orange">Wasurat</span> Somdet
                     </h1>
@@ -339,7 +330,6 @@
             </div>
 
             <!-- 2. Image Carousel -->
-            <!-- Modified: Reduced min-height slightly for mobile -->
             <div class="glass col-span-1 md:col-span-1 lg:col-span-2 row-span-2 rounded-[1.5rem] md:rounded-[2rem] shadow-lg overflow-hidden relative min-h-[200px] md:min-h-[300px] group">
                 <div id="carousel-container" class="w-full h-full relative bg-gray-200 dark:bg-gray-800">
                     <img src="https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2070&auto=format&fit=crop" class="slide active" alt="Coding Setup">
@@ -355,7 +345,6 @@
             </div>
 
             <!-- 3. Education -->
-            <!-- Modified: Reduced padding p-6 -> p-5 -->
             <div class="glass col-span-1 md:col-span-1 lg:col-span-1 p-5 rounded-[1.5rem] md:rounded-[2rem] shadow-lg flex flex-col justify-center items-center text-center hover:bg-white/40 dark:hover:bg-black/40 transition-colors cursor-default">
                 <div class="w-12 h-12 md:w-16 md:h-16 bg-white dark:bg-white/10 rounded-full flex items-center justify-center shadow-md mb-3 text-xl md:text-2xl text-brand-orange">
                     <i class="fas fa-laptop-code"></i>
@@ -369,7 +358,6 @@
             </div>
 
             <!-- 4. Why Hire Me -->
-            <!-- Modified: Reduced padding, tweaked text size -->
             <div class="glass col-span-1 md:col-span-2 lg:col-span-2 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg flex flex-col justify-center relative overflow-hidden bg-brand-orange text-white border-none">
                 <i class="fas fa-quote-right absolute top-4 right-6 text-4xl md:text-6xl text-white/20"></i>
                 <h3 class="text-xl md:text-2xl font-bold mb-3 flex items-center gap-2">
@@ -381,7 +369,6 @@
             </div>
 
             <!-- 5. Tech Stack & Tools -->
-            <!-- Modified: Reduced padding -->
             <div class="glass col-span-1 md:col-span-3 lg:col-span-1 p-5 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
                 <h3 class="font-bold text-base md:text-lg mb-3 flex items-center gap-2 text-gray-800 dark:text-white">
                     <i class="fas fa-tools text-brand-orange"></i> <span data-i18n="skillsTitle">Skills</span>
@@ -398,7 +385,6 @@
             </div>
 
             <!-- 6. Timeline Section -->
-            <!-- Modified: Reduced padding -->
             <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
                 <h3 class="font-bold text-lg md:text-xl mb-4 md:mb-6 flex items-center gap-2 text-gray-800 dark:text-white">
                     <i class="fas fa-history text-brand-orange"></i> <span data-i18n="timelineTitle">Experience & Journey</span>
@@ -435,7 +421,6 @@
             </div>
 
             <!-- 7. Social & Contact -->
-            <!-- Modified: Compact padding and smaller icons -->
             <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
                 <h3 class="font-bold text-lg md:text-xl mb-4 text-center" data-i18n="connectTitle">Let's Connect</h3>
                 <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -463,7 +448,6 @@
             </div>
 
             <!-- 8. FAQ Accordion -->
-            <!-- Modified: Reduced padding -->
             <div class="glass col-span-1 md:col-span-3 lg:col-span-4 p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-lg">
                 <h3 class="font-bold text-lg md:text-xl mb-3 text-brand-orange" data-i18n="faqTitle">Frequently Asked Questions</h3>
                 <div class="space-y-2">
@@ -660,7 +644,7 @@
             }
         });
 
-        // HANDLE FORM SUBMIT with EmailJS
+        // HANDLE FORM SUBMIT with EmailJS (แก้ไขแล้ว)
         function handleFormSubmit(e) {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
@@ -672,39 +656,11 @@
             btn.classList.add('opacity-75');
 
             // --- EMAILJS CONFIGURATION ---
-            // 1. Sign up at https://www.emailjs.com/
-            // 2. Get your Service ID, Template ID, and Public Key
-            // 3. Replace the placeholder strings below
-            
-            const serviceID = 'service_uwfwtej';   // e.g., 'service_gmail'
-            const templateID = 'template_tiptyn1'; // e.g., 'template_12345'
-            const publicKey = 'DAQO3rA8qaT6OhsJ1';   // e.g., 'user_abc123'
+            const serviceID = 'service_uwfwtej';   
+            const templateID = 'template_tiptyn1'; 
+            const publicKey = 'DAQO3rA8qaT6OhsJ1';   
 
-            if (serviceID === 'service_uwfwtej') {
-                // Simulation Mode (If user hasn't set keys yet)
-                setTimeout(() => {
-                    alert("Note: This is a simulation.\nTo make email sending work, you need to add your EmailJS keys in the code (line ~550).");
-                    
-                    // Show success
-                    btn.innerHTML = '<i class="fas fa-check"></i> Sent!';
-                    btn.classList.remove('bg-brand-orange', 'hover:bg-orange-600');
-                    btn.classList.add('bg-green-500', 'hover:bg-green-600');
-                    
-                    setTimeout(() => {
-                        closeContactModal();
-                        setTimeout(() => {
-                            e.target.reset();
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                            btn.classList.remove('opacity-75', 'bg-green-500', 'hover:bg-green-600');
-                            btn.classList.add('bg-brand-orange', 'hover:bg-orange-600');
-                        }, 500);
-                    }, 1500);
-                }, 1500);
-                return;
-            }
-
-            // Real Sending Logic
+            // Real Sending Logic (ลบเงื่อนไขจำลองออกแล้ว ให้ทำงานจริงๆเลย)
             emailjs.sendForm(serviceID, templateID, e.target, publicKey)
                 .then(() => {
                     // Success
@@ -724,10 +680,13 @@
                     }, 1500);
                 }, (err) => {
                     // Error
+                    console.error("EmailJS Error:", err); // Log ข้อผิดพลาดไว้ดูใน Console
                     btn.innerHTML = '<i class="fas fa-times"></i> Failed';
                     btn.classList.remove('bg-brand-orange', 'hover:bg-orange-600');
                     btn.classList.add('bg-red-500', 'hover:bg-red-600');
-                    alert(JSON.stringify(err));
+                    
+                    // แจ้งเตือนผู้ใช้
+                    alert("เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้งครับ");
                     
                     setTimeout(() => {
                         btn.innerHTML = originalText;
@@ -770,7 +729,6 @@
         // Skeleton Loading Simulation
         function simulateLoading() {
             const loader = document.getElementById('loading-screen');
-            // 'main-content' id was replaced by 'capture-area' in the HTML, so we use that.
             const content = document.getElementById('capture-area');
             
             setTimeout(() => {
@@ -789,7 +747,6 @@
 
         // 1. Export as PDF (using Print)
         function exportToPDF() {
-            // The @media print CSS handles the styling adjustments
             window.print();
         }
 
@@ -798,25 +755,19 @@
             const element = document.getElementById('capture-area');
             const originalBg = document.body.style.background;
             
-            // Temporary styling to ensure good capture
-            // Check if dark mode is active
             const isDark = document.documentElement.classList.contains('dark');
             
-            // html2canvas config
             html2canvas(element, {
-                backgroundColor: isDark ? '#111111' : '#f5f5f7', // Capture background color
-                scale: 2, // High resolution
+                backgroundColor: isDark ? '#111111' : '#f5f5f7', 
+                scale: 2, 
                 logging: false,
-                useCORS: true, // For external images
+                useCORS: true, 
                 ignoreElements: (element) => {
-                    // Ignore buttons during capture
                     return element.tagName === 'BUTTON' || element.classList.contains('no-print');
                 }
             }).then(canvas => {
-                // Convert to image
                 const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
                 
-                // Trigger download
                 const link = document.createElement('a');
                 link.download = 'Wasurat-Portfolio.png';
                 link.href = image;
