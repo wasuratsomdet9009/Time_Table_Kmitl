@@ -1043,26 +1043,26 @@
 
             if(currentUserData.wantsEnglish) {
                 schedule.push(englishClass);
+        function switchView(view) {
+            const grid = document.getElementById('grid-view');
+            const list = document.getElementById('list-view');
+            const btnGrid = document.getElementById('view-grid');
+            const btnList = document.getElementById('view-list');
+            
+            if (view === 'grid') {
+                grid.classList.remove('hidden'); list.classList.add('hidden');
+                btnGrid.classList.replace('bg-white', 'bg-orange-500'); btnGrid.classList.replace('text-orange-600', 'text-white');
+                btnList.classList.replace('bg-orange-500', 'bg-white'); btnList.classList.remove('text-white');
+            } else {
+                grid.classList.add('hidden'); list.classList.remove('hidden');
+                btnList.classList.add('bg-orange-500', 'text-white');
+                btnGrid.classList.replace('bg-orange-500', 'bg-white'); btnGrid.classList.replace('text-white', 'text-orange-600');
             }
-
-            if(currentUserData.electiveIndex !== null) {
-                const el = electivesData[currentUserData.electiveIndex];
-                schedule.push({
-                    day: 1,
-                    start: el.start, end: el.end,
-                    name: el.name, code: el.code, room: el.room, instructor: el.inst,
-                    color: el.color, description: el.description, image: el.image
-                });
-            }
-
-            renderGrid();
-            renderList();
-            renderExamSchedule(); // คำนวณตารางสอบตามโปรไฟล์ใหม่
         }
 
-        function showSetupScreenDirectly() {
-            document.getElementById('input-student-id').value = currentUserData ? currentUserData.studentId : '';
-            showScreen('setup-container');
+        function timeToMin(time) {
+            const [h, m] = time.split(':').map(Number);
+            return h * 60 + m;
         }
 
         function showClassDetail(cls) {
@@ -1601,7 +1601,6 @@
             document.getElementById('btn-logout').addEventListener('click', logoutAndClearData);
             
             // Onboarding Control
-            document.getElementById('btn-close-onboarding').addEventListener('click', handleNextCoach);
             document.getElementById('btn-next-coach').addEventListener('click', handleNextCoach);
             document.getElementById('btn-skip-coach').addEventListener('click', () => {
                 localStorage.setItem('hasSeenOnboarding', 'true');
