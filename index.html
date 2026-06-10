@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ตารางสอนครุฯวิศวกรรมคอมพิวเตอร์ (KMITL Smart Schedule)</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="https://wasuratsomdet9009.github.io/Time_Table_Kmitl/favicon.ico" type="image/x-icon">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -311,6 +313,17 @@
                 <p class="text-slate-500 text-sm mt-1">กรอกรหัสนักศึกษา 8 หลัก เพื่อเริ่มต้นใช้งาน</p>
             </div>
 
+            <!-- ข้อความชี้แจงสถานะระบบก่อนใช้งาน -->
+            <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-xs text-orange-800 mb-5 leading-relaxed">
+                <p class="font-bold text-sm flex items-center gap-1.5 text-orange-900 mb-1">
+                    <i class="fa-solid fa-circle-info"></i> คำแนะนำและข้อชี้แจงก่อนใช้งาน:
+                </p>
+                <p class="mb-1.5">ปัจจุบันตัวระบุตารางนี้เปิดบริการรองรับเฉพาะผู้เรียนใน <span class="font-bold text-orange-900">สาขาเทคโนโลยีคอมพิวเตอร์</span> (ครุศาสตร์วิศวกรรมคอมพิวเตอร์) เท่านั้น</p>
+                <p class="font-semibold text-orange-900 flex items-center gap-1">
+                    <i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> โปรดติดตามเร็ว ๆ นี้! จะมีการพัฒนา Chrome Extension ออกมาอำนวยความสะดวกในอนาคตอันใกล้!
+                </p>
+            </div>
+
             <!-- Login Form -->
             <form id="auth-form" class="space-y-5">
                 <div>
@@ -528,7 +541,7 @@
                         </div>
                     </div>
                     <!-- ปุ่มเปิดตารางสอบ -->
-                    <button id="btn-view-exams" class="mt-3 w-full py-2 bg-orange-500/10 text-orange-600 hover:bg-orange-500 hover:text-white rounded-lg text-xs font-bold transition-colors">
+                    <button id="btn-view-exams" class="mt-3 w-full py-2 bg-orange-500/10 text-orange-600 hover:bg-orange-50 hover:text-white rounded-lg text-xs font-bold transition-colors">
                         <i class="fa-solid fa-file-pen mr-1"></i> ดูตารางสอบกลางภาค/ปลายภาคของฉัน
                     </button>
                 </div>
@@ -546,7 +559,7 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
+        <footer id="app-footer" class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     <div>
@@ -1199,6 +1212,16 @@
                 targetId: 'share-schedule-btn',
                 title: '📸 บันทึกรูปภาพตารางเรียน',
                 text: 'สร้างภาพตารางเรียนความละเอียดสูง (Ultra HD) สวยงามสำหรับเก็บไว้ดูออฟไลน์ หรือส่งแชร์ต่อไปให้กลุ่มเพื่อนๆ ในไลน์!'
+            },
+            {
+                targetId: 'app-footer',
+                title: '🔗 แหล่งข้อมูลเพิ่มเติมและผู้พัฒนา',
+                text: 'ส่วนท้ายนี้มีลิงก์ทางลัดไปยังสำนักทะเบียน (REG KMITL), Google Classroom, MS Teams และช่องทางการติดต่อทีมนักศึกษาผู้จัดทำระบบนี้ขึ้นมา!'
+            },
+            {
+                targetId: 'settings-btn',
+                title: '⚙️ ปุ่มตั้งค่าระบบ',
+                text: 'ปุ่มฟันเฟืองนี้ใช้สำหรับดูสถานะเครือข่าย, เปิด/ปิดระบบแจ้งเตือนล่วงหน้า 15 นาที, ลิงก์ซอร์สโค้ด GitHub และใช้ลงชื่อออกจากระบบเพื่อเปลี่ยนบัญชี!'
             }
         ];
 
@@ -1639,6 +1662,7 @@
 
         // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
         function generateICS() {
+            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการสอน) 
             const startDate = new Date(2026, 5, 29); 
             const endDate = new Date(2026, 9, 25); 
             const currentSecKey = currentUserData ? `sec${currentUserData.section}` : 'sec1';
@@ -1662,25 +1686,35 @@
 
             let loopDate = new Date(startDate);
             while (loopDate <= endDate) {
-                schedule.filter(c => c.day === loopDate.getDay() && c.type !== 'break').forEach(cls => {
-                    let desc = cls.description;
-                    icsContent.push(
-                        "BEGIN:VEVENT",
-                        `UID:cls-${cls.code}-${loopDate.getTime()}@kmitl.ac.th`,
-                        `DTSTAMP:${formatUTC(new Date())}`,
-                        `DTSTART:${formatUTC(loopDate, cls.start)}`,
-                        `DTEND:${formatUTC(loopDate, cls.end)}`,
-                        `SUMMARY:${cls.name} (${cls.code})`,
-                        `DESCRIPTION:${desc} \\n\\nผู้สอน: ${cls.instructor} \\nห้องเรียน: ${cls.room}`,
-                        `LOCATION:${cls.room}`,
-                        "STATUS:CONFIRMED",
-                        "END:VEVENT"
-                    );
-                });
+                // ตรวจสอบว่า loopDate อยู่ในสัปดาห์สอบกลางภาค หรือปลายภาคหรือไม่
+                // สอบกลางภาค: 17 ส.ค. 2569 - 23 ส.ค. 2569 (สัปดาห์สอบกลางภาค)
+                // สอบปลายภาค: 26 ต.ค. 2569 - 8 พ.ย. 2569 (สัปดาห์สอบปลายภาค)
+                // (เดือนใน JS เริ่มนับจาก 0: ส.ค. คือเดือน 7, ต.ค. คือเดือน 9, พ.ย. คือเดือน 10)
+                const isMidtermWeek = (loopDate >= new Date(2026, 7, 17) && loopDate <= new Date(2026, 7, 23));
+                const isFinalWeek = (loopDate >= new Date(2026, 9, 26) && loopDate <= new Date(2026, 10, 8));
+
+                // หากไม่อยู่ในช่วงสอบกลางภาค/ปลายภาค ให้บันทึกชั่วโมงเรียนตามปกติลงไปในปฏิทิน
+                if (!isMidtermWeek && !isFinalWeek) {
+                    schedule.filter(c => c.day === loopDate.getDay() && c.type !== 'break').forEach(cls => {
+                        let desc = cls.description;
+                        icsContent.push(
+                            "BEGIN:VEVENT",
+                            `UID:cls-${cls.code}-${loopDate.getTime()}@kmitl.ac.th`,
+                            `DTSTAMP:${formatUTC(new Date())}`,
+                            `DTSTART:${formatUTC(loopDate, cls.start)}`,
+                            `DTEND:${formatUTC(loopDate, cls.end)}`,
+                            `SUMMARY:${cls.name} (${cls.code})`,
+                            `DESCRIPTION:${desc} \\n\\nผู้สอน: ${cls.instructor} \\nห้องเรียน: ${cls.room}`,
+                            `LOCATION:${cls.room}`,
+                            "STATUS:CONFIRMED",
+                            "END:VEVENT"
+                        );
+                    });
+                }
                 loopDate.setDate(loopDate.getDate() + 1);
             }
 
-            // เพิ่มตารางสอบกลางภาค 1/2569 (17 ส.ค. - 23 ส.ค. 2569)
+            // เพิ่มเฉพาะตารางสอบลงไปตรงตามสัปดาห์สอบทางการ (ระบุว่ายังไม่มีการประกาศห้องสอบ)
             const activeSubjects = schedule.filter(v => v.type !== 'break');
             activeSubjects.forEach(subj => {
                 if (examDatabase[subj.code] && examDatabase[subj.code][currentSecKey]) {
@@ -1701,7 +1735,8 @@
                             `DTSTART:${midtermDateStr}`,
                             `DTEND:${midtermDateStr.replace('093000Z', '123000Z').replace('133000Z', '163000Z')}`,
                             `SUMMARY:สอบกลางภาค: ${subj.name}`,
-                            `DESCRIPTION:วันสอบกลางภาคเฉพาะกลุ่มเรียนตามระบบอัจฉริยะ \\nข้อมูล: ${examInfo.midterm}`,
+                            `DESCRIPTION:วันสอบกลางภาคเฉพาะกลุ่มเรียนตามระบบอัจฉริยะ \\nข้อมูล: ${examInfo.midterm} \\n(หมายเหตุ: ปัจจุบันยังไม่มีการกำหนดห้องสอบ)`,
+                            "LOCATION:ยังไม่มีการกำหนดห้องสอบ",
                             "END:VEVENT"
                         );
                     }
@@ -1721,7 +1756,8 @@
                             `DTSTART:${finalDateStr}`,
                             `DTEND:${finalDateStr.replace('093000Z', '123000Z').replace('133000Z', '163000Z')}`,
                             `SUMMARY:สอบปลายภาค: ${subj.name}`,
-                            `DESCRIPTION:วันสอบปลายภาคเฉพาะกลุ่มเรียนตามระบบอัจฉริยะ \\nข้อมูล: ${examInfo.final}`,
+                            `DESCRIPTION:วันสอบปลายภาคเฉพาะกลุ่มเรียนตามระบบอัจฉริยะ \\nข้อมูล: ${examInfo.final} \\n(หมายเหตุ: ปัจจุบันยังไม่มีการกำหนดห้องสอบ)`,
+                            "LOCATION:ยังไม่มีการกำหนดห้องสอบ",
                             "END:VEVENT"
                         );
                     }
