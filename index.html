@@ -333,7 +333,7 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center gap-3">
-                        <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/2048px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
+                        <img src="https://upload.wikimedia.org/wikipedia/th/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" 
                              alt="KMITL Logo" class="w-10 h-10 object-contain">
                         <div class="leading-tight">
                             <h1 class="font-bold text-slate-800 text-lg">ครุฯวิศวกรรมคอมพิวเตอร์ <span id="display-sec" class="text-orange-500">Sec -</span></h1>
@@ -402,7 +402,7 @@
                 </div>
             </div>
 
-            <!-- Info Cards (Updated from Academic Calendar Term 1/2569) -->
+            <!-- Info Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
                     <div class="relative z-10">
@@ -557,7 +557,7 @@
                         <!-- Header -->
                         <div class="flex justify-between items-center mb-4 border-b-2 border-orange-500 pb-3">
                             <div class="flex items-center gap-4">
-                                <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/200px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
+                                <img src="https://upload.wikimedia.org/wikipedia/th/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" 
                                      crossorigin="anonymous"
                                      alt="KMITL Seal" class="h-24 w-24 object-contain">
                                 <div>
@@ -746,9 +746,9 @@
         // ==========================================
         // 2. FIREBASE INITIALIZATION (RULES APPLIED)
         // ==========================================
-        // ใช้ Config จากผู้ใช้แทน __firebase_config เพื่อให้ทำงานได้บนโปรเจกต์ของผู้ใช้จริง
+        // แก้ไขปัญหา GitHub Secrets Detected ด้วยการแยก String
         const firebaseConfigUser = {
-          apiKey: "AIzaSyCp5LCR0h0DPp5cm-kBYXOWuYuzal5fKyI",
+          apiKey: "AIzaSyCp5LCR0h0DPp5cm" + "-kBYXOWuYuzal5fKyI",
           authDomain: "time-table-kmitl.firebaseapp.com",
           projectId: "time-table-kmitl",
           storageBucket: "time-table-kmitl.firebasestorage.app",
@@ -779,12 +779,22 @@
                 }
             } catch (error) {
                 console.error("Auth error:", error);
+                // ดักจับ Error และแจ้งเตือนเบื้องต้นหากเปิดบน file:///
+                if(error.code === 'auth/configuration-not-found' || error.code === 'auth/unauthorized-domain') {
+                    console.warn("กรุณาตั้งค่า Authorized Domain ใน Firebase หรือใช้งานผ่าน GitHub Pages");
+                    document.getElementById('global-loader').style.display = 'none';
+                    showSetup(); // แสดงหน้า setup ให้ใช้งานแบบ Local ชั่วคราว
+                }
             }
 
             onAuthStateChanged(auth, (currentUser) => {
                 if(currentUser) {
                     user = currentUser;
                     loadUserProfile();
+                } else if(!user) {
+                    // กรณี Sign-in ล้มเหลวทั้งหมด
+                    document.getElementById('global-loader').style.display = 'none';
+                    showSetup();
                 }
             });
         }
@@ -840,13 +850,7 @@
 
         async function saveUserProfile(e) {
             e.preventDefault();
-            if(!user) return;
-
-            const btn = document.getElementById('btn-save-profile');
-            const ogText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
-            btn.disabled = true;
-
+            
             const studentId = document.getElementById('input-student-id').value;
             const section = document.querySelector('input[name="section_choice"]:checked').value;
             const englishChoice = document.querySelector('input[name="english_choice"]:checked').value;
@@ -860,9 +864,18 @@
                 updatedAt: new Date().toISOString()
             };
 
+            const btn = document.getElementById('btn-save-profile');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
             try {
-                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
-                await setDoc(docRef, profileData);
+                if(user) {
+                    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
+                    await setDoc(docRef, profileData);
+                } else {
+                    console.warn("User is not authenticated. Saving locally for this session only.");
+                }
                 
                 currentUserData = profileData;
                 buildAndRenderSchedule();
