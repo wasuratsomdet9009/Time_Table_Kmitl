@@ -49,7 +49,7 @@
             transition: opacity 0.5s ease;
         }
 
-        /* Setup Form Container (Onboarding) */
+        /* Setup Form Container */
         #setup-container {
             min-height: 100vh; display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #fff7ed 0%, #f1f5f9 100%); padding: 1rem;
@@ -135,11 +135,11 @@
         /* Modals & Overlays */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 1rem;
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
         .modal-box {
-            background: white; width: 90%; max-width: 500px; border-radius: 1.5rem; padding: 2rem;
+            background: white; width: 100%; max-width: 500px; border-radius: 1.5rem; padding: 2rem;
             transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 85vh; overflow-y: auto;
         }
         .modal-overlay.visible .modal-box { transform: scale(1); }
@@ -186,45 +186,65 @@
     </div>
 
     <!-- ONBOARDING (COACH MARK) OVERLAY -->
+    <!-- ปรับแต่งเพื่อ Mobile Experience ที่ดีขึ้น -->
     <div id="onboarding-overlay" class="modal-overlay">
-        <div class="bg-white rounded-[2rem] w-11/12 max-w-2xl overflow-hidden shadow-2xl animate-slide-up flex flex-col md:flex-row">
-            <!-- Image / Graphic Side -->
-            <div class="md:w-5/12 bg-gradient-to-br from-orange-400 to-red-500 p-8 text-white flex flex-col justify-center relative overflow-hidden">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+        <div class="bg-white rounded-[2rem] w-[95%] max-w-md md:max-w-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col md:flex-row relative max-h-[95vh] overflow-y-auto">
+            
+            <!-- Graphic Side (อยู่ด้านบนสำหรับมือถือ) -->
+            <div class="md:w-5/12 bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white flex flex-col items-center justify-center relative shrink-0 min-h-[220px] md:min-h-full">
+                <!-- Decorative background elements -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-20 rounded-full blur-2xl"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black opacity-10 rounded-full blur-2xl"></div>
-                <div class="relative z-10 text-center">
-                    <i class="fa-solid fa-wand-magic-sparkles text-6xl mb-4 drop-shadow-md"></i>
-                    <h2 class="text-2xl font-bold mb-2">ยินดีต้อนรับ!</h2>
-                    <p class="text-sm opacity-90">คู่มือสั้นๆ เพื่อให้คุณใช้งาน KMITL Smart Schedule ได้อย่างเต็มประสิทธิภาพ</p>
+                
+                <div class="relative z-10 text-center flex flex-col items-center">
+                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-white/30 shadow-lg">
+                        <i class="fa-solid fa-wand-magic-sparkles text-4xl text-white"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold mb-2 tracking-tight">Smart Schedule</h2>
+                    <p class="text-sm opacity-90 font-light mt-2 max-w-[250px]">คู่มือสั้นๆ เพื่อให้คุณใช้งานแอปพลิเคชันได้อย่างเต็มประสิทธิภาพ</p>
                 </div>
             </div>
+            
             <!-- Content Side -->
-            <div class="md:w-7/12 p-8 bg-slate-50 flex flex-col justify-center">
-                <div class="space-y-5 mb-8">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-orange-500 shrink-0"><i class="fa-solid fa-table-cells"></i></div>
+            <div class="md:w-7/12 p-6 md:p-8 bg-slate-50 flex flex-col justify-center">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 text-center md:text-left">ฟีเจอร์เด่นที่คุณต้องรู้ 🚀</h3>
+                
+                <div class="space-y-4 md:space-y-6 mb-8">
+                    <!-- Feature 1 -->
+                    <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-white transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 shrink-0 text-lg shadow-sm">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                        </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm">รายละเอียดวิชาครบถ้วน</h4>
-                            <p class="text-xs text-slate-500 mt-1">คลิกที่รายวิชาบนตารางเพื่อดูชื่ออาจารย์ ห้องเรียน และคำอธิบายเนื้อหารายวิชาแบบละเอียด</p>
+                            <h4 class="font-bold text-slate-800 text-sm md:text-base">แตะเพื่อดูรายละเอียด</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">กดที่รายวิชาบนตารางเพื่อดูข้อมูลห้องเรียน อาจารย์ผู้สอน และคำอธิบายเจาะลึก</p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-blue-500 shrink-0"><i class="fa-brands fa-apple"></i></div>
+                    <!-- Feature 2 -->
+                    <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-white transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 shrink-0 text-lg shadow-sm">
+                            <i class="fa-brands fa-apple"></i>
+                        </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm">ซิงค์ลงปฏิทิน (Sync Calendar)</h4>
-                            <p class="text-xs text-slate-500 mt-1">กดปุ่ม Sync เพื่อส่งออกตารางเรียนและวันสอบอัตโนมัติไปยัง Apple Calendar หรือ Google Calendar</p>
+                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ซิงค์ปฏิทินมือถือ</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">ปุ่ม Sync Calendar จะส่งออกตารางเรียนและวันสอบ ไปยัง Apple หรือ Google Calendar อัตโนมัติ</p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-green-500 shrink-0"><i class="fa-solid fa-bell-concierge"></i></div>
+                    <!-- Feature 3 -->
+                    <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-white transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
+                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-500 shrink-0 text-lg shadow-sm">
+                            <i class="fa-solid fa-bell-concierge"></i>
+                        </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm">ติดตามเวลาเรียนแบบ Real-time</h4>
-                            <p class="text-xs text-slate-500 mt-1">ระบบมีเส้นสีแดงบอกเวลาปัจจุบัน และกล่องวิชาที่กำลังเรียนจะกระพริบ เพื่อไม่ให้คุณพลาดคลาสสำคัญ</p>
+                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ไม่พลาดทุกคลาสเรียน</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">ระบบมีเส้นเวลาปัจจุบัน และกล่องวิชาที่กำลังเรียนจะกระพริบไฮไลต์ให้เห็นอย่างชัดเจน</p>
                         </div>
                     </div>
                 </div>
-                <button id="btn-close-onboarding" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:bg-orange-500 hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1">
-                    เริ่มต้นใช้งานเลย
+                
+                <button id="btn-close-onboarding" class="w-full py-3.5 bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:bg-orange-500 hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    <span>เริ่มต้นใช้งานเลย</span>
+                    <i class="fa-solid fa-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -232,7 +252,7 @@
 
     <!-- 1. ONBOARDING SETUP FORM -->
     <div id="setup-container" class="hidden">
-        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-3xl animate-fade-in border border-slate-100">
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-3xl animate-fade-in border border-slate-100 mx-4">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500 text-2xl">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -243,23 +263,25 @@
 
             <form id="setup-form" class="space-y-6">
                 <!-- ข้อมูลส่วนตัว & Section Selection -->
-                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <div class="bg-slate-50 p-5 md:p-6 rounded-2xl border border-slate-100">
                     <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-astronaut text-orange-500"></i> โปรไฟล์นักศึกษา</h3>
                     
                     <div class="mb-5">
-                        <label class="block text-sm font-bold text-slate-600 mb-2">รหัสนักศึกษา (8 หลัก)</label>
+                        <label class="block text-sm font-bold text-slate-600 mb-2">รหัสนักศึกษา (9 หลัก)</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fa-solid fa-id-card text-slate-400"></i>
                             </div>
-                            <input type="text" id="input-student-id" required pattern="[0-9]{8}" maxlength="8" placeholder="เช่น 69030001" 
+                            <!-- อัปเดต Input ให้รองรับ 9 หลักตาม Request -->
+                            <input type="text" id="input-student-id" required pattern="[0-9]{9}" maxlength="9" placeholder="เช่น 690300001" 
                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-lg tracking-wider font-mono">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-bold text-slate-600 mb-2">เลือก Section ของคุณ</label>
-                        <div class="grid grid-cols-2 gap-4">
+                        <!-- เปลี่ยนเป็น sm:grid-cols-2 เพื่อให้เรียงบนมือถือสวยขึ้น (ไม่แคบเกินไป) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="section_choice" value="1" class="peer sr-only radio-card-input" checked>
                                 <div class="radio-card-label p-4 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-all flex flex-col items-center text-center group">
@@ -291,7 +313,7 @@
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
                     <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-language text-blue-500"></i> วิชาบังคับคณะ</h3>
                     <p class="text-xs text-slate-500 mb-3 font-medium">90641009 INTERCULTURAL COMMUNICATION SKILLS IN ENGLISH 1 (จันทร์ 13:00-16:00)</p>
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <label class="relative cursor-pointer">
                             <input type="radio" name="english_choice" value="yes" class="peer sr-only radio-card-input" checked>
                             <div class="radio-card-label p-3 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
@@ -334,20 +356,20 @@
                 <div class="flex justify-between h-16">
                     <div class="flex items-center gap-3">
                         <img src="https://upload.wikimedia.org/wikipedia/th/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" 
-                             alt="KMITL Logo" class="w-10 h-10 object-contain">
+                             alt="KMITL Logo" class="w-10 h-10 object-contain shrink-0">
                         <div class="leading-tight">
-                            <h1 class="font-bold text-slate-800 text-lg">ครุฯวิศวกรรมคอมพิวเตอร์ <span id="display-sec" class="text-orange-500">Sec -</span></h1>
-                            <p class="text-[10px] sm:text-xs text-slate-500">รหัสนักศึกษา: <span id="display-student-id" class="font-medium text-slate-700">--------</span></p>
+                            <h1 class="font-bold text-slate-800 text-sm sm:text-lg">ครุฯวิศวกรรมคอมพิวเตอร์ <span id="display-sec" class="text-orange-500">Sec -</span></h1>
+                            <p class="text-[10px] sm:text-xs text-slate-500">รหัสนักศึกษา: <span id="display-student-id" class="font-medium text-slate-700">---------</span></p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button id="btn-edit-profile" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors mr-1" title="แก้ไขข้อมูล">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <button id="btn-edit-profile" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors" title="แก้ไขข้อมูล">
                             <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">แก้ไข</span>
                         </button>
-                        <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg mr-1">
-                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
+                        <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg">
+                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">เซฟรูป</span>
                         </button>
-                        <button id="settings-btn" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center">
+                        <button id="settings-btn" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-gear"></i>
                         </button>
                     </div>
@@ -359,7 +381,7 @@
         <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
             <!-- Top Section -->
             <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
-                <div class="flex items-center gap-5 w-full lg:w-auto justify-start">
+                <div class="flex items-center gap-4 sm:gap-5 w-full lg:w-auto justify-start">
                     <div class="analog-clock-container">
                         <div class="clock-face" id="analog-clock">
                             <div class="clock-center"></div>
@@ -371,19 +393,19 @@
                     <div>
                         <div class="flex items-center gap-2 mb-1">
                             <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded">ปีการศึกษา 2569</span>
-                            <p id="current-date" class="text-slate-500 text-sm font-medium"></p>
+                            <p id="current-date" class="text-slate-500 text-xs sm:text-sm font-medium"></p>
                         </div>
                         <div class="flex items-baseline gap-2">
-                            <h2 id="clock-time" class="text-5xl font-bold text-slate-800 tracking-tight font-mono">--:--</h2>
-                            <span id="clock-sec" class="text-2xl text-orange-500 font-medium font-mono">--</span>
+                            <h2 id="clock-time" class="text-4xl sm:text-5xl font-bold text-slate-800 tracking-tight font-mono">--:--</h2>
+                            <span id="clock-sec" class="text-xl sm:text-2xl text-orange-500 font-medium font-mono">--</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto mt-4 lg:mt-0">
                     <button id="export-calendar-main-btn" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:border-orange-300 hover:text-orange-600 transition-all group">
-                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors">
-                            <i class="fa-brands fa-google"></i> <i class="fa-brands fa-apple"></i>
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors shrink-0">
+                            <i class="fa-brands fa-google"></i> <i class="fa-brands fa-apple ml-1"></i>
                         </div>
                         <div class="text-left">
                             <p class="text-[10px] text-slate-400 font-medium leading-none">Sync with</p>
@@ -392,17 +414,17 @@
                     </button>
 
                     <div class="flex bg-slate-100 p-1 rounded-xl">
-                        <button id="view-grid" class="px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">ตาราง</span>
+                        <button id="view-grid" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-table-cells"></i> <span>ตาราง</span>
                         </button>
-                        <button id="view-list" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-list-ul"></i> <span class="hidden sm:inline">รายวัน</span>
+                        <button id="view-list" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-list-ul"></i> <span>รายวัน</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Info Cards -->
+            <!-- Info Cards (Updated from Academic Calendar Term 1/2569) -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
                     <div class="relative z-10">
@@ -449,7 +471,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     <div>
                         <div class="flex items-center gap-3 mb-4">
-                            <div class="w-10 h-10 bg-orange-500 rounded text-white flex items-center justify-center font-bold text-xl">K</div>
+                            <div class="w-10 h-10 bg-orange-500 rounded text-white flex items-center justify-center font-bold text-xl shrink-0">K</div>
                             <h3 class="text-lg font-bold">วิศวกรรมคอมพิวเตอร์</h3>
                         </div>
                         <p class="text-gray-400 text-sm leading-relaxed">
@@ -497,16 +519,16 @@
                     <div class="bg-orange-500 text-white px-4 py-2 font-bold text-sm">สอบกลางภาค (Midterm)</div>
                     <div class="p-4 bg-white">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center">
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center shrink-0">
                                 <span class="text-xs">ส.ค.</span>
                                 <span class="font-bold">17</span>
                             </div>
                             <div class="text-slate-500"><i class="fa-solid fa-arrow-right"></i></div>
-                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center">
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center shrink-0">
                                 <span class="text-xs">ส.ค.</span>
                                 <span class="font-bold">23</span>
                             </div>
-                            <div class="ml-4 text-sm font-medium text-slate-700">จันทร์ 17 ส.ค. 2569<br><span class="text-xs text-slate-500">ถึง อาทิตย์ 23 ส.ค. 2569</span></div>
+                            <div class="ml-2 sm:ml-4 text-sm font-medium text-slate-700">จันทร์ 17 ส.ค. 2569<br><span class="text-xs text-slate-500">ถึง อาทิตย์ 23 ส.ค. 2569</span></div>
                         </div>
                         <p class="text-xs text-slate-400 mt-3">*ไม่เว้นวันเสาร์และอาทิตย์ (ยกเว้นวันหยุดนักขัตฤกษ์และชดเชย)</p>
                     </div>
@@ -516,16 +538,16 @@
                     <div class="bg-red-500 text-white px-4 py-2 font-bold text-sm">สอบปลายภาค (Final)</div>
                     <div class="p-4 bg-white">
                         <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center">
+                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center shrink-0">
                                 <span class="text-xs">ต.ค.</span>
                                 <span class="font-bold">26</span>
                             </div>
                             <div class="text-slate-500"><i class="fa-solid fa-arrow-right"></i></div>
-                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center">
+                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center shrink-0">
                                 <span class="text-xs">พ.ย.</span>
                                 <span class="font-bold">06</span>
                             </div>
-                            <div class="ml-4 text-sm font-medium text-slate-700">จันทร์ 26 ต.ค. 2569<br><span class="text-xs text-slate-500">ถึง ศุกร์ 6 พ.ย. 2569</span></div>
+                            <div class="ml-2 sm:ml-4 text-sm font-medium text-slate-700">จันทร์ 26 ต.ค. 2569<br><span class="text-xs text-slate-500">ถึง ศุกร์ 6 พ.ย. 2569</span></div>
                         </div>
                         <p class="text-xs text-slate-400 mt-3">*เว้นวันหยุดนักขัตฤกษ์ และวันหยุดชดเชย</p>
                     </div>
@@ -568,7 +590,7 @@
                             <div class="text-right flex items-center gap-4">
                                 <div>
                                     <p id="share-display-name" class="text-2xl font-bold text-orange-600">My Schedule</p>
-                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">--------</span></p>
+                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">---------</span></p>
                                 </div>
                             </div>
                         </div>
@@ -646,7 +668,7 @@
                 </button>
             </div>
             <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400">Version 7.0 (Details & Network Status)</p>
+                <p class="text-xs text-slate-400">Version 7.1 (Mobile UX Optimized)</p>
             </div>
         </div>
     </div>
@@ -689,7 +711,7 @@
         import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
-        // 1. DATA CONFIGURATION (FULL DESCRIPTIONS INCLUDED)
+        // 1. DATA CONFIGURATION
         // ==========================================
 
         const electivesData = [
@@ -744,9 +766,8 @@
         const endHour = 18;
 
         // ==========================================
-        // 2. FIREBASE INITIALIZATION (RULES APPLIED)
+        // 2. FIREBASE INITIALIZATION
         // ==========================================
-        // แก้ไขปัญหา GitHub Secrets Detected ด้วยการแยก String
         const firebaseConfigUser = {
           apiKey: "AIzaSyCp5LCR0h0DPp5cm" + "-kBYXOWuYuzal5fKyI",
           authDomain: "time-table-kmitl.firebaseapp.com",
@@ -761,7 +782,6 @@
 
         async function initFirebase() {
             try {
-                // พยายามใช้ config ของ user ที่กำหนดมาให้
                 app = initializeApp(firebaseConfigUser);
             } catch(e) {
                 console.error("Firebase init fallback");
@@ -779,12 +799,14 @@
                 }
             } catch (error) {
                 console.error("Auth error:", error);
-                // ดักจับ Error และแจ้งเตือนเบื้องต้นหากเปิดบน file:///
-                if(error.code === 'auth/configuration-not-found' || error.code === 'auth/unauthorized-domain') {
+                document.getElementById('global-loader').style.display = 'none';
+                
+                if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
+                    alert("⚠️ สำคัญ: คุณยังไม่ได้เปิดใช้งาน 'Anonymous Sign-in' ใน Firebase Console\n\nกรุณาไปที่ Firebase Console -> Authentication -> Sign-in method แล้วเปิดใช้งาน Anonymous (ผู้ใช้ที่ไม่ระบุตัวตน)");
+                } else if(error.code === 'auth/configuration-not-found' || error.code === 'auth/unauthorized-domain') {
                     console.warn("กรุณาตั้งค่า Authorized Domain ใน Firebase หรือใช้งานผ่าน GitHub Pages");
-                    document.getElementById('global-loader').style.display = 'none';
-                    showSetup(); // แสดงหน้า setup ให้ใช้งานแบบ Local ชั่วคราว
                 }
+                showSetup(); 
             }
 
             onAuthStateChanged(auth, (currentUser) => {
@@ -792,7 +814,6 @@
                     user = currentUser;
                     loadUserProfile();
                 } else if(!user) {
-                    // กรณี Sign-in ล้มเหลวทั้งหมด
                     document.getElementById('global-loader').style.display = 'none';
                     showSetup();
                 }
