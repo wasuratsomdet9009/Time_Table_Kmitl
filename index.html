@@ -49,8 +49,8 @@
             transition: opacity 0.5s ease;
         }
 
-        /* Setup Form Container */
-        #setup-container {
+        /* Form & Onboarding Containers */
+        #auth-container, #setup-container {
             min-height: 100vh; display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #fff7ed 0%, #f1f5f9 100%); padding: 1rem;
         }
@@ -69,8 +69,8 @@
             background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;
         }
         .timetable-grid {
-            display: grid; grid-template-columns: 65px repeat(11, minmax(110px, 1fr));
-            gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; min-width: 1200px; position: relative;
+            display: grid; grid-template-columns: 65px repeat(11, minmax(115px, 1fr));
+            gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; min-width: 1250px; position: relative;
         }
         
         .grid-header { background-color: #fff7ed; display: flex; align-items: center; justify-content: center; color: #d97706; text-align: center; }
@@ -139,7 +139,7 @@
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
         .modal-box {
-            background: white; width: 100%; max-width: 500px; border-radius: 1.5rem; padding: 2rem;
+            background: white; width: 100%; max-width: 550px; border-radius: 1.5rem; padding: 2rem;
             transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 85vh; overflow-y: auto;
         }
         .modal-overlay.visible .modal-box { transform: scale(1); }
@@ -182,17 +182,15 @@
     <!-- Global Loader -->
     <div id="global-loader">
         <div class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-        <p class="mt-4 text-slate-600 font-medium">กำลังเตรียมข้อมูลตารางเรียน...</p>
+        <p class="mt-4 text-slate-600 font-medium font-sans">กำลังเชื่อมต่อฐานข้อมูล...</p>
     </div>
 
     <!-- ONBOARDING (COACH MARK) OVERLAY -->
-    <!-- ปรับแต่งเพื่อ Mobile Experience ที่ดีขึ้น -->
-    <div id="onboarding-overlay" class="modal-overlay">
+    <div id="onboarding-overlay" class="modal-overlay hidden">
         <div class="bg-white rounded-[2rem] w-[95%] max-w-md md:max-w-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col md:flex-row relative max-h-[95vh] overflow-y-auto">
             
-            <!-- Graphic Side (อยู่ด้านบนสำหรับมือถือ) -->
+            <!-- Graphic Side -->
             <div class="md:w-5/12 bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white flex flex-col items-center justify-center relative shrink-0 min-h-[220px] md:min-h-full">
-                <!-- Decorative background elements -->
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-20 rounded-full blur-2xl"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black opacity-10 rounded-full blur-2xl"></div>
                 
@@ -201,13 +199,13 @@
                         <i class="fa-solid fa-wand-magic-sparkles text-4xl text-white"></i>
                     </div>
                     <h2 class="text-2xl md:text-3xl font-bold mb-2 tracking-tight">Smart Schedule</h2>
-                    <p class="text-sm opacity-90 font-light mt-2 max-w-[250px]">คู่มือสั้นๆ เพื่อให้คุณใช้งานแอปพลิเคชันได้อย่างเต็มประสิทธิภาพ</p>
+                    <p class="text-sm opacity-90 font-light mt-2 max-w-[250px]">ครุศาสตร์วิศวกรรมคอมพิวเตอร์ KMITL ปี 2</p>
                 </div>
             </div>
             
             <!-- Content Side -->
-            <div class="md:w-7/12 p-6 md:p-8 bg-slate-50 flex flex-col justify-center">
-                <h3 class="text-lg font-bold text-slate-800 mb-6 text-center md:text-left">ฟีเจอร์เด่นที่คุณต้องรู้ 🚀</h3>
+            <div class="md:w-7/12 p-6 md:p-8 bg-slate-50 flex flex-col justify-center animate-fade-in">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 text-center md:text-left">ฟีเจอร์เด่นระบบตารางเรียนอัจฉริยะ 🚀</h3>
                 
                 <div class="space-y-4 md:space-y-6 mb-8">
                     <!-- Feature 1 -->
@@ -216,8 +214,8 @@
                             <i class="fa-solid fa-hand-pointer"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm md:text-base">แตะเพื่อดูรายละเอียด</h4>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">กดที่รายวิชาบนตารางเพื่อดูข้อมูลห้องเรียน อาจารย์ผู้สอน และคำอธิบายเจาะลึก</p>
+                            <h4 class="font-bold text-slate-800 text-sm md:text-base">แตะเพื่อดูรายละเอียดคำอธิบายวิชา</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">สามารถกดที่วิชาเรียนบนตารางเพื่อดูคำอธิบายรายวิชาฉบับเต็ม และดูข้อมูลห้องเรียน/อาจารย์</p>
                         </div>
                     </div>
                     <!-- Feature 2 -->
@@ -226,8 +224,8 @@
                             <i class="fa-brands fa-apple"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ซิงค์ปฏิทินมือถือ</h4>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">ปุ่ม Sync Calendar จะส่งออกตารางเรียนและวันสอบ ไปยัง Apple หรือ Google Calendar อัตโนมัติ</p>
+                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ซิงค์วันสอบเจาะลึกเฉพาะ Section</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">กด Sync Calendar เพื่อส่งออกวันเรียนและวันสอบกลางภาค/ปลายภาค เข้าสู่ Apple/Google Calendar เฉพาะของตนเอง</p>
                         </div>
                     </div>
                     <!-- Feature 3 -->
@@ -236,8 +234,8 @@
                             <i class="fa-solid fa-bell-concierge"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ไม่พลาดทุกคลาสเรียน</h4>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">ระบบมีเส้นเวลาปัจจุบัน และกล่องวิชาที่กำลังเรียนจะกระพริบไฮไลต์ให้เห็นอย่างชัดเจน</p>
+                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ติดตามเวลาเรียนแบบ Real-time</h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">ระบบมีเส้นเวลาปัจจุบัน และวิชาที่กำลังเรียนจะไฮไลต์กระพริบเพื่อไม่ให้คุณเข้าสาย</p>
                         </div>
                     </div>
                 </div>
@@ -250,6 +248,63 @@
         </div>
     </div>
 
+    <!-- 0. SIGNUP / LOGIN SCREEN (FIRST-TIME USER) -->
+    <div id="auth-container" class="hidden">
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-md animate-fade-in border border-slate-100 mx-4">
+            <div class="text-center mb-6">
+                <img src="https://upload.wikimedia.org/wikipedia/th/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" 
+                     alt="KMITL Logo" class="w-16 h-16 mx-auto mb-3 object-contain">
+                <h2 class="text-2xl font-bold text-slate-800">KMITL CE Schedule</h2>
+                <p class="text-slate-500 text-sm mt-1">กรุณาเข้าสู่ระบบเพื่อใช้งานและซิงค์ข้อมูลตารางเรียน</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div class="flex bg-slate-100 p-1.5 rounded-xl mb-6">
+                <button id="tab-login" class="flex-1 py-2 rounded-lg text-sm font-bold bg-white text-orange-600 shadow-sm transition-all">เข้าสู่ระบบ</button>
+                <button id="tab-signup" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-white/50 transition-all">สมัครสมาชิก</button>
+            </div>
+
+            <!-- Auth Form -->
+            <form id="auth-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">อีเมลสถาบัน / ทั่วไป</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <input type="email" id="auth-email" required placeholder="example@kmitl.ac.th" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">รหัสผ่าน (ขั้นต่ำ 6 หลัก)</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="auth-password" required minlength="6" placeholder="******" 
+                               class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-sm">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-auth-submit" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl shadow-md hover:bg-orange-500 transition-all text-sm">
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+
+            <div class="relative flex py-4 items-center">
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-slate-400 text-xs font-semibold">หรือ</span>
+                <div class="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <button id="btn-auth-anonymous" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all text-xs flex justify-center items-center gap-2">
+                <i class="fa-solid fa-user-secret"></i> เข้าใช้งานแบบไม่ระบุตัวตน (ข้อมูลไม่ซิงค์ข้ามเครื่อง)
+            </button>
+        </div>
+    </div>
+
     <!-- 1. ONBOARDING SETUP FORM -->
     <div id="setup-container" class="hidden">
         <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-3xl animate-fade-in border border-slate-100 mx-4">
@@ -258,7 +313,7 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-slate-800">ตั้งค่าตารางเรียนของคุณ</h2>
-                <p class="text-slate-500 text-sm mt-1">ครุฯวิศวกรรมคอมพิวเตอร์ ภาคเรียนที่ 1/2569</p>
+                <p class="text-slate-500 text-sm mt-1">ครุฯวิศวกรรมคอมพิวเตอร์ ภาคเรียนที่ 1/2569 (ปี 2)</p>
             </div>
 
             <form id="setup-form" class="space-y-6">
@@ -272,7 +327,6 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fa-solid fa-id-card text-slate-400"></i>
                             </div>
-                            <!-- อัปเดต Input ให้รองรับ 9 หลักตาม Request -->
                             <input type="text" id="input-student-id" required pattern="[0-9]{9}" maxlength="9" placeholder="เช่น 690300001" 
                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-lg tracking-wider font-mono">
                         </div>
@@ -280,7 +334,6 @@
 
                     <div>
                         <label class="block text-sm font-bold text-slate-600 mb-2">เลือก Section ของคุณ</label>
-                        <!-- เปลี่ยนเป็น sm:grid-cols-2 เพื่อให้เรียงบนมือถือสวยขึ้น (ไม่แคบเกินไป) -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="section_choice" value="1" class="peer sr-only radio-card-input" checked>
@@ -289,7 +342,7 @@
                                         <i class="fa-solid fa-laptop-code text-xl"></i>
                                     </div>
                                     <span class="font-bold text-slate-800 text-lg mb-1">Section 1</span>
-                                    <span class="text-xs text-slate-500 font-medium">กลุ่ม 1-2, 5-6</span>
+                                    <span class="text-xs text-slate-500 font-medium">กลุ่ม 1-2, 5-6 (รอบเช้า)</span>
                                     <i class="fa-solid fa-circle-check text-orange-500 absolute top-3 right-3 opacity-0 transform scale-50 transition-all check-icon text-lg"></i>
                                 </div>
                             </label>
@@ -301,7 +354,7 @@
                                         <i class="fa-solid fa-server text-xl"></i>
                                     </div>
                                     <span class="font-bold text-slate-800 text-lg mb-1">Section 2</span>
-                                    <span class="text-xs text-slate-500 font-medium">กลุ่ม 3-4, 7-8</span>
+                                    <span class="text-xs text-slate-500 font-medium">กลุ่ม 3-4, 7-8 (รอบบ่าย)</span>
                                     <i class="fa-solid fa-circle-check text-orange-500 absolute top-3 right-3 opacity-0 transform scale-50 transition-all check-icon text-lg"></i>
                                 </div>
                             </label>
@@ -363,11 +416,11 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2 sm:gap-3">
-                        <button id="btn-edit-profile" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors" title="แก้ไขข้อมูล">
-                            <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">แก้ไข</span>
+                        <button id="btn-edit-profile" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors shadow-sm" title="แก้ไขข้อมูล">
+                            <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">แก้ไขข้อมูล</span>
                         </button>
                         <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg">
-                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">เซฟรูป</span>
+                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
                         </button>
                         <button id="settings-btn" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-gear"></i>
@@ -378,7 +431,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full animate-fade-in">
             <!-- Top Section -->
             <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
                 <div class="flex items-center gap-4 sm:gap-5 w-full lg:w-auto justify-start">
@@ -424,7 +477,7 @@
                 </div>
             </div>
 
-            <!-- Info Cards (Updated from Academic Calendar Term 1/2569) -->
+            <!-- Info Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
                     <div class="relative z-10">
@@ -449,7 +502,7 @@
                     </div>
                     <!-- ปุ่มเปิดตารางสอบ -->
                     <button id="btn-view-exams" class="mt-3 w-full py-2 bg-orange-500/10 text-orange-600 hover:bg-orange-500 hover:text-white rounded-lg text-xs font-bold transition-colors">
-                        <i class="fa-solid fa-file-pen mr-1"></i> ดูตารางสอบกลางภาค/ปลายภาค
+                        <i class="fa-solid fa-file-pen mr-1"></i> ดูตารางสอบกลางภาค/ปลายภาคของฉัน
                     </button>
                 </div>
             </div>
@@ -507,51 +560,18 @@
         </footer>
     </div>
 
-    <!-- Exam Schedule Modal -->
+    <!-- Dynamic Exam Schedule Modal -->
     <div id="exam-modal" class="modal-overlay">
-        <div class="modal-box p-0 overflow-hidden">
+        <div class="modal-box p-0 overflow-hidden w-full max-w-xl">
             <div class="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-file-signature text-orange-500 mr-2"></i>ตารางสอบ 1/2569</h3>
+                <div class="leading-tight">
+                    <h3 class="text-lg font-bold text-slate-800"><i class="fa-solid fa-file-signature text-orange-500 mr-2"></i>ตารางสอบเฉพาะบุคคล 1/2569</h3>
+                    <p class="text-xs text-slate-500 mt-1">คัดกรองวันสอบเฉพาะกลุ่มเรียนของ <span id="exam-sec-title" class="font-bold text-orange-600">Sec -</span> เท่านั้น</p>
+                </div>
                 <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="p-6 space-y-6">
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <div class="bg-orange-500 text-white px-4 py-2 font-bold text-sm">สอบกลางภาค (Midterm)</div>
-                    <div class="p-4 bg-white">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center shrink-0">
-                                <span class="text-xs">ส.ค.</span>
-                                <span class="font-bold">17</span>
-                            </div>
-                            <div class="text-slate-500"><i class="fa-solid fa-arrow-right"></i></div>
-                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center shrink-0">
-                                <span class="text-xs">ส.ค.</span>
-                                <span class="font-bold">23</span>
-                            </div>
-                            <div class="ml-2 sm:ml-4 text-sm font-medium text-slate-700">จันทร์ 17 ส.ค. 2569<br><span class="text-xs text-slate-500">ถึง อาทิตย์ 23 ส.ค. 2569</span></div>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-3">*ไม่เว้นวันเสาร์และอาทิตย์ (ยกเว้นวันหยุดนักขัตฤกษ์และชดเชย)</p>
-                    </div>
-                </div>
-
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                    <div class="bg-red-500 text-white px-4 py-2 font-bold text-sm">สอบปลายภาค (Final)</div>
-                    <div class="p-4 bg-white">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center shrink-0">
-                                <span class="text-xs">ต.ค.</span>
-                                <span class="font-bold">26</span>
-                            </div>
-                            <div class="text-slate-500"><i class="fa-solid fa-arrow-right"></i></div>
-                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center shrink-0">
-                                <span class="text-xs">พ.ย.</span>
-                                <span class="font-bold">06</span>
-                            </div>
-                            <div class="ml-2 sm:ml-4 text-sm font-medium text-slate-700">จันทร์ 26 ต.ค. 2569<br><span class="text-xs text-slate-500">ถึง ศุกร์ 6 พ.ย. 2569</span></div>
-                        </div>
-                        <p class="text-xs text-slate-400 mt-3">*เว้นวันหยุดนักขัตฤกษ์ และวันหยุดชดเชย</p>
-                    </div>
-                </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto" id="exam-modal-content">
+                <!-- ตารางสอบแยกตามรายวิชาและ Section จะถูกประมวลผลและแทรกด้วย JS ที่นี่ -->
             </div>
         </div>
     </div>
@@ -659,7 +679,7 @@
                 
                 <!-- ปุ่มเชื่อมกับ Github สำหรับนักพัฒนา -->
                 <a href="https://github.com/wasuratsomdet9009/time_table_kmitl" target="_blank" class="w-full mt-2 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
-                    <i class="fa-brands fa-github text-lg"></i> For Dev (ร่วมกันพัฒนาโค้ด)
+                    <i class="fa-brands fa-github text-lg"></i> For Dev (ร่วมกันพัฒนาโค้ดบน GitHub)
                 </a>
 
                 <!-- ปุ่ม Logout และล้างข้อมูล -->
@@ -668,7 +688,7 @@
                 </button>
             </div>
             <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400">Version 7.1 (Mobile UX Optimized)</p>
+                <p class="text-xs text-slate-400">Version 7.2 (Database Sync & Individual Exams)</p>
             </div>
         </div>
     </div>
@@ -676,16 +696,16 @@
     <!-- Class Detail Modal -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-box p-0 overflow-hidden">
-            <div id="modal-header-bg" class="h-32 bg-cover bg-center relative bg-slate-800">
+            <div id="modal-header-bg" class="h-36 bg-cover bg-center relative bg-slate-800">
                 <div class="absolute inset-0 bg-black/50"></div>
                 <button class="modal-close absolute top-4 right-4 text-white hover:text-orange-500 text-2xl transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
-                <div class="absolute bottom-4 left-6 text-white z-10">
+                <div class="absolute bottom-4 left-6 text-white z-10 pr-6">
                     <span id="modal-code" class="bg-orange-500 text-xs font-bold px-2 py-1 rounded mb-1 inline-block shadow">CODE</span>
-                    <h3 id="modal-title" class="text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
+                    <h3 id="modal-title" class="text-lg md:text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
                 </div>
             </div>
-            <div class="p-6">
-                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-4 border-b border-slate-100 pb-4">
+            <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
+                <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-600 mb-2 border-b border-slate-100 pb-3">
                     <div class="flex items-center gap-2"><i class="fa-regular fa-clock text-orange-500"></i> <span id="modal-time">Time</span></div>
                     <div class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-orange-500"></i> <span id="modal-room-tag">Room</span></div>
                 </div>
@@ -695,9 +715,20 @@
                         <h4 class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-chalkboard-user text-orange-500 mr-1"></i> อาจารย์ผู้สอน</h4>
                         <p id="modal-instructor" class="text-sm text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">Instructor Name</p>
                     </div>
+                    <!-- ส่วนวันสอบแยกรายวิชา -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-orange-50 p-2.5 rounded-xl border border-orange-100">
+                            <span class="text-xs font-bold text-orange-600 uppercase tracking-wider block mb-1">สอบกลางภาค (Midterm)</span>
+                            <span id="modal-midterm-date" class="text-xs text-slate-700 font-semibold">-</span>
+                        </div>
+                        <div class="bg-red-50 p-2.5 rounded-xl border border-red-100">
+                            <span class="text-xs font-bold text-red-600 uppercase tracking-wider block mb-1">สอบปลายภาค (Final)</span>
+                            <span id="modal-final-date" class="text-xs text-slate-700 font-semibold">-</span>
+                        </div>
+                    </div>
                     <div>
-                        <h4 class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-info text-orange-500 mr-1"></i> รายละเอียดวิชา</h4>
-                        <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed text-justify bg-slate-50 p-3 rounded-lg border border-slate-100">ข้อมูลการเรียนการสอน</p>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-info text-orange-500 mr-1"></i> คำอธิบายรายวิชา</h4>
+                        <p id="modal-desc" class="text-xs text-slate-600 leading-relaxed text-justify bg-slate-50 p-3 rounded-lg border border-slate-100">ข้อมูลการเรียนการสอน</p>
                     </div>
                 </div>
             </div>
@@ -707,62 +738,88 @@
     <!-- Firebase SDK Imports & Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
-        // 1. DATA CONFIGURATION
+        // 1. DATA CONFIGURATION & DESCRIPTIONS
         // ==========================================
 
         const electivesData = [
-            { code: '90642033', name: 'LAW FOR NEW GENERATION', room: 'D-109', inst: 'ผศ. ดร. ใยแก้ว', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop', description: 'ศึกษากฎหมายและวิเคราะห์ข้อเท็จจริงที่เกิดขึ้นในสังคม บทบาทหน้าที่และสิทธิเสรีภาพในการแสดงความคิดเห็นในที่สาธารณะ การดูหมิ่นหรือหมิ่นประมาทผู้อื่น การใช้สื่อสังคมออนไลน์ภายใต้กรอบของกฎหมาย' },
-            { code: '90642038', name: 'OCCUPATIONAL SAFETY AND HEALTH', room: 'D-509', inst: 'ดร. ชัยวัฒน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1541888081695-dd7f3b4975db?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้และตระหนักถึงการควบคุมอันตรายในสถานที่ทำงานซึ่งประกอบไปด้วย สารเคมี การควบคุมมลภาวะทางเสียงและการได้ยิน ความร้อนและการแผ่รังสี' },
-            { code: '90642061', name: 'WORLD OF INSECTS', room: 'D-510', inst: 'ดร. จรงค์ศักดิ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534044577884-25bfeb1c11a5?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหลากหลายทางชีวภาพ แมลง วิวัฒนาการ ผลกระทบ รวมถึงประสบการณ์ด้านแมลง โบราณคดี นิติวิทยาศาสตร์ และเทคโนโลยีหุ่นยนต์แบบจำลองแมลง' },
-            { code: '90642063', name: 'HOLISTIC HEALTH DEVELOPMENT', room: 'D-110', inst: 'ดร. วรัญญา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความสำคัญของการรักษาสุขภาพกายและสุขภาพจิต องค์ประกอบของการพัฒนาสุขภาพที่ดี ปัจจัยที่มีผลต่อการปรับตัวเพื่อการอยู่ร่วมกับผู้อื่น' },
-            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ทฤษฎี)', room: 'C-103', inst: 'อ. ณรัฐ, รศ.ดร.รวิภัทร', start: '08:00', end: '10:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาหลักเกณฑ์การถ่ายภาพเพื่อให้เห็นความงามของภาพที่ถ่าย การใช้อุปกรณ์และเทคนิคต่างๆ การวิจารณ์รูปถ่าย' },
-            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ปฏิบัติ)', room: 'C-103', inst: 'อ. ณรัฐ, รศ.ดร.รวิภัทร', start: '10:00', end: '12:00', color: '#059669', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ปฏิบัติการใช้อุปกรณ์และเทคนิคต่างๆ ในกระบวนการถ่ายภาพเพื่อให้ได้รูปถ่ายที่มีคุณค่า' },
-            { code: '90642116', name: 'SMART CITY AND CITY INNOVATION', room: 'D-501', inst: 'รศ. ดร. ประพัทธ์พงษ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้แนวคิด การวางผัง ออกแบบและบริหารจัดการเมืองอัจฉริยะ รวมทั้งฝึกทักษะการออกแบบและพัฒนานวัตกรรมเมืองอย่างยั่งยืน' },
-            { code: '90642137', name: 'SERIES IN DAILY LIFE', room: 'D-305', inst: 'อ. วิภาดา, รศ.ดร.รวิภัทร', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเนื้อหา แนวคิด และคุณธรรมจริยธรรมที่สะท้อนผ่านเรื่องราวของละครชุดไทยและต่างประเทศ การประยุกต์ใช้ประโยชน์จากสื่อละครในชีวิตประจำวัน' },
-            { code: '90642138', name: 'MEDITATION FOR LIFE DEV', room: 'C-101', inst: 'ศ. ดร. สุนีรัตน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมาย จุดประสงค์ ขั้นตอนการทำสมาธิ ลักษณะของการบริกรรม การนำสมาธิไปใช้ในชีวิตประจำวัน การเรียนและการงาน' },
-            { code: '90642142', name: 'PSYCHOLOGY IN COMMUNICATION', room: 'D-401', inst: 'ดร. บุณฑริก', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้ทักษะในการสื่อสารอย่างมีประสิทธิภาพ ความเข้าใจและการนำเอาความรู้ด้านจิตวิทยามาปรับปรุงกระบวนการสื่อสารให้สัมฤทธิ์ผล' },
-            { code: '90642152', name: 'JOY OF SHARING', room: 'D-503', inst: 'อ. ชัยฤทธิ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาองค์ประกอบของจิตอาสา ความหมาย ประโยชน์ การทำงานร่วมกับชุมชน การจัดการปัญหาสาธารณะและเสริมสร้างคุณภาพชุมชน' },
-            { code: '90642153', name: 'UNDERSTANDING HUMAN BEHAVIOR', room: 'D-403', inst: 'อ. วัฒนชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้พื้นฐานพฤติกรรมทางชีววิทยา ความคิด แรงจูงใจ อารมณ์ ทฤษฎีจิตวิเคราะห์ ทฤษฎีการเรียนรู้ และพฤติกรรมบำบัด' },
+            { code: '90642033', name: 'LAW FOR NEW GENERATION', room: 'D-109', inst: 'ผศ. ดร. ใยแก้ว ศีลรักษ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop', description: 'ศึกษากฎหมายและวิเคราะห์ข้อเท็จจริงที่เกิดขึ้นในสังคม บทบาทหน้าที่และสิทธิเสรีภาพในการแสดงความคิดเห็นในที่สาธารณะ การดูหมิ่นหรือหมิ่นประมาทผู้อื่น การใช้สื่อสังคมออนไลน์ภายใต้กรอบของกฎหมาย ความรับผิดที่เกี่ยวกับการกระทำผ่านระบบคอมพิวเตอร์ แนวคิดและหลักการของกฎหมายคุ้มครองผู้บริโภคที่มีต่อผู้ประกอบธุรกิจ ปัญหาความรับผิดจากการใช้งานลิขสิทธิ์หรือละเมิดทรัพย์สินทางปัญญาของผู้อื่น และสิทธิในการปกป้องงานลิขสิทธิ์ของตนเองตามกฎหมายลิขสิทธิ์' },
+            { code: '90642038', name: 'OCCUPATIONAL SAFETY AND HEALTH', room: 'D-509', inst: 'ดร. ชัยวัฒน์ พรหมเพชร', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1541888081695-dd7f3b4975db?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้และตระหนักถึงการควบคุมอันตรายในสถานที่ทำงานซึ่งประกอบไปด้วย สารเคมี การควบคุมมลภาวะทางเสียงและการได้ยิน ความร้อนและการแผ่รังสี การติดเชื้อโรคทางผิวหนัง เรียนรู้กระบวนการควบคุม การจัดการและวิธีการต่างๆเพื่อให้เกิดความปลอดภัยต่อสุขภาพ' },
+            { code: '90642061', name: 'WORLD OF INSECTS', room: 'D-510', inst: 'ดร. จรงค์ศักดิ์ พุมนวน', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534044577884-25bfeb1c11a5?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาสองโมดูล โมดูลแรกคือความหลากหลายทางชีวภาพ รวมถึงแมลง วิวัฒนาการ ความหลากหลาย ผลกระทบ แรงดึงดูดทางเคมี และการสื่อสาร โมดูลที่สองคือหัวข้อเกี่ยวกับการประยุกต์ใช้และประสบการณ์ด้านแมลง ได้แก่ โบราณคดี อาวุธ อาหารและความบันเทิง รวมถึงเทคโนโลยีหุ่นยนต์และแบบจำลองแมลง นอกจากนี้ยังมีนิติวิทยาศาสตร์ แมลงที่เป็นอันตราย (แมลงที่เป็นอันตรายถึงตายและโรคไมอาซิส) และการควบคุมแมลง' },
+            { code: '90642063', name: 'HOLISTIC HEALTH DEVELOPMENT', room: 'D-110', inst: 'ดร. วรัญญา คงปรีชา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความสำคัญของการรักษาสุขภาพกายและสุขภาพจิต องค์ประกอบของการพัฒนาสุขภาพกายและสุขภาพจิตที่ดี ปัจจัยที่มีผลต่อการพัฒนาสุขภาพกายและสุขภาพจิตการปรับตัวเพื่อการอยู่ร่วมกับผู้อื่นอย่างมีความสุข' },
+            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ทฤษฎี)', room: 'C-103', inst: 'อ. ณรัฐ, รศ. ดร. รวิภัทร', start: '08:00', end: '10:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเรื่องหลักเกณฑ์การถ่ายภาพเพื่อให้เห็นความงามของภาพที่ถ่าย การใช้อุปกรณ์และเทคนิคต่างๆ การเรียนรู้กระบวนการเพื่อให้ได้รูปถ่ายที่มีคุณค่าในแง่มุมต่างๆ และความซาบซึ้งในการพิจารณาและวิจารณ์รูปถ่าย' },
+            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ปฏิบัติ)', room: 'C-103', inst: 'อ. ณรัฐ, รศ. ดร. รวิภัทร', start: '10:00', end: '12:00', color: '#059669', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ฝึกทักษะการปฏิบัติและควบคุมกล้องด้วยเทคนิคพิเศษต่างๆ ในการถ่ายภาพเพื่อจุดประสงค์ต่างๆ' },
+            { code: '90642116', name: 'SMART CITY AND CITY INNOVATION', room: 'D-501', inst: 'รศ. ดร. ประพัทธ์พงษ์ อุปลา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้แนวคิด การวางผัง ออกแบบและบริหารจัดการเมืองอัจฉริยะ รวมทั้งฝึกทักษะการออกแบบและพัฒนานวัตกรรมเมืองให้สอดคล้องกับบริบททางกายภาพ เศรษฐกิจสังคม การเมือง เทคโนโลยีและสิ่งแวดล้อมของเมืองอย่างยั่งยืน' },
+            { code: '90642137', name: 'SERIES IN DAILY LIFE', room: 'D-305', inst: 'อ. วิภาดา, รศ. ดร. รวิภัทร', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเนื้อหา แนวคิด และคุณธรรมจริยธรรมที่สะท้อนผ่านเรื่องราวและตัวละครของละครชุดของไทยและต่างประเทศร่วมสมัย การวิเคราะห์ภาพสะท้อนของสังคมร่วมสมัย ค่านิยมของคนในสังคมตลอดจนความสัมพันธ์ระหว่างละครและสังคมร่วมสมัยที่มีอิทธิพลต่อกัน เน้นกระบวนการคิดและการใช้ประโยชน์จากสื่อละครในการวิเคราะห์ และแก้ปัญหาในชีวิตประจำวันอย่างมีหลักการและเหตุผล โดยอาศัยแนวคิดทางวิทยาศาสตร์ สังคมศาสตร์ จิตวิทยา และการรู้เท่าทันสื่อ' },
+            { code: '90642138', name: 'MEDITATION FOR LIFE DEV', room: 'C-101', inst: 'ศ. ดร. สุนีรัตน์ เรืองสมบูรณ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมายของการทำสมาธิ จุดประสงค์ วิธีการ ขั้นตอน จุดเริ่มต้นของการทำสมาธิลักษณะของการบริกรรมและการทำสมาธิ ประโยชน์ของสมาธิ การนำสมาธิไปใช้ในชีวิตประจำวัน สมาธิกับการเรียนและการงาน' },
+            { code: '90642142', name: 'PSYCHOLOGY IN COMMUNICATION (กลุ่ม 1)', room: 'D-401', inst: 'ดร. บุณฑริก', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=400&auto=format&fit=crop', description: 'อุปสรรคสำคัญของการสร้างสรรค์ศิลปะและการออกแบบประการหนึ่งนอกเหนือจากการสร้างสรรค์ผลงานคือ ความสามารถในการสื่อสารให้ผลงานเป็นที่เข้าใจและยอมรับ การทำงานร่วมกับผู้อื่นอย่างเข้าใจ รายวิชานี้ถูกออกแบบมาเพื่อให้ผู้เรียนเข้าใจและมีทักษะในการสื่อสารอย่างมีประสิทธิภาพ โดยผู้เรียนมีความเข้าใจและความสามารถในการนำเอาความรู้ด้านจิตวิทยามาปรับปรุงกระบวนการสื่อสารอย่างสัมฤทธิ์ผล' },
+            { code: '90642142', name: 'PSYCHOLOGY IN COMMUNICATION (กลุ่ม 2)', room: 'D-502', inst: 'อ. ญาณิศา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้กระบวนการสื่อสาร ศิลปะการสร้างปฏิสัมพันธ์ที่ดีกับผู้อื่น โดยบูรณาการแนวคิดด้านจิตวิทยามาเป็นกลยุทธ์สำคัญ' },
+            { code: '90642152', name: 'JOY OF SHARING', room: 'D-503', inst: 'อ. ชัยฤทธิ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาองค์ประกอบของจิตอาสา/จิตสาธารณะ ความหมาย รูปแบบของจิตอาสา/จิตสาธารณะ ประโยชน์ที่ได้รับ วิธีการทำงานร่วมกันกับชุมชน การจัดการปัญหาสาธารณะหรือเสริมสร้างคุณภาพของชุมชน องค์กรด้านจิตอาสา/จิตสาธารณะทั้งในและต่างประเทศ ฝึกการเป็นจิตอาสาและหรือจัดทำโครงการเพื่อพัฒนาจิตอาสา/ จิตสาธารณะ' },
+            { code: '90642153', name: 'UNDERSTANDING HUMAN BEHAVIOR', room: 'D-403', inst: 'อ. วัฒนชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้พื้นฐานพฤติกรรมทางชีววิทยา ความคิด แรงจูงใจ และอารมณ์ การพัฒนาสุขภาพจิตและบุคลิกภาพ ศึกษาทฤษฎีจิตวิเคราะห์ทฤษฎีการเรียนรู้ ทฤษฎีพฤติกรรม และพฤติกรรมบำบัด รวมถึงศึกษาความสัมพันธ์ระหว่างตนเอง ครอบครัวและสังคม ผลกระทบของความเชื่อและศาสนาที่มีต่อพฤติกรรม เรียนรู้วิธีการทำความเข้าใจสุขภาพและความเจ็บป่วยผ่านปัจจัยทางชีวภาพ จิตวิทยาและสังคม แนวคิดสุขภาพโลก' },
             { code: '90642156', name: 'FENG SHUI (ฮวงจุ้ย)', room: 'ไม่ระบุ', inst: 'อ. ธาตรี, อ. ปรามุข', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1526685816914-1e0e564bd7ea?q=80&w=400&auto=format&fit=crop', description: 'ศึกษา ความหมาย และหลักการของฮวงจุ้ย ที่สามารถนำมาประยุกต์ใช้ในชีวิตประจำวัน หรือนำไปประยุกต์ใช้กับการอยู่ร่วมกับผู้อื่นอย่างมีความสุข' },
-            { code: '90642168', name: 'TOPICS IN MEDICINAL PLANTS', room: 'D-511', inst: 'ผศ.ดร. วิรามศรี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=400&auto=format&fit=crop', description: 'พืชสมุนไพรเพื่อสุขภาพและความงาม การตลาด การผลิตสมุนไพร การแปรรูปผลิตภัณฑ์อย่างง่าย อาหารและเครื่องดื่มจากพืชสมุนไพร' },
-            { code: '90642208', name: 'FROM DEV TO THE MOON', room: 'ไม่ระบุ', inst: 'อ. ณัฏฐ์กฤศ', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400&auto=format&fit=crop', description: 'โครงสร้างการทำงานในบริษัทผู้พัฒนาโปรแกรม การวิเคราะห์ต้นทุน การเขียนโค้ด อัลกอริทึม การจัดระเบียบ การสื่อสารภายในบริษัท' },
-            { code: '90642217', name: 'DESIGN THINKING FOR SUSTAINABILITY', room: 'C-104', inst: 'อ. จิรภัทร์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop', description: 'กระบวนการคิดเชิงออกแบบเพื่อนำไปสู่การแก้ปัญหาที่ยั่งยืน วิเคราะห์ปัญหาอย่างเป็นระบบ การพัฒนาต้นแบบเพื่อทดสอบแนวคิด เชื่อมโยงกับ SDGs' },
-            { code: '90643012', name: 'TEAMWORK', room: 'D-504', inst: 'ดร. สุรชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมายของการสร้างทีมงาน แผนการสื่อสารในทีม การเป็นผู้นำและผู้ตามที่ดี การบริหารความขัดแย้งในทีม ทักษะสร้างทีมที่มีประสิทธิผล' },
-            { code: '90643020', name: 'INNOVATIVE ENTREPRENEURS', room: 'D-402', inst: 'อ. สุพรรณี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400&auto=format&fit=crop', description: 'แนวคิดเกี่ยวกับการเป็นผู้ประกอบการเชิงสร้างสรรค์ ใช้เทคโนโลยีและนวัตกรรมเป็นเครื่องมือสู่การเป็นผู้ประกอบการที่มีทักษะเชิงประยุกต์' },
-            { code: '90643026', name: 'INVESTMENT PLANNING', room: 'D-411', inst: 'อ. ภาณุวัฒน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาประเภทของการลงทุน ทฤษฎีการเงินที่ใช้เพื่อการลงทุน การบริหารความเสี่ยง หลักการวิเคราะห์และการคำนวณหาความคุ้มค่าในการลงทุน' }
+            { code: '90642168', name: 'TOPICS IN MEDICINAL PLANTS', room: 'D-511', inst: 'ผศ.ดร. วิรามศรี, ผศ. ดร. ฐพงษ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=400&auto=format&fit=crop', description: 'พืชสมุนไพรเพื่อสุขภาพและความงาม การตลาด การผลิตสมุนไพรที่มีความสำคัญอย่างง่าย การแปรรูปผลิตภัณฑ์อย่างง่าย อาหารและเครื่องดื่มจากพืชสมุนไพรเพื่อสุขภาพและความงาม' },
+            { code: '90642208', name: 'FROM DEV TO THE MOON', room: 'ไม่ระบุ', inst: 'อ. ณัฏฐ์กฤศ', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400&auto=format&fit=crop', description: 'โครงสร้างการทำงานในบริษัทผู้พัฒนาโปรแกรม จากหน้าที่ผู้พัฒนาโปรแกรมไปจนถึงการบริหารบริษัท การเขียนโค้ด คำสั่งพื้นฐาน ชนิดของตัวแปร อัลกอริทึม การจัดโครงสร้างโปรแกรม การจัดเก็บ จัดระเบียบ และเผยแพร่โปรแกรม การสื่อสารและอธิบายโปรแกรม หน้าที่ต่างๆ ในบริษัทผู้พัฒนาโปรแกรม การวิเคราะห์ต้นทุนการจัดสร้างโปรแกรม การประเมินโครงการ' },
+            { code: '90642217', name: 'DESIGN THINKING FOR SUSTAINABILITY', room: 'C-104', inst: 'อ. จิรภัทร์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop', description: 'กระบวนการคิดเชิงออกแบบเพื่อนำไปสู่การแก้ปัญหาที่ยั่งยืน การวิเคราะห์ปัญหาและบริบทอย่างเป็นระบบ การสร้างสรรค์แนวคิดเพื่อการแก้ปัญหา การพัฒนาต้นแบบอย่างง่ายเพื่อทดสอบแนวคิด โดยเชื่อมโยงการเรียนรู้กับเป้าหมายการพัฒนาที่ยั่งยืน' },
+            { code: '90643012', name: 'TEAMWORK', room: 'D-504', inst: 'ดร. สุรชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมายและความสำคัญของการสร้างทีมงาน แนวคิดพื้นฐานในการพัฒนาองค์การ แนวคิดเกี่ยวกับการทำงานเป็นทีม การพัฒนาการทำงานเป็นทีม แผนการสื่อสารในทีม การเป็นผู้นำและผู้ตามที่ดี ประโยชน์และอุปสรรคในการทำงานเป็นทีม การบริหารความขัดแย้งในทีม ทักษะในการสร้างทีมงานที่มีประสิทธิผล การสร้างความภาคภูมิใจในทีมงาน ปัญหาในการสร้างทีมงานและแนวทางแก้ไข' },
+            { code: '90643020', name: 'INNOVATIVE ENTREPRENEURS', room: 'D-402', inst: 'อ. สุพรรณี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาแนวคิดเกี่ยวกับการเป็นผู้ประกอบการเชิงสร้างสรรค์ โดยใช้เทคโนโลยีและนวัตกรรมเป็นเครื่องมือสู่การเป็นผู้ประกอบการที่มีทักษะเชิงประยุกต์และสามารถส่งผ่านเทคโนโลยีและนวัตกรรม ให้เกิดเป็นธุรกิจเชิงสร้างสรรค์' },
+            { code: '90643026', name: 'INVESTMENT PLANNING', room: 'D-411', inst: 'อ. ภาณุวัฒน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาประเภทของการลงทุน ทฤษฎีการเงินที่ใช้เพื่อการลงทุน การบริหารความเสี่ยงในการลงทุน หลักการวิเคราะห์และการลงทุนเพื่อผลตอบแทนที่คุ้มค่า การคำนวณหาความคุ้มค่าในการลงทุน' }
         ];
+
+        // ฐานข้อมูลสอบกลางภาคและปลายภาคเจาะลึกเฉพาะรายกลุ่มเรียน (อิงจากภาพสแกน 2569)
+        const examDatabase = {
+            '03206111': { // MEASUREMENT AND EVALUATION
+                sec1: { midterm: "พุธ 19 ส.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 5 ทฤษฎี]", final: "พุธ 28 ต.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 5 ทฤษฎี]" },
+                sec2: { midterm: "พุธ 19 ส.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 7 ทฤษฎี]", final: "พุธ 28 ต.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 7 ทฤษฎี]" }
+            },
+            '03376124': { // SOFTWARE DESIGN AND DEVELOPMENT 2
+                sec1: { midterm: "พฤหัสบดี 20 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]", final: "พฤหัสบดี 29 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]" },
+                sec2: { midterm: "พฤหัสบดี 20 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "พฤหัสบดี 29 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" }
+            },
+            '03376125': { // DIGITAL MEDIA FOR LEARNING
+                sec1: { midterm: "จันทร์ 17 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "จันทร์ 26 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" },
+                sec2: { midterm: "จันทร์ 17 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]", final: "จันทร์ 26 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]" }
+            },
+            '03376126': { // APPLICATIONS OF MICROCONTROLLERS
+                sec1: { midterm: "อังคาร 18 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "อังคาร 27 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" },
+                sec2: { midterm: "อังคาร 18 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1-2 ทฤษฎี/ปฏิบัติ]", final: "อังคาร 27 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1-2 ทฤษฎี/ปฏิบัติ]" }
+            },
+            '03376150': { // SPECIAL TOPICS IN COMPUTER 1
+                sec1: { midterm: "ศุกร์ 21 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "ศุกร์ 30 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" },
+                sec2: { midterm: "ศุกร์ 21 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]", final: "ศุกร์ 30 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]" }
+            }
+        };
 
         const baseScheduleConfig = {
             sec1: [
-                { day: 2, start: '08:00', end: '12:00', name: 'MEASUREMENT AND EVALUATION', code: '03206111', room: 'IE1308', instructor: 'ดร. น้ำเพชร นาสารีย์', color: '#0d9488', description: 'หลักการ แนวคิดและแนวปฏิบัติในการวัดและประเมินผลการเรียนรู้ จุดประสงค์การเรียนรู้ การออกแบบทดสอบ การประเมินตามสภาพจริง การให้คะแนนเพื่อพัฒนาผู้เรียน', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop' },
-                { day: 2, start: '13:00', end: '17:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ, รศ.ดร. อมรชัย', color: '#4f46e5', description: 'ศึกษาและปฏิบัติการสร้างสื่อดิจิตอลเพื่อการเรียนรู้ ประเภทสไลด์ประกอบการสอน วิดีทัศน์ นำเสนอข้อมูลที่เหมาะสม และการสร้างสื่อด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
-                { day: 4, start: '08:00', end: '12:00', name: 'SOFTWARE DESIGN AND DEV 2', code: '03376124', room: 'IE3311', instructor: 'ผศ.ดร. ไพบูลย์, ผศ. สุระชัย', color: '#db2777', description: 'การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดตามการพัฒนาโปรแกรมเชิงวัตถุ การพัฒนาโปรแกรมเชิงคอมโพเนนต์ การควบคุมเวอร์ชัน และ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
-                { day: 4, start: '13:00', end: '17:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ, ผศ. อำพล', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
-                { day: 5, start: '13:00', end: '17:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล, อ. ปิยะ', color: '#0284c7', description: 'สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล การเขียนโปรแกรม การนำเฟิร์มแวร์เข้าสู่ไมโครคอนโทรลเลอร์ และประยุกต์ใช้ในโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
+                { day: 2, start: '08:00', end: '12:00', name: 'MEASUREMENT AND EVALUATION OF LEARNING', code: '03206111', room: 'IE1308', instructor: 'ดร. น้ำเพชร นาสารีย์', color: '#0d9488', description: 'หลักการ แนวคิดและแนวปฏิบัติในการวัดและประเมินผลการเรียนรู้ จุดประสงค์การเรียนรู้ ตารางแผนผังข้อสอบ การออกแบบทดสอบ ข้อสอบหรือเครื่องมือวัดและประเมินผลการเรียนรู้ ปฏิบัติการการสร้างและการตรวจสอบคุณภาพเครื่องมือวัดและประเมินผลการเรียนรู้ การประเมินตามสภาพจริงอิงสมรรถนะ การประเมินจากแฟ้มสะสมงาน การประเมินภาคปฏิบัติและการให้คะแนน การตรวจข้อสอบ การให้คะแนนและการตัดสินผลการเรียน ตลอดจนสามารถนำผลการประเมินไปใช้ในการพัฒนาผู้เรียน', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop' },
+                { day: 2, start: '13:00', end: '17:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, รศ. ดร. อมรชัย ชัยชนะ', color: '#4f46e5', description: 'ศึกษาและปฏิบัติในหัวข้อ สื่อดิจิตอลเพื่อการเรียนรู้ การสร้างสื่อดิจิตอลประเภท สไลด์ ประกอบการสอน สื่อวิดีทัศน์ การนำเสนอข้อมูลให้เหมาะสมกับระดับความรอบรู้ของผู้เรียน การสร้างสื่อประกอบการเรียนรู้ด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '08:00', end: '12:00', name: 'SOFTWARE DESIGN AND DEVELOPMENT 2', code: '03376124', room: 'IE3311', instructor: 'ผศ. ดร. ไพบูลย์ พวงวงศ์ตระกูล, ผศ. สุระชัย พิมพ์สาลี', color: '#db2777', description: 'ศึกษาและปฏิบัติในหัวข้อ การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดเพื่อให้สอดคล้องกับ การพัฒนาโปรแกรมเชิงวัตถุ สถาปัตยกรรมและการพัฒนาโปรแกรมเชิงคอมโพเนนต์ การ ควบคุมเวอร์ชันของซอฟต์แวร์ การส่งมอบซอฟต์แวร์แบบ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '13:00', end: '17:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, ผศ. อำพล ทองระอา', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
+                { day: 5, start: '13:00', end: '17:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล ตราชู, อ. ปิยะ จิตธรรมมาภิรมย์', color: '#0284c7', description: 'ศึกษาและปฏิบัติในหัวข้อ สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล เข้ากับไมโครคอนโทรลเลอร์ การเขียนโปรแกรมไมโครคอนโทรลเลอร์ การนำเฟิร์มแวร์เข้าสู่ ไมโครคอนโทรลเลอร์ การแก้ปัญหา การประยุกต์ใช้งานผ่านการทำโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
             ],
             sec2: [
-                { day: 2, start: '13:00', end: '17:00', name: 'MEASUREMENT AND EVALUATION', code: '03206111', room: 'IE1308', instructor: 'ดร. น้ำเพชร นาสารีย์', color: '#0d9488', description: 'หลักการ แนวคิดและแนวปฏิบัติในการวัดและประเมินผลการเรียนรู้ จุดประสงค์การเรียนรู้ การออกแบบทดสอบ การประเมินตามสภาพจริง การให้คะแนนเพื่อพัฒนาผู้เรียน', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop' },
-                { day: 2, start: '08:00', end: '12:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ, รศ.ดร. อมรชัย', color: '#4f46e5', description: 'ศึกษาและปฏิบัติการสร้างสื่อดิจิตอลเพื่อการเรียนรู้ ประเภทสไลด์ประกอบการสอน วิดีทัศน์ นำเสนอข้อมูลที่เหมาะสม และการสร้างสื่อด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
-                { day: 4, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN AND DEV 2', code: '03376124', room: 'IE3311', instructor: 'ผศ.ดร. ไพบูลย์, ผศ. สุระชัย', color: '#db2777', description: 'การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดตามการพัฒนาโปรแกรมเชิงวัตถุ การพัฒนาโปรแกรมเชิงคอมโพเนนต์ การควบคุมเวอร์ชัน และ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
-                { day: 4, start: '08:00', end: '12:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ, ผศ. อำพล', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
-                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล, อ. ปิยะ', color: '#0284c7', description: 'สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล การเขียนโปรแกรม การนำเฟิร์มแวร์เข้าสู่ไมโครคอนโทรลเลอร์ และประยุกต์ใช้ในโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
+                { day: 2, start: '13:00', end: '17:00', name: 'MEASUREMENT AND EVALUATION OF LEARNING', code: '03206111', room: 'IE1308', instructor: 'ดร. น้ำเพชร นาสารีย์', color: '#0d9488', description: 'หลักการ แนวคิดและแนวปฏิบัติในการวัดและประเมินผลการเรียนรู้ จุดประสงค์การเรียนรู้ ตารางแผนผังข้อสอบ การออกแบบทดสอบ ข้อสอบหรือเครื่องมือวัดและประเมินผลการเรียนรู้ ปฏิบัติการการสร้างและการตรวจสอบคุณภาพเครื่องมือวัดและประเมินผลการเรียนรู้ การประเมินตามสภาพจริงอิงสมรรถนะ การประเมินจากแฟ้มสะสมงาน การประเมินภาคปฏิบัติและการให้คะแนน การตรวจข้อสอบ การให้คะแนนและการตัดสินผลการเรียน ตลอดจนสามารถนำผลการประเมินไปใช้ในการพัฒนาผู้เรียน', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop' },
+                { day: 2, start: '08:00', end: '12:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, รศ. ดร. อมรชัย ชัยชนะ', color: '#4f46e5', description: 'ศึกษาและปฏิบัติในหัวข้อ สื่อดิจิตอลเพื่อการเรียนรู้ การสร้างสื่อดิจิตอลประเภท สไลด์ ประกอบการสอน สื่อวิดีทัศน์ การนำเสนอข้อมูลให้เหมาะสมกับระดับความรอบรู้ของผู้เรียน การสร้างสื่อประกอบการเรียนรู้ด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN AND DEVELOPMENT 2', code: '03376124', room: 'IE3311', instructor: 'ผศ. ดร. ไพบูลย์ พวงวงศ์ตระกูล, ผศ. สุระชัย พิมพ์สาลี', color: '#db2777', description: 'ศึกษาและปฏิบัติในหัวข้อ การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดเพื่อให้สอดคล้องกับ การพัฒนาโปรแกรมเชิงวัตถุ สถาปัตยกรรมและการพัฒนาโปรแกรมเชิงคอมโพเนนต์ การ ควบคุมเวอร์ชันของซอฟต์แวร์ การส่งมอบซอฟต์แวร์แบบ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '08:00', end: '12:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, ผศ. อำพล ทองระอา', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
+                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล ตราชู, อ. ปิยะ จิตธรรมมาภิรมย์', color: '#0284c7', description: 'ศึกษาและปฏิบัติในหัวข้อ สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล เข้ากับไมโครคอนโทรลเลอร์ การเขียนโปรแกรมไมโครคอนโทรลเลอร์ การนำเฟิร์มแวร์เข้าสู่ ไมโครคอนโทรลเลอร์ การแก้ปัญหา การประยุกต์ใช้งานผ่านการทำโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
             ]
         };
 
         const englishClass = {
-            day: 1, start: '13:00', end: '16:00', name: 'INTERCULTURAL COMM. SKILLS IN ENGLISH 1', code: '90641009', room: 'รอประกาศ', instructor: 'คณะศิลปศาสตร์', color: '#3b82f6', description: 'การพัฒนาความสามารถในการสื่อสารระหว่างวัฒนธรรมผ่านการฝึกฝนทักษะการสื่อสารภาษาอังกฤษ ฟัง อ่าน เขียน และการแสดงความคิดเห็น', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=400&auto=format&fit=crop'
+            day: 1, start: '13:00', end: '16:00', name: 'INTERCULTURAL COMM. SKILLS IN ENGLISH 1', code: '90641009', room: 'รอประกาศ', instructor: 'คณะศิลปศาสตร์', color: '#3b82f6', description: 'การพัฒนาความสามารถในการสื่อสารระหว่างวัฒนธรรมผ่านการฝึกฝนทักษะการสื่อสารภาษาอังกฤษ ที่มุ่งเน้นฝึกฝนทักษะการฟัง การอ่านจับใจความอย่างง่าย การสรุปความ การแสดงความคิดเห็น ทักษะการนำเสนอข้อมูลในที่ประชุม และ การเขียนบทความสั้นๆ', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=400&auto=format&fit=crop'
         };
 
         let schedule = [];
         let displayDays = [1, 2, 3, 4, 5];
         let currentUserData = null;
+        let isSignupTab = false;
         
         const daysTH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-        const startHour = 7; // คาบแรกเริ่มนับที่ 07:00
+        const startHour = 7; 
         const endHour = 18;
 
         // ==========================================
@@ -784,38 +841,21 @@
             try {
                 app = initializeApp(firebaseConfigUser);
             } catch(e) {
-                console.error("Firebase init fallback");
+                console.error("Firebase init failed, switching to demo", e);
                 app = initializeApp({ projectId: "demo-project" });
             }
             
             auth = getAuth(app);
             db = getFirestore(app);
 
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth error:", error);
-                document.getElementById('global-loader').style.display = 'none';
-                
-                if (error.code === 'auth/admin-restricted-operation' || error.code === 'auth/operation-not-allowed') {
-                    alert("⚠️ สำคัญ: คุณยังไม่ได้เปิดใช้งาน 'Anonymous Sign-in' ใน Firebase Console\n\nกรุณาไปที่ Firebase Console -> Authentication -> Sign-in method แล้วเปิดใช้งาน Anonymous (ผู้ใช้ที่ไม่ระบุตัวตน)");
-                } else if(error.code === 'auth/configuration-not-found' || error.code === 'auth/unauthorized-domain') {
-                    console.warn("กรุณาตั้งค่า Authorized Domain ใน Firebase หรือใช้งานผ่าน GitHub Pages");
-                }
-                showSetup(); 
-            }
-
+            // ดักจับสถานะ Auth
             onAuthStateChanged(auth, (currentUser) => {
                 if(currentUser) {
                     user = currentUser;
                     loadUserProfile();
-                } else if(!user) {
+                } else {
                     document.getElementById('global-loader').style.display = 'none';
-                    showSetup();
+                    showAuthScreen();
                 }
             });
         }
@@ -894,42 +934,106 @@
                 if(user) {
                     const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
                     await setDoc(docRef, profileData);
-                } else {
-                    console.warn("User is not authenticated. Saving locally for this session only.");
                 }
-                
                 currentUserData = profileData;
                 buildAndRenderSchedule();
                 showApp();
             } catch (error) {
                 console.error("Error saving profile:", error);
-                alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่");
+                alert("ไม่สามารถบันทึกข้อมูลตารางเรียนได้ กรุณาลองใหม่อีกครั้ง");
             } finally {
                 btn.innerHTML = ogText;
                 btn.disabled = false;
             }
         }
 
-        async function logoutAndClearData() {
-            if(confirm('ต้องการออกจากระบบและลบข้อมูลการตั้งค่าของคุณใช่หรือไม่?')) {
-                if(user) {
-                    try {
-                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
-                        await deleteDoc(docRef);
-                    } catch(e) { console.error("Could not delete doc", e); }
+        // ฟังก์ชันสมัครสมาชิก / ล็อกอิน
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const btn = document.getElementById('btn-auth-submit');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
+            btn.disabled = true;
+
+            try {
+                if (isSignupTab) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    alert("ลงทะเบียนสมาชิกสำเร็จ!");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
                 }
-                currentUserData = null;
-                localStorage.removeItem('hasSeenOnboarding');
-                closeModal(document.getElementById('settings-modal'));
-                showSetup();
+            } catch (error) {
+                console.error("Authentication Error:", error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("อีเมลนี้ถูกใช้งานไปแล้ว");
+                } else if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+                } else if (error.code === 'auth/invalid-email') {
+                    alert("รูปแบบอีเมลไม่ถูกต้อง");
+                } else {
+                    alert("เกิดข้อผิดพลาด: " + error.message);
+                }
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
 
-        function checkOnboarding() {
-            if (!localStorage.getItem('hasSeenOnboarding')) {
-                document.getElementById('onboarding-overlay').classList.remove('hidden');
-                document.getElementById('onboarding-overlay').classList.add('visible');
+        async function handleAnonymousSignIn() {
+            try {
+                document.getElementById('global-loader').style.display = 'flex';
+                await signInAnonymously(auth);
+            } catch (error) {
+                alert("ไม่สามารถเข้าใช้แบบไม่ระบุตัวตนได้: " + error.message);
+                document.getElementById('global-loader').style.display = 'none';
             }
+        }
+
+        async function logoutAndClearData() {
+            if(confirm('ต้องการออกจากระบบหรือไม่? (ข้อมูลที่บันทึกไว้ในคลาวด์จะยังคงอยู่และสามารถล็อกอินกลับมาดูได้)')) {
+                try {
+                    await signOut(auth);
+                    currentUserData = null;
+                    user = null;
+                    localStorage.removeItem('hasSeenOnboarding');
+                    closeModal(document.getElementById('settings-modal'));
+                    showAuthScreen();
+                } catch(e) { 
+                    console.error("Error signing out", e); 
+                }
+            }
+        }
+
+        function showAuthScreen() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('setup-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('auth-container').classList.add('flex');
+        }
+
+        function showSetup() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('setup-container').classList.remove('hidden');
+            document.getElementById('setup-container').classList.add('flex');
+            
+            if(currentUserData) {
+                document.getElementById('input-student-id').value = currentUserData.studentId;
+                document.querySelector(`input[name="section_choice"][value="${currentUserData.section}"]`).checked = true;
+                document.querySelector(`input[name="english_choice"][value="${currentUserData.wantsEnglish ? 'yes' : 'no'}"]`).checked = true;
+                document.getElementById('input-elective').value = currentUserData.electiveIndex !== null ? currentUserData.electiveIndex : 'none';
+            }
+        }
+
+        function showApp() {
+            document.getElementById('setup-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('app-container').classList.add('flex');
+            checkOnboarding();
         }
 
         function buildAndRenderSchedule() {
@@ -960,28 +1064,7 @@
 
             renderGrid();
             renderList();
-        }
-
-        function showSetup() {
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('flex');
-            document.getElementById('setup-container').classList.remove('hidden');
-            document.getElementById('setup-container').classList.add('flex');
-            
-            if(currentUserData) {
-                document.getElementById('input-student-id').value = currentUserData.studentId;
-                document.querySelector(`input[name="section_choice"][value="${currentUserData.section}"]`).checked = true;
-                document.querySelector(`input[name="english_choice"][value="${currentUserData.wantsEnglish ? 'yes' : 'no'}"]`).checked = true;
-                document.getElementById('input-elective').value = currentUserData.electiveIndex !== null ? currentUserData.electiveIndex : 'none';
-            }
-        }
-
-        function showApp() {
-            document.getElementById('setup-container').classList.add('hidden');
-            document.getElementById('setup-container').classList.remove('flex');
-            document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('app-container').classList.add('flex');
-            checkOnboarding();
+            renderExamSchedule(); // คำนวณตารางสอบตามโปรไฟล์ใหม่
         }
 
         function switchView(view) {
@@ -1001,11 +1084,7 @@
             }
         }
 
-        function timeToMin(time) {
-            const [h, m] = time.split(':').map(Number);
-            return h * 60 + m;
-        }
-
+        // แสดงรายละเอียดวันสอบแยกเฉพาะกลุ่มและชื่อผู้สอนในป๊อปอัปเมื่อคลิกวิชานั้นๆ
         function showClassDetail(cls) {
             if (cls.type === 'break') return;
             document.getElementById('modal-title').textContent = cls.name;
@@ -1014,6 +1093,20 @@
             document.getElementById('modal-room-tag').textContent = cls.room;
             document.getElementById('modal-instructor').textContent = cls.instructor;
             document.getElementById('modal-desc').textContent = cls.description || '-';
+            
+            // ดึงข้อมูลวันสอบกลางภาค/ปลายภาคของวิชานี้เจาะลึกตาม Sec ของตัวเอง
+            const midText = document.getElementById('modal-midterm-date');
+            const finText = document.getElementById('modal-final-date');
+            
+            const currentSecKey = currentUserData ? `sec${currentUserData.section}` : 'sec1';
+            
+            if(examDatabase[cls.code] && examDatabase[cls.code][currentSecKey]) {
+                midText.textContent = examDatabase[cls.code][currentSecKey].midterm;
+                finText.textContent = examDatabase[cls.code][currentSecKey].final;
+            } else {
+                midText.textContent = cls.code === '90641009' ? "จัดสอบเอง (ติดตามในคลาส)" : "จัดสอบเอง / ไม่มีระบุ";
+                finText.textContent = cls.code === '90641009' ? "จัดสอบเอง (ติดตามในคลาส)" : "จัดสอบเอง / ไม่มีระบุ";
+            }
             
             const bg = document.getElementById('modal-header-bg');
             if(cls.image) {
@@ -1027,6 +1120,59 @@
             document.body.style.overflow = 'hidden';
         }
 
+        // คํานวณประมวลผลตารางสอบรวมเฉพาะบุคคลเพื่อแสดงผลใน Modal
+        function renderExamSchedule() {
+            if(!currentUserData) return;
+            
+            const secKey = `sec${currentUserData.section}`;
+            document.getElementById('exam-sec-title').textContent = `Section ${currentUserData.section}`;
+            
+            const container = document.getElementById('exam-modal-content');
+            container.innerHTML = ''; // เคลียร์เนื้อหาเดิม
+
+            // ดึงเฉพาะวิชาที่อยู่ในตารางเรียนของผู้ใช้ (ไม่นับคาบพักกลางวัน)
+            const activeSubjects = schedule.filter(v => v.type !== 'break');
+
+            activeSubjects.forEach(subj => {
+                const examCard = document.createElement('div');
+                examCard.className = 'bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3';
+                
+                let midtermText = "จัดสอบเอง (ไม่มีระบุวันสอบทางการ)";
+                let finalText = "จัดสอบเอง (ไม่มีระบุวันสอบทางการ)";
+
+                if (examDatabase[subj.code] && examDatabase[subj.code][secKey]) {
+                    midtermText = examDatabase[subj.code][secKey].midterm;
+                    finalText = examDatabase[subj.code][secKey].final;
+                } else if (subj.code === '90641009') { // ภาษาอังกฤษ GenEd
+                    midtermText = "วันพุธ 19 สิงหาคม 2569 (13:30 - 16:30 น.) [อ้างอิงภาพรวม GenEd]";
+                    finalText = "วันพุธ 28 ตุลาคม 2569 (13:30 - 16:30 น.) [อ้างอิงภาพรวม GenEd]";
+                }
+
+                examCard.innerHTML = `
+                    <div class="flex justify-between items-start border-b border-slate-100 pb-2">
+                        <div class="pr-2">
+                            <span class="text-xs font-bold text-orange-500 block mb-0.5">${subj.code}</span>
+                            <h4 class="font-bold text-slate-800 text-sm leading-tight">${subj.name}</h4>
+                        </div>
+                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold shrink-0">${subj.room}</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex items-center gap-2 text-slate-600">
+                            <i class="fa-solid fa-hourglass-start text-orange-400 shrink-0 w-4"></i>
+                            <span class="font-medium">กลางภาค:</span>
+                            <span class="text-slate-800 font-semibold">${midtermText}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-slate-600">
+                            <i class="fa-solid fa-flag-checkered text-red-500 shrink-0 w-4"></i>
+                            <span class="font-medium">ปลายภาค:</span>
+                            <span class="text-slate-800 font-semibold">${finalText}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(examCard);
+            });
+        }
+
         function renderGrid() {
             const grid = document.getElementById('timetable-grid');
             Array.from(grid.children).forEach(c => {
@@ -1035,7 +1181,7 @@
 
             grid.style.gridTemplateRows = `60px repeat(${displayDays.length}, minmax(110px, auto))`;
 
-            // แก้ไขส่วนหัวของเวลา (ช่วงเวลาและคาบที่)
+            // ส่วนหัวของเวลา (ช่วงเวลาและคาบที่)
             for (let h = startHour; h < endHour; h++) {
                 const div = document.createElement('div');
                 div.className = 'grid-header sticky top-0 z-20 bg-[#fff7ed] border-b border-orange-200 flex flex-col justify-center py-1 leading-tight';
@@ -1084,7 +1230,6 @@
                         el.style.backgroundImage = `url('${cls.image}')`;
                     }
 
-                    // เพิ่มผู้สอนเข้าไปในการ์ดโดยตรง
                     el.innerHTML = `
                         <div class="flex justify-between items-start">
                             <span class="font-bold truncate drop-shadow-md">${cls.name}</span>
@@ -1198,21 +1343,14 @@
                     
                     timeIndicator.classList.remove('hidden');
                     timeIndicator.style.left = `${leftPos}px`;
-                    
-                    // ให้เส้นสีแดงคลุมเฉพาะเวลาเรียนและ Row ของตัวเอง (ถ้าไม่ใช่ ก็แค่โชว์เส้นตรงแนวตั้งเฉยๆ)
-                    if (displayDays.includes(currentDay)) {
-                        const visualRow = displayDays.indexOf(currentDay) + 2;
-                        timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
-                    } else {
-                        timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
-                    }
+                    timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
                 }
             } else {
                 timeIndicator.classList.add('hidden');
             }
 
             // Academic Calendar 1/2569 (June 29, 2026 - Nov 7, 2026)
-            const semesterStart = new Date(2026, 5, 29); // June 29 (เดือนเริ่มจาก 0)
+            const semesterStart = new Date(2026, 5, 29); // June 29 
             const semesterEnd = new Date(2026, 10, 7);   // Nov 7 
             const isSemesterActive = now >= semesterStart && now <= semesterEnd;
             const statusDiv = document.getElementById('status-container');
@@ -1266,11 +1404,11 @@
             });
         }
 
-        // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
+        // --- ICS Export (iOS/Google Sync Optimized) ---
         function generateICS() {
-            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการสอน) 
             const startDate = new Date(2026, 5, 29); 
             const endDate = new Date(2026, 9, 25); 
+            const currentSecKey = currentUserData ? `sec${currentUserData.section}` : 'sec1';
             
             let icsContent = [
                 "BEGIN:VCALENDAR",
@@ -1292,6 +1430,7 @@
             let loopDate = new Date(startDate);
             while (loopDate <= endDate) {
                 schedule.filter(c => c.day === loopDate.getDay() && c.type !== 'break').forEach(cls => {
+                    let desc = cls.description;
                     icsContent.push(
                         "BEGIN:VEVENT",
                         `UID:cls-${cls.code}-${loopDate.getTime()}@kmitl.ac.th`,
@@ -1299,7 +1438,7 @@
                         `DTSTART:${formatUTC(loopDate, cls.start)}`,
                         `DTEND:${formatUTC(loopDate, cls.end)}`,
                         `SUMMARY:${cls.name} (${cls.code})`,
-                        `DESCRIPTION:${cls.description} \\n\\nผู้สอน: ${cls.instructor} \\nห้องเรียน: ${cls.room}`,
+                        `DESCRIPTION:${desc} \\n\\nผู้สอน: ${cls.instructor} \\nห้องเรียน: ${cls.room}`,
                         `LOCATION:${cls.room}`,
                         "STATUS:CONFIRMED",
                         "END:VEVENT"
@@ -1308,29 +1447,55 @@
                 loopDate.setDate(loopDate.getDate() + 1);
             }
 
-            // เพิ่มตารางสอบกลางภาค 1/2569 (17 ส.ค. - 23 ส.ค. 2569)
-            icsContent.push(
-                "BEGIN:VEVENT",
-                "UID:midterm-1-2569@kmitl.ac.th",
-                `DTSTAMP:${formatUTC(new Date())}`,
-                `DTSTART;VALUE=DATE:20260817`,
-                `DTEND;VALUE=DATE:20260824`, // Exclusive end date
-                "SUMMARY:สอบกลางภาค (Midterm Exam) 1/2569",
-                "DESCRIPTION:ช่วงเวลาการสอบกลางภาคตามประกาศปฏิทินการศึกษา",
-                "END:VEVENT"
-            );
+            // คำนวณเพิ่มตารางสอบกลางภาค-ปลายภาคเฉพาะของวิชาที่ลงทะเบียนเข้าสู่ Calendar
+            const activeSubjects = schedule.filter(v => v.type !== 'break');
+            activeSubjects.forEach(subj => {
+                if (examDatabase[subj.code] && examDatabase[subj.code][currentSecKey]) {
+                    const examInfo = examDatabase[subj.code][currentSecKey];
+                    
+                    // ปลดล็อกสร้าง Event วันสอบกลางภาค
+                    let midtermDateStr = "";
+                    if(subj.code === '03206111') midtermDateStr = '20260819T133000Z'; // 19 ส.ค. 2569
+                    else if(subj.code === '03376124') midtermDateStr = '20260820T093000Z'; // 20 ส.ค. 2569
+                    else if(subj.code === '03376125') midtermDateStr = '20260817T093000Z'; // 17 ส.ค. 2569
+                    else if(subj.code === '03376126') midtermDateStr = '20260818T093000Z'; // 18 ส.ค. 2569
+                    else if(subj.code === '03376150') midtermDateStr = '20260821T093000Z'; // 21 ส.ค. 2569
 
-            // เพิ่มตารางสอบปลายภาค 1/2569 (26 ต.ค. - 6 พ.ย. 2569)
-            icsContent.push(
-                "BEGIN:VEVENT",
-                "UID:final-1-2569@kmitl.ac.th",
-                `DTSTAMP:${formatUTC(new Date())}`,
-                `DTSTART;VALUE=DATE:20261026`,
-                `DTEND;VALUE=DATE:20261107`, // Exclusive end date
-                "SUMMARY:สอบปลายภาค (Final Exam) 1/2569",
-                "DESCRIPTION:ช่วงเวลาการสอบปลายภาคตามประกาศปฏิทินการศึกษา",
-                "END:VEVENT"
-            );
+                    if (midtermDateStr) {
+                        icsContent.push(
+                            "BEGIN:VEVENT",
+                            `UID:midterm-${subj.code}@kmitl.ac.th`,
+                            `DTSTAMP:${formatUTC(new Date())}`,
+                            `DTSTART:${midtermDateStr}`,
+                            `DTEND:${midtermDateStr.replace('093000Z', '123000Z').replace('133000Z', '163000Z')}`,
+                            `SUMMARY:สอบกลางภาค: ${subj.name}`,
+                            `DESCRIPTION:วันสอบกลางภาคเฉพาะกลุ่มเรียนตามระบบอัจฉริยะ \\nข้อมูล: ${examInfo.midterm}`,
+                            "END:VEVENT"
+                        );
+                    }
+
+                    // ปลดล็อกสร้าง Event วันสอบปลายภาค
+                    let finalDateStr = "";
+                    if(subj.code === '03206111') finalDateStr = '20261028T133000Z'; // 28 ต.ค. 2569
+                    else if(subj.code === '03376124') finalDateStr = '20261029T093000Z'; // 29 ต.ค. 2569
+                    else if(subj.code === '03376125') finalDateStr = '20261026T093000Z'; // 26 ต.ค. 2569
+                    else if(subj.code === '03376126') finalDateStr = '20261027T093000Z'; // 27 ต.ค. 2569
+                    else if(subj.code === '03376150') finalDateStr = '20261030T093000Z'; // 30 ต.ค. 2569
+
+                    if (finalDateStr) {
+                        icsContent.push(
+                            "BEGIN:VEVENT",
+                            `UID:final-${subj.code}@kmitl.ac.th`,
+                            `DTSTAMP:${formatUTC(new Date())}`,
+                            `DTSTART:${finalDateStr}`,
+                            `DTEND:${finalDateStr.replace('093000Z', '123000Z').replace('133000Z', '163000Z')}`,
+                            `SUMMARY:สอบปลายภาค: ${subj.name}`,
+                            `DESCRIPTION:วันสอบปลายภาคเฉพาะกลุ่มเรียนตามระบบอัจฉริยะ \\nข้อมูล: ${examInfo.final}`,
+                            "END:VEVENT"
+                        );
+                    }
+                }
+            });
 
             icsContent.push("END:VCALENDAR");
 
@@ -1369,7 +1534,7 @@
             previewContainer.appendChild(clone);
             
             document.getElementById('capture-sec-display').textContent = `Section ${currentUserData ? currentUserData.section : '-'}`;
-            document.getElementById('capture-id-display').textContent = currentUserData ? currentUserData.studentId : '--------';
+            document.getElementById('capture-id-display').textContent = currentUserData ? currentUserData.studentId : '---------';
 
             fitPreviewToWrapper();
             window.addEventListener('resize', fitPreviewToWrapper); 
@@ -1417,17 +1582,40 @@
             }
         }
 
+        // --- Auth Tab Switching ---
+        function toggleAuthTab(toSignup) {
+            isSignupTab = toSignup;
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+            const btnSubmit = document.getElementById('btn-auth-submit');
+            
+            if (toSignup) {
+                tabSignup.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-white text-orange-600 shadow-sm transition-all";
+                tabLogin.className = "flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-white/50 transition-all";
+                btnSubmit.textContent = "สมัครสมาชิกใหม่";
+            } else {
+                tabLogin.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-white text-orange-600 shadow-sm transition-all";
+                tabSignup.className = "flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-white/50 transition-all";
+                btnSubmit.textContent = "เข้าสู่ระบบ";
+            }
+        }
+
         // ==========================================
         // 5. INITIALIZE APP
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
-            updateNetworkStatus(); // เช็คสถานะออนไลน์ตั้งแต่โหลดเสร็จ
+            updateNetworkStatus(); 
             populateElectivesDropdown();
             initAnalogClock(); 
             setInterval(updateClock, 1000);
             initFirebase();
 
             // Setup Listeners
+            document.getElementById('auth-form').addEventListener('submit', handleAuthSubmit);
+            document.getElementById('tab-login').addEventListener('click', () => toggleAuthTab(false));
+            document.getElementById('tab-signup').addEventListener('click', () => toggleAuthTab(true));
+            document.getElementById('btn-auth-anonymous').addEventListener('click', handleAnonymousSignIn);
+
             document.getElementById('setup-form').addEventListener('submit', saveUserProfile);
             document.getElementById('btn-edit-profile').addEventListener('click', showSetup);
             document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
