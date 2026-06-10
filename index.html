@@ -52,10 +52,10 @@
         }
 
         /* Form & Onboarding Containers */
-        #auth-container, #setup-container {
-            min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #fff7ed 0%, #f1f5f9 100%); padding: 1rem;
-            width: 100vw; box-sizing: border-box;
+        #auth-container, #setup-container, #app-container {
+            min-height: 100vh;
+            width: 100vw;
+            box-sizing: border-box;
         }
 
         /* Radio Card Selection Styles */
@@ -148,12 +148,15 @@
         .modal-overlay.visible .modal-box { transform: scale(1); }
 
         /* Onboarding Coach Marks Spotlight Styles */
+        #onboarding-overlay {
+            position: fixed; inset: 0; background: transparent; z-index: 9990; pointer-events: auto;
+        }
         .coach-spotlight {
             position: absolute;
             box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
             border-radius: 12px;
             transition: all 0.3s ease;
-            z-index: 9998;
+            z-index: 9991;
             pointer-events: none;
             border: 3px solid var(--kmitl-orange);
         }
@@ -168,12 +171,12 @@
     </div>
 
     <!-- ONBOARDING COACH MARKS (SPOTLIGHT walkthrough) -->
-    <div id="onboarding-overlay" class="fixed inset-0 z-[9999] hidden flex-col items-center justify-center pointer-events-none">
+    <div id="onboarding-overlay" class="hidden flex-col items-center justify-center">
         <!-- Spotlight focus container -->
         <div id="coach-spotlight" class="coach-spotlight"></div>
         
         <!-- Instruction Card -->
-        <div id="coach-card" class="bg-white rounded-2xl p-6 shadow-2xl w-[90%] max-w-sm absolute z-[9999] pointer-events-auto animate-slide-up border border-slate-100">
+        <div id="coach-card" class="bg-white rounded-2xl p-6 shadow-2xl w-[90%] max-w-sm absolute z-[9992] pointer-events-auto animate-slide-up border border-slate-100">
             <div class="flex items-center gap-3 mb-3">
                 <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 shrink-0">
                     <span id="coach-step-num" class="font-bold text-sm">1</span>
@@ -192,8 +195,8 @@
     </div>
 
     <!-- 0. LOGIN SCREEN (8-DIGIT STUDENT ID ONLY) -->
-    <div id="auth-container" class="hidden">
-        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-md animate-fade-in border border-slate-100 mx-4">
+    <div id="auth-container" class="hidden flex-col items-center justify-center">
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-[90%] max-w-md animate-fade-in border border-slate-100 mx-4">
             <div class="text-center mb-6">
                 <img src="https://upload.wikimedia.org/wikipedia/th/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" 
                      alt="KMITL Logo" class="w-16 h-16 mx-auto mb-3 object-contain">
@@ -223,8 +226,8 @@
     </div>
 
     <!-- 1. ONBOARDING SETUP FORM -->
-    <div id="setup-container" class="hidden">
-        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-3xl animate-fade-in border border-slate-100 mx-4">
+    <div id="setup-container" class="hidden flex-col items-center justify-center">
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-[90%] max-w-3xl animate-fade-in border border-slate-100 mx-4">
             <div class="text-center mb-8">
                 <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500 text-2xl">
                     <i class="fa-solid fa-graduation-cap"></i>
@@ -337,7 +340,7 @@
                             <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">แก้ไขข้อมูล</span>
                         </button>
                         <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg">
-                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
+                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">เซฟรูปตาราง</span>
                         </button>
                         <button id="settings-btn" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center shrink-0">
                             <i class="fa-solid fa-gear"></i>
@@ -348,7 +351,7 @@
         </nav>
 
         <!-- Main Content -->
-        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full animate-fade-in">
+        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
             <!-- Top Section -->
             <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
                 <div class="flex items-center gap-4 sm:gap-5 w-full lg:w-auto justify-start">
@@ -527,7 +530,7 @@
                             <div class="text-right flex items-center gap-4">
                                 <div>
                                     <p id="share-display-name" class="text-2xl font-bold text-orange-600">My Schedule</p>
-                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">--------</span></p>
+                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">---------</span></p>
                                 </div>
                             </div>
                         </div>
@@ -618,7 +621,7 @@
                 <button class="modal-close absolute top-4 right-4 text-white hover:text-orange-500 text-2xl transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
                 <div class="absolute bottom-4 left-6 text-white z-10 pr-6">
                     <span id="modal-code" class="bg-orange-500 text-xs font-bold px-2 py-1 rounded mb-1 inline-block shadow">CODE</span>
-                    <h3 id="modal-title" class="text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
+                    <h3 id="modal-title" class="text-lg md:text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
                 </div>
             </div>
             <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
@@ -721,7 +724,7 @@
                 { day: 2, start: '08:00', end: '12:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, รศ. ดร. อมรชัย ชัยชนะ', color: '#4f46e5', description: 'ศึกษาและปฏิบัติในหัวข้อ สื่อดิจิตอลเพื่อการเรียนรู้ การสร้างสื่อดิจิตอลประเภท สไลด์ ประกอบการสอน สื่อวิดีทัศน์ การนำเสนอข้อมูลให้เหมาะสมกับระดับความรอบรู้ของผู้เรียน การสร้างสื่อประกอบการเรียนรู้ด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
                 { day: 4, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN AND DEVELOPMENT 2', code: '03376124', room: 'IE3311', instructor: 'ผศ. ดร. ไพบูลย์ พวงวงศ์ตระกูล, ผศ. สุระชัย พิมพ์สาลี', color: '#db2777', description: 'ศึกษาและปฏิบัติในหัวข้อ การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดเพื่อให้สอดคล้องกับ การพัฒนาโปรแกรมเชิงวัตถุ สถาปัตยกรรมและการพัฒนาโปรแกรมเชิงคอมโพเนนต์ การ ควบคุมเวอร์ชันของซอฟต์แวร์ การส่งมอบซอฟต์แวร์แบบ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
                 { day: 4, start: '08:00', end: '12:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, ผศ. อำพล ทองระอา', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
-                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล ตราชู, อ. ปิยะ จิตธรรมมาภิรมย์', color: '#0284c7', description: 'ศึกษาและปฏิบัติในหัวข้อ สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล เข้ากับไมโครคอนโทรลเลอร์ การเขียนโปรแกรมไมโครคอนโทรลเลอร์ การนำเฟิร์มแวร์เข้าสู่ ไมโครคอนโทรลเลอร์ การแก้ปัญหา การประยุกใช้งานผ่านการทำโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
+                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล ตราชู, อ. ปิยะ จิตธรรมมาภิรมย์', color: '#0284c7', description: 'ศึกษาและปฏิบัติในหัวข้อ สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล เข้ากับไมโครคอนโทรลเลอร์ การเขียนโปรแกรมไมโครคอนโทรลเลอร์ การนำเฟิร์มแวร์เข้าสู่ ไมโครคอนโทรลเลอร์ การแก้ปัญหา การประยุกต์ใช้งานผ่านการทำโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
             ]
         };
 
@@ -768,9 +771,8 @@
             onAuthStateChanged(auth, async (currentUser) => {
                 if(currentUser) {
                     user = currentUser;
-                    // ล็อกอินสำเร็จ เงียบๆ ดึงข้อมูล
-                    document.getElementById('global-loader').style.display = 'none';
-                    showScreen('auth-container');
+                    // ล็อกอินสำเร็จ ดึงข้อมูลผ่าน localStorage
+                    await loadUserProfile();
                 } else {
                     // ทำการ Auth แบบ Anonymous เป็นด่านแรกเสมอ (Rule 3)
                     try {
@@ -788,18 +790,18 @@
         // 3. LOGIC & RENDER FUNCTIONS
         // ==========================================
         
-        // ฟังก์ชันในการจัดการสลับหน้าจออย่างเด็ดขาดเพื่อแก้ปัญหาเลื่อนหากันได้
+        // ฟังก์ชันสลับหน้าจอที่เด็ดขาด เพื่อป้องกันหน้าจอรุ่นเหลื่อมและ scroll หากันได้
         function showScreen(screenId) {
             const screens = ['auth-container', 'setup-container', 'app-container'];
             screens.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     if (id === screenId) {
+                        el.style.display = 'flex';
                         el.classList.remove('hidden');
-                        el.classList.add('flex');
                     } else {
+                        el.style.display = 'none';
                         el.classList.add('hidden');
-                        el.classList.remove('flex');
                     }
                 }
             });
@@ -829,6 +831,37 @@
             });
         }
 
+        // โหลดข้อมูลโปรไฟล์นักศึกษา
+        async function loadUserProfile() {
+            if(!user) return;
+            const savedStudentId = localStorage.getItem('saved_student_id');
+            if (savedStudentId) {
+                try {
+                    // Rule 1: Strict Paths -> artifacts/{appId}/public/data/profiles/{studentId}
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', savedStudentId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        currentUserData = docSnap.data();
+                        buildAndRenderSchedule();
+                        showScreen('app-container');
+                        checkOnboarding();
+                    } else {
+                        // หากเคยมีคีย์แต่ใน DB ไม่มี ให้กรอกตั้งค่าใหม่
+                        document.getElementById('input-student-id').value = savedStudentId;
+                        showScreen('setup-container');
+                    }
+                } catch (error) {
+                    console.error("Error loading profile:", error);
+                    showScreen('auth-container');
+                }
+            } else {
+                showScreen('auth-container');
+            }
+            document.getElementById('global-loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('global-loader').style.display = 'none', 500);
+        }
+
         // ล็อกอินง่ายๆ ด้วย Student ID 8 หลัก (Rule 1 Strict Path)
         async function handleStudentIdLogin(e) {
             e.preventDefault();
@@ -847,9 +880,11 @@
 
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
+                    localStorage.setItem('saved_student_id', studentId);
                     buildAndRenderSchedule();
                     document.getElementById('global-loader').style.display = 'none';
                     showScreen('app-container');
+                    checkOnboarding();
                 } else {
                     document.getElementById('global-loader').style.display = 'none';
                     if(confirm("ไม่พบประวัติตารางเรียนของรหัสนี้ในคลาวด์ ต้องการเริ่มต้นตั้งค่าตารางเรียนใหม่ใช่หรือไม่?")) {
@@ -890,15 +925,27 @@
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', studentId);
                 await setDoc(docRef, profileData);
                 
+                localStorage.setItem('saved_student_id', studentId);
                 currentUserData = profileData;
                 buildAndRenderSchedule();
                 showScreen('app-container');
+                checkOnboarding();
             } catch (error) {
                 console.error("Error saving profile:", error);
                 alert("ไม่สามารถบันทึกข้อมูลตารางเรียนได้ กรุณาลองใหม่อีกครั้ง");
             } finally {
                 btn.innerHTML = ogText;
                 btn.disabled = false;
+            }
+        }
+
+        async function logoutAndClearData() {
+            if(confirm('ต้องการออกจากระบบและเปลี่ยนบัญชีเครื่องนี้ใช่หรือไม่?')) {
+                localStorage.removeItem('saved_student_id');
+                localStorage.removeItem('hasSeenOnboarding');
+                currentUserData = null;
+                showScreen('auth-container');
+                closeModal(document.getElementById('settings-modal'));
             }
         }
 
@@ -926,7 +973,7 @@
             if (!localStorage.getItem('hasSeenOnboarding')) {
                 coachStep = 0;
                 document.getElementById('onboarding-overlay').classList.remove('hidden');
-                document.getElementById('onboarding-overlay').classList.add('flex');
+                document.getElementById('onboarding-overlay').style.display = 'flex';
                 renderCoachStep();
             }
         }
@@ -978,7 +1025,7 @@
             } else {
                 localStorage.setItem('hasSeenOnboarding', 'true');
                 document.getElementById('onboarding-overlay').classList.add('hidden');
-                document.getElementById('onboarding-overlay').classList.remove('flex');
+                document.getElementById('onboarding-overlay').style.display = 'none';
             }
         }
 
@@ -1011,6 +1058,11 @@
             renderGrid();
             renderList();
             renderExamSchedule(); // คำนวณตารางสอบตามโปรไฟล์ใหม่
+        }
+
+        function showSetupScreenDirectly() {
+            document.getElementById('input-student-id').value = currentUserData ? currentUserData.studentId : '';
+            showScreen('setup-container');
         }
 
         function showClassDetail(cls) {
@@ -1157,6 +1209,7 @@
                         el.style.backgroundImage = `url('${cls.image}')`;
                     }
 
+                    // เพิ่มผู้สอนเข้าไปในการ์ดโดยตรง
                     el.innerHTML = `
                         <div class="flex justify-between items-start">
                             <span class="font-bold truncate drop-shadow-md">${cls.name}</span>
@@ -1270,7 +1323,14 @@
                     
                     timeIndicator.classList.remove('hidden');
                     timeIndicator.style.left = `${leftPos}px`;
-                    timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
+                    
+                    // ให้เส้นสีแดงคลุมเฉพาะเวลาเรียนและ Row ของตัวเอง (ถ้าไม่ใช่ ก็แค่โชว์เส้นตรงแนวตั้งเฉยๆ)
+                    if (displayDays.includes(currentDay)) {
+                        const visualRow = displayDays.indexOf(currentDay) + 2;
+                        timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
+                    } else {
+                        timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
+                    }
                 }
             } else {
                 timeIndicator.classList.add('hidden');
@@ -1333,6 +1393,7 @@
 
         // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
         function generateICS() {
+            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการสอน) 
             const startDate = new Date(2026, 5, 29); 
             const endDate = new Date(2026, 9, 25); 
             const currentSecKey = currentUserData ? `sec${currentUserData.section}` : 'sec1';
@@ -1520,7 +1581,7 @@
             // Setup Listeners
             document.getElementById('auth-form').addEventListener('submit', handleStudentIdLogin);
             document.getElementById('setup-form').addEventListener('submit', saveUserProfile);
-            document.getElementById('btn-edit-profile').addEventListener('click', showSetup);
+            document.getElementById('btn-edit-profile').addEventListener('click', showSetupScreenDirectly);
             document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
             document.getElementById('view-list').addEventListener('click', () => switchView('list'));
             document.getElementById('share-schedule-btn').addEventListener('click', openShareModal);
@@ -1545,7 +1606,7 @@
             document.getElementById('btn-skip-coach').addEventListener('click', () => {
                 localStorage.setItem('hasSeenOnboarding', 'true');
                 document.getElementById('onboarding-overlay').classList.add('hidden');
-                document.getElementById('onboarding-overlay').classList.remove('flex');
+                document.getElementById('onboarding-overlay').style.display = 'none';
             });
 
             // Modals Close Logic
