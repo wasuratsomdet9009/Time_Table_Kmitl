@@ -36,116 +36,88 @@
 
         /* Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes pulseBorder { 0% { box-shadow: 0 0 0 0 rgba(245, 130, 32, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(245, 130, 32, 0); } 100% { box-shadow: 0 0 0 0 rgba(245, 130, 32, 0); } }
+        
         .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        /* Loading Overlay */
+        #global-loader {
+            position: fixed; inset: 0; background: var(--bg-soft); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Setup Form Container (Onboarding) */
+        #setup-container {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #fff7ed 0%, #f1f5f9 100%); padding: 1rem;
+        }
+
+        /* Radio Card Selection Styles */
+        .radio-card-input:checked + .radio-card-label {
+            border-color: var(--kmitl-orange); background-color: #fff7ed;
+            box-shadow: 0 4px 6px -1px rgba(245, 130, 32, 0.1), 0 2px 4px -1px rgba(245, 130, 32, 0.06);
+        }
+        .radio-card-input:checked + .radio-card-label .check-icon { opacity: 1; transform: scale(1); }
+        .radio-card-input:checked + .radio-card-label .icon-container { background-color: #ffedd5; color: #ea580c; transform: scale(1.1); }
 
         /* --- Main Grid Layout --- */
         .timetable-wrapper {
-            overflow-x: auto;
-            padding-bottom: 1rem;
-            border-radius: 1rem;
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
+            overflow-x: auto; padding-bottom: 1rem; border-radius: 1rem;
+            background: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;
         }
         .timetable-grid {
-            display: grid;
-            grid-template-columns: 60px repeat(12, minmax(90px, 1fr));
-            /* Rows set dynamically in JS */
-            gap: 1px;
-            background-color: #e2e8f0;
-            border: 1px solid #e2e8f0;
-            min-width: 1000px;
-            position: relative;
+            display: grid; grid-template-columns: 65px repeat(11, minmax(110px, 1fr));
+            gap: 1px; background-color: #e2e8f0; border: 1px solid #e2e8f0; min-width: 1200px; position: relative;
         }
         
-        .grid-header {
-            background-color: #fff7ed;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #d97706;
-        }
-        
+        .grid-header { background-color: #fff7ed; display: flex; align-items: center; justify-content: center; color: #d97706; text-align: center; }
         .grid-cell { background-color: white; transition: background-color 0.2s; }
         .grid-cell:hover { background-color: #fffaf0; }
 
         .class-block {
-            padding: 6px 8px;
-            color: white;
-            font-size: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            z-index: 1;
-            border-radius: 6px;
-            margin: 2px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            line-height: 1.3;
-            /* Prepare for gradient overlay */
-            background-blend-mode: overlay; 
+            padding: 8px 10px; color: white; font-size: 0.75rem; display: flex; flex-direction: column; justify-content: space-between;
+            overflow: hidden; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative; z-index: 1; border-radius: 8px; margin: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); line-height: 1.3;
+            background-blend-mode: overlay; background-size: cover; background-position: center;
         }
 
-        /* NEW: Black Gradient Overlay */
         .class-block::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.85) 100%);
-            z-index: 1;
-            pointer-events: none;
+            content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.95) 100%);
+            z-index: 1; pointer-events: none; border-radius: 8px;
         }
 
-        /* Ensure text is above the gradient */
-        .class-block > * {
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Add subtle text shadow for better readability */
+        .class-block > * { position: relative; z-index: 2; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .class-block:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.3); z-index: 20; }
+        
+        /* Highlight Current Class */
+        .class-block.current { 
+            border: 2px solid #fff; box-shadow: 0 0 0 3px #F58220, 0 10px 15px rgba(245, 130, 32, 0.3); z-index: 10;
+            animation: pulseBorder 2s infinite; 
         }
-
-        .class-block:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
-            z-index: 20;
-        }
-        .class-block.current {
-            border: 2px solid #fff;
-            box-shadow: 0 0 0 2px #F58220;
-            z-index: 10;
+        .class-block.current::before {
+            content: 'NOW'; position: absolute; top: 0; right: 0; background: #ef4444; color: white;
+            font-size: 0.6rem; font-weight: bold; padding: 2px 6px; border-bottom-left-radius: 8px; z-index: 5;
         }
 
         /* List View */
         .timeline-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border-left: 6px solid transparent;
-            transition: transform 0.2s;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
+            background: white; border-radius: 1rem; padding: 1.25rem; margin-bottom: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-left: 6px solid transparent; transition: transform 0.2s; display: flex; gap: 1rem; align-items: center;
         }
         .timeline-card:hover { transform: translateX(5px); border-color: var(--kmitl-orange) !important; }
 
         /* Real-time Indicator */
         #real-time-indicator {
-            position: absolute; top: 50px; bottom: 0; width: 3px;
-            background: #ef4444; z-index: 25; pointer-events: none;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-            transition: left 0.5s linear;
+            position: absolute; top: 60px; bottom: 0; width: 3px; background: #ef4444; z-index: 25; pointer-events: none;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); transition: left 0.5s linear;
         }
         #real-time-indicator::after {
-            content: 'Now'; position: absolute; top: -26px; left: 50%;
-            transform: translateX(-50%); background: #ef4444; color: white;
-            padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            content: 'เวลาปัจจุบัน'; position: absolute; top: -26px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white;
+            padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); white-space: nowrap;
         }
         #real-time-indicator::before {
             content: ''; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
@@ -154,46 +126,33 @@
 
         /* Info Cards */
         .info-card {
-            background: linear-gradient(135deg, #fff 0%, #fff7ed 100%);
-            border: 1px solid #fdba74;
-            border-radius: 1rem;
-            position: relative;
-            overflow: hidden;
+            background: linear-gradient(135deg, #fff 0%, #fff7ed 100%); border: 1px solid #fdba74; border-radius: 1rem; position: relative; overflow: hidden;
         }
         .info-card::after {
-            content: ''; position: absolute; right: -20px; top: -20px;
-            width: 80px; height: 80px; background: var(--kmitl-orange);
-            opacity: 0.1; border-radius: 50%;
+            content: ''; position: absolute; right: -20px; top: -20px; width: 80px; height: 80px; background: var(--kmitl-orange); opacity: 0.1; border-radius: 50%;
         }
 
-        /* Modals */
+        /* Modals & Overlays */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s;
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
         .modal-box {
-            background: white; width: 90%; max-width: 500px;
-            border-radius: 1.5rem; padding: 2rem;
-            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-            max-height: 85vh; overflow-y: auto;
+            background: white; width: 90%; max-width: 500px; border-radius: 1.5rem; padding: 2rem;
+            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-height: 85vh; overflow-y: auto;
         }
         .modal-overlay.visible .modal-box { transform: scale(1); }
 
+        /* Onboarding Full Overlay */
+        #onboarding-overlay { z-index: 9999; }
+
         /* Analog Clock */
         .analog-clock-container {
-            width: 100px; height: 100px; border-radius: 50%; background: white;
-            border: 4px solid #e2e8f0; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
+            width: 100px; height: 100px; border-radius: 50%; background: white; border: 4px solid #e2e8f0; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); flex-shrink: 0;
         }
         @media (max-width: 640px) {
-            .analog-clock-container {
-                width: 80px; height: 80px;
-                border-width: 3px;
-            }
+            .analog-clock-container { width: 80px; height: 80px; border-width: 3px; }
             .clock-marker { transform-origin: 50% 38px !important; } 
         }
         .clock-face { width: 100%; height: 100%; position: relative; }
@@ -205,350 +164,375 @@
         .clock-marker { position: absolute; width: 2px; height: 6px; background-color: #cbd5e1; left: 50%; top: 2px; transform-origin: 50% 48px; transform: translateX(-50%); }
         .marker-main { height: 8px; background-color: #94a3b8; width: 3px; }
 
-        /* === CAPTURE AREA STYLING (ULTRA HD) === */
-        #share-modal .modal-box {
-            max-width: 95vw; 
-            width: 100%; 
-            padding: 1.5rem;
-        }
-
-        #capture-preview-wrapper {
-            width: 100%;
-            overflow: hidden; 
-            background: #f1f5f9;
-            border-radius: 8px;
-            border: 2px dashed #cbd5e1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 200px; 
-            position: relative; 
-        }
-
-        #capture-target {
-            background: white;
-            padding: 32px; /* Increased padding for spacing */
-            /* SUPER WIDE CANVAS for HD Text */
-            width: 1400px; 
-            height: 950px; 
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transform-origin: top left; 
-            position: absolute;
-            top: 0; left: 0;
-            box-shadow: none;
-            box-sizing: border-box;
-            
-            /* Maximize Font Rendering Quality */
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-        }
-
-        #capture-target #share-grid-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            width: 100%;
-            overflow: hidden;
-            margin: 15px 0; 
-        }
-        
-        /* Capture Grid */
-        #capture-target .timetable-grid {
-            width: 100%;
-            min-width: 100%;
-            height: 100%; 
-            border: 2px solid #cbd5e1;
-            gap: 1px;
-            /* Taller rows for text breathing room */
-            grid-template-rows: 55px repeat(auto-fit, minmax(0, 1fr)) !important; 
-        }
-
-        #capture-target .timetable-wrapper {
-            width: 100%;
-            height: 100%;
-            box-shadow: none;
-            border: none;
-            background: transparent;
-            overflow: visible;
-        }
-
-        #capture-target .grid-header {
-            font-size: 1rem; /* Clear Header */
-            background-color: #fff7ed;
-            color: #d97706;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
-        
-        /* === SUPER CLEAR FONTS for Capture === */
-        #capture-target .class-block {
-            /* Big font size for clarity */
-            font-size: 0.85rem; 
-            padding: 8px 12px;
-            box-shadow: none;
-            line-height: 1.3;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            gap: 3px;
-            word-break: break-word;
-            background-blend-mode: normal; 
-        }
-
-        /* Clear Overlay */
-        #capture-target .class-block::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.25); /* Lighter overlay */
-            z-index: 1;
-        }
-
-        #capture-target .class-block > * {
-            position: relative;
-            z-index: 10;
-            text-shadow: none; /* No blur shadow */
-        }
-
-        #capture-target .class-block span.font-bold {
-            font-size: 1rem; /* Main Subject Title */
-            font-weight: 800; 
-            margin-bottom: 3px;
-            line-height: 1.2;
-            display: block;
-            white-space: normal; 
-            letter-spacing: 0.3px;
-        }
-        
-        #capture-target .class-block .text-\[10px\] {
-             font-size: 0.8rem; /* Details */
-             font-weight: 600;
-             opacity: 1;
-             color: #f8fafc;
-        }
-
-        /* === LUNCH BLOCK === */
-        #capture-target .class-block.type-break {
-            justify-content: center; 
-            align-items: center;
-            text-align: center;
-            padding-top: 0; 
-        }
-        #capture-target .class-block.type-break::after {
-            background: transparent; 
-        }
-        #capture-target .class-block.type-break span.font-bold {
-            font-size: 1.1rem !important; 
-            margin-bottom: 0;
-            color: #475569; 
-            font-weight: 800;
-        }
-        #capture-target .class-block.type-break i {
-            font-size: 1.4rem;
-            margin-bottom: 5px;
-            display: block;
-            color: #64748b;
-        }
-        #capture-target .class-block.type-break .text-\[10px\] {
-             display: none; 
-        }
-        
-        /* === Footer Styling (Robust) === */
-        #capture-footer {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 1.2rem 1.5rem; 
-            margin-top: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        #capture-footer-content {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-width: 70%; 
-        }
-        
-        #capture-footer strong {
-            font-size: 1.1rem;
-            color: #F58220;
-        }
-        
-        #capture-footer .date-list {
-            font-size: 0.9rem;
-            color: #334155;
-            margin-top: 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem; /* Wide gap */
-        }
-
-        #capture-target .class-status-overlay,
-        #capture-target #real-time-indicator {
-            display: none !important;
-        }
-
+        /* === CAPTURE AREA STYLING === */
+        #share-modal .modal-box { max-width: 95vw; width: 100%; padding: 1.5rem; }
+        #capture-preview-wrapper { width: 100%; overflow: hidden; background: #f1f5f9; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 200px; position: relative; }
+        #capture-target { background: white; padding: 32px; width: 1400px; height: 950px; display: flex; flex-direction: column; justify-content: space-between; transform-origin: top left; position: absolute; top: 0; left: 0; box-shadow: none; box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+        #capture-target #share-grid-container { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; overflow: hidden; margin: 15px 0; }
+        #capture-target .timetable-grid { width: 100%; min-width: 100%; height: 100%; border: 2px solid #cbd5e1; gap: 1px; grid-template-rows: 60px repeat(auto-fit, minmax(0, 1fr)) !important; }
+        #capture-target .timetable-wrapper { width: 100%; height: 100%; box-shadow: none; border: none; background: transparent; overflow: visible; }
+        #capture-target .grid-header { font-size: 1rem; background-color: #fff7ed; color: #d97706; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        #capture-target .class-block { font-size: 0.85rem; padding: 8px 12px; box-shadow: none; line-height: 1.3; display: flex; flex-direction: column; justify-content: flex-start; gap: 3px; word-break: break-word; background-blend-mode: normal; }
+        #capture-target .class-block::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%); z-index: 1; border-radius: 8px; }
+        #capture-target .class-status-overlay, #capture-target #real-time-indicator { display: none !important; }
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen relative">
 
-    <!-- Navbar -->
-    <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center gap-3">
-                    <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/2048px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
-                         alt="KMITL Logo" class="w-10 h-10 object-contain">
-                    <div class="leading-tight">
-                        <h1 class="font-bold text-slate-800 text-lg">ครุฯวิศวกรรมคอมพิวเตอร์ <span class="text-orange-500">Sec 2</span></h1>
-                        <p class="text-xs text-slate-500">สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg mr-1">
-                        <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
-                    </button>
-                    <button id="settings-btn" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center">
-                        <i class="fa-solid fa-gear"></i>
-                    </button>
+    <!-- Global Loader -->
+    <div id="global-loader">
+        <div class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-600 font-medium">กำลังเตรียมข้อมูลตารางเรียน...</p>
+    </div>
+
+    <!-- ONBOARDING (COACH MARK) OVERLAY -->
+    <div id="onboarding-overlay" class="modal-overlay">
+        <div class="bg-white rounded-[2rem] w-11/12 max-w-2xl overflow-hidden shadow-2xl animate-slide-up flex flex-col md:flex-row">
+            <!-- Image / Graphic Side -->
+            <div class="md:w-5/12 bg-gradient-to-br from-orange-400 to-red-500 p-8 text-white flex flex-col justify-center relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black opacity-10 rounded-full blur-2xl"></div>
+                <div class="relative z-10 text-center">
+                    <i class="fa-solid fa-wand-magic-sparkles text-6xl mb-4 drop-shadow-md"></i>
+                    <h2 class="text-2xl font-bold mb-2">ยินดีต้อนรับ!</h2>
+                    <p class="text-sm opacity-90">คู่มือสั้นๆ เพื่อให้คุณใช้งาน KMITL Smart Schedule ได้อย่างเต็มประสิทธิภาพ</p>
                 </div>
             </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
-        <!-- Top Section -->
-        <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
-            <div class="flex items-center gap-5 w-full lg:w-auto justify-start">
-                <div class="analog-clock-container">
-                    <div class="clock-face" id="analog-clock">
-                        <div class="clock-center"></div>
-                        <div class="clock-hand hand-hour" id="hand-hour"></div>
-                        <div class="clock-hand hand-minute" id="hand-minute"></div>
-                        <div class="clock-hand hand-second" id="hand-second"></div>
+            <!-- Content Side -->
+            <div class="md:w-7/12 p-8 bg-slate-50 flex flex-col justify-center">
+                <div class="space-y-5 mb-8">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-orange-500 shrink-0"><i class="fa-solid fa-table-cells"></i></div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">รายละเอียดวิชาครบถ้วน</h4>
+                            <p class="text-xs text-slate-500 mt-1">คลิกที่รายวิชาบนตารางเพื่อดูชื่ออาจารย์ ห้องเรียน และคำอธิบายเนื้อหารายวิชาแบบละเอียด</p>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded">ปีการศึกษา 2568</span>
-                        <p id="current-date" class="text-slate-500 text-sm font-medium"></p>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-blue-500 shrink-0"><i class="fa-brands fa-apple"></i></div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">ซิงค์ลงปฏิทิน (Sync Calendar)</h4>
+                            <p class="text-xs text-slate-500 mt-1">กดปุ่ม Sync เพื่อส่งออกตารางเรียนและวันสอบอัตโนมัติไปยัง Apple Calendar หรือ Google Calendar</p>
+                        </div>
                     </div>
-                    <div class="flex items-baseline gap-2">
-                        <h2 id="clock-time" class="text-5xl font-bold text-slate-800 tracking-tight font-mono">--:--</h2>
-                        <span id="clock-sec" class="text-2xl text-orange-500 font-medium font-mono">--</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                <button id="export-calendar-main-btn" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:border-orange-300 hover:text-orange-600 transition-all group">
-                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors">
-                        <i class="fa-brands fa-google"></i>
-                    </div>
-                    <div class="text-left">
-                        <p class="text-[10px] text-slate-400 font-medium leading-none">Add to</p>
-                        <p class="text-sm font-bold leading-tight">Calendar</p>
-                    </div>
-                </button>
-
-                <div class="flex bg-slate-100 p-1 rounded-xl">
-                    <button id="view-grid" class="px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">ตาราง</span>
-                    </button>
-                    <button id="view-list" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-list-ul"></i> <span class="hidden sm:inline">รายวัน</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Info Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
-                <div class="relative z-10">
-                    <p class="text-slate-400 text-xs mb-1 uppercase tracking-wider">Current Status</p>
-                    <div id="status-container">
-                        <p class="text-lg font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังโหลด...</p>
-                    </div>
-                </div>
-                <div class="absolute right-0 bottom-0 opacity-10 text-9xl text-white transform translate-x-4 translate-y-4">
-                    <i class="fa-solid fa-clock"></i>
-                </div>
-            </div>
-            <div class="info-card p-4 col-span-1">
-                <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <i class="fa-regular fa-calendar-days text-orange-500"></i> กำหนดการ เทอม 2/2568
-                </h3>
-                <div class="space-y-2 text-xs">
-                    <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">เปิดภาคเรียน</span><span class="font-semibold text-green-600">24 พ.ย. 68</span></div>
-                    <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">สอบกลางภาค</span><span class="font-semibold text-orange-600">19-25 ม.ค. 69</span></div>
-                    <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">สอบปลายภาค</span><span class="font-semibold text-red-500">16-27 มี.ค. 69</span></div>
-                    <div class="flex justify-between items-center"><span class="text-slate-500">ปิดภาคเรียน</span><span class="font-semibold text-slate-800">28 มี.ค. 69</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Timetable Content -->
-        <div id="main-container" class="animate-fade-in">
-            <div id="grid-view" class="timetable-wrapper">
-                <div id="timetable-grid" class="timetable-grid">
-                    <div id="real-time-indicator" class="hidden"></div>
-                </div>
-            </div>
-            <div id="list-view" class="hidden max-w-3xl mx-auto"></div>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                <div>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 bg-orange-500 rounded text-white flex items-center justify-center font-bold text-xl">K</div>
-                        <h3 class="text-lg font-bold">วิศวกรรมคอมพิวเตอร์</h3>
-                    </div>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        ตารางเรียนภาคการศึกษาที่ 2 ปีการศึกษา 2568<br>
-                        สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
-                    </p>
-                </div>
-                <div class="text-sm">
-                    <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Quick Links</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="https://reg.kmitl.ac.th" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-globe text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
-                        <li><a href="https://classroom.google.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-chalkboard-user text-orange-500 mr-2"></i>Google Classroom</a></li>
-                        <li><a href="https://teams.microsoft.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-brands fa-microsoft text-orange-500 mr-2"></i>Microsoft Teams</a></li>
-                        <li><a href="https://reg.kmitl.ac.th/education/exam_schedule" target="_blank" class="hover:text-white transition-colors"><i class="fa-regular fa-calendar-check text-orange-500 mr-2"></i>ตารางสอบ</a></li>
-                    </ul>
-                </div>
-                <div class="text-sm">
-                    <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Developer</h4>
-                    <div class="flex flex-col space-y-2 text-gray-400">
-                        <p>จัดทำโดย: นศ. ปริญญาตรี Section 2</p>
-                        <div class="flex space-x-4 mt-2">
-                            <a href="https://github.com/wasuratsomdet9009" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><i class="fa-brands fa-github"></i></a>
-                            <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
-                            <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center text-green-500 shrink-0"><i class="fa-solid fa-bell-concierge"></i></div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">ติดตามเวลาเรียนแบบ Real-time</h4>
+                            <p class="text-xs text-slate-500 mt-1">ระบบมีเส้นสีแดงบอกเวลาปัจจุบัน และกล่องวิชาที่กำลังเรียนจะกระพริบ เพื่อไม่ให้คุณพลาดคลาสสำคัญ</p>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
-                &copy; 2025 KMITL Computer Engineering Student. All rights reserved.
+                <button id="btn-close-onboarding" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:bg-orange-500 hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1">
+                    เริ่มต้นใช้งานเลย
+                </button>
             </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- 1. ONBOARDING SETUP FORM -->
+    <div id="setup-container" class="hidden">
+        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-3xl animate-fade-in border border-slate-100">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 text-orange-500 text-2xl">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">ตั้งค่าตารางเรียนของคุณ</h2>
+                <p class="text-slate-500 text-sm mt-1">ครุฯวิศวกรรมคอมพิวเตอร์ ภาคเรียนที่ 1/2569</p>
+            </div>
+
+            <form id="setup-form" class="space-y-6">
+                <!-- ข้อมูลส่วนตัว & Section Selection -->
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-astronaut text-orange-500"></i> โปรไฟล์นักศึกษา</h3>
+                    
+                    <div class="mb-5">
+                        <label class="block text-sm font-bold text-slate-600 mb-2">รหัสนักศึกษา (8 หลัก)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa-solid fa-id-card text-slate-400"></i>
+                            </div>
+                            <input type="text" id="input-student-id" required pattern="[0-9]{8}" maxlength="8" placeholder="เช่น 69030001" 
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-lg tracking-wider font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-600 mb-2">เลือก Section ของคุณ</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="section_choice" value="1" class="peer sr-only radio-card-input" checked>
+                                <div class="radio-card-label p-4 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-all flex flex-col items-center text-center group">
+                                    <div class="icon-container w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3 transition-all duration-300">
+                                        <i class="fa-solid fa-laptop-code text-xl"></i>
+                                    </div>
+                                    <span class="font-bold text-slate-800 text-lg mb-1">Section 1</span>
+                                    <span class="text-xs text-slate-500 font-medium">กลุ่ม 1-2, 5-6</span>
+                                    <i class="fa-solid fa-circle-check text-orange-500 absolute top-3 right-3 opacity-0 transform scale-50 transition-all check-icon text-lg"></i>
+                                </div>
+                            </label>
+                            
+                            <label class="relative cursor-pointer">
+                                <input type="radio" name="section_choice" value="2" class="peer sr-only radio-card-input">
+                                <div class="radio-card-label p-4 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-all flex flex-col items-center text-center group">
+                                    <div class="icon-container w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3 transition-all duration-300">
+                                        <i class="fa-solid fa-server text-xl"></i>
+                                    </div>
+                                    <span class="font-bold text-slate-800 text-lg mb-1">Section 2</span>
+                                    <span class="text-xs text-slate-500 font-medium">กลุ่ม 3-4, 7-8</span>
+                                    <i class="fa-solid fa-circle-check text-orange-500 absolute top-3 right-3 opacity-0 transform scale-50 transition-all check-icon text-lg"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- เลือกวิชาภาษาอังกฤษ -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-language text-blue-500"></i> วิชาบังคับคณะ</h3>
+                    <p class="text-xs text-slate-500 mb-3 font-medium">90641009 INTERCULTURAL COMMUNICATION SKILLS IN ENGLISH 1 (จันทร์ 13:00-16:00)</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="english_choice" value="yes" class="peer sr-only radio-card-input" checked>
+                            <div class="radio-card-label p-3 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check text-orange-500 opacity-0 transform scale-50 transition-all check-icon"></i>
+                                <span class="font-bold text-slate-700">เรียนวิชานี้</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="english_choice" value="no" class="peer sr-only radio-card-input">
+                            <div class="radio-card-label p-3 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-check text-orange-500 opacity-0 transform scale-50 transition-all check-icon"></i>
+                                <span class="font-bold text-slate-700">ไม่เรียน</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- เลือกวิชาเสรี -->
+                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100">
+                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-book-open text-green-500"></i> หมวดวิชาเลือกเสรี</h3>
+                    <label class="block text-sm font-bold text-slate-600 mb-2">เลือกวิชา (เฉพาะวันจันทร์ช่วงเช้า)</label>
+                    <select id="input-elective" class="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all bg-white text-sm font-medium">
+                        <option value="none">-- ไม่เลือกลงวิชาเสรี --</option>
+                        <!-- รายวิชาเสรีจะถูกเพิ่มที่นี่ผ่าน JavaScript -->
+                    </select>
+                </div>
+
+                <button type="submit" id="btn-save-profile" class="w-full py-4 bg-slate-800 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-orange-500 hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-magic"></i> สร้างตารางเรียนของฉัน
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN APP -->
+    <div id="app-container" class="hidden flex-col flex-grow">
+        <!-- Navbar -->
+        <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center gap-3">
+                        <img src="https://upload.wikimedia.org/wikipedia/th/thumb/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg/2048px-Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg.png" 
+                             alt="KMITL Logo" class="w-10 h-10 object-contain">
+                        <div class="leading-tight">
+                            <h1 class="font-bold text-slate-800 text-lg">ครุฯวิศวกรรมคอมพิวเตอร์ <span id="display-sec" class="text-orange-500">Sec -</span></h1>
+                            <p class="text-[10px] sm:text-xs text-slate-500">รหัสนักศึกษา: <span id="display-student-id" class="font-medium text-slate-700">--------</span></p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-edit-profile" class="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors mr-1" title="แก้ไขข้อมูล">
+                            <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">แก้ไข</span>
+                        </button>
+                        <button id="share-schedule-btn" class="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-md hover:shadow-lg mr-1">
+                            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">บันทึกรูปตาราง</span>
+                        </button>
+                        <button id="settings-btn" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full">
+            <!-- Top Section -->
+            <div class="flex flex-col lg:flex-row justify-between items-center lg:items-end mb-6 gap-6">
+                <div class="flex items-center gap-5 w-full lg:w-auto justify-start">
+                    <div class="analog-clock-container">
+                        <div class="clock-face" id="analog-clock">
+                            <div class="clock-center"></div>
+                            <div class="clock-hand hand-hour" id="hand-hour"></div>
+                            <div class="clock-hand hand-minute" id="hand-minute"></div>
+                            <div class="clock-hand hand-second" id="hand-second"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded">ปีการศึกษา 2569</span>
+                            <p id="current-date" class="text-slate-500 text-sm font-medium"></p>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <h2 id="clock-time" class="text-5xl font-bold text-slate-800 tracking-tight font-mono">--:--</h2>
+                            <span id="clock-sec" class="text-2xl text-orange-500 font-medium font-mono">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                    <button id="export-calendar-main-btn" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white border border-slate-200 text-slate-700 rounded-xl shadow-sm hover:border-orange-300 hover:text-orange-600 transition-all group">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-orange-500 transition-colors">
+                            <i class="fa-brands fa-google"></i> <i class="fa-brands fa-apple"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-[10px] text-slate-400 font-medium leading-none">Sync with</p>
+                            <p class="text-sm font-bold leading-tight">Calendar</p>
+                        </div>
+                    </button>
+
+                    <div class="flex bg-slate-100 p-1 rounded-xl">
+                        <button id="view-grid" class="px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells"></i> <span class="hidden sm:inline">ตาราง</span>
+                        </button>
+                        <button id="view-list" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-list-ul"></i> <span class="hidden sm:inline">รายวัน</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Cards (Updated from Academic Calendar Term 1/2569) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="col-span-1 md:col-span-2 bg-slate-900 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-slate-400 text-xs mb-1 uppercase tracking-wider">Current Status</p>
+                        <div id="status-container">
+                            <p class="text-lg font-semibold"><i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังโหลด...</p>
+                        </div>
+                    </div>
+                    <div class="absolute right-0 bottom-0 opacity-10 text-9xl text-white transform translate-x-4 translate-y-4">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+                <div class="info-card p-4 col-span-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i class="fa-regular fa-calendar-days text-orange-500"></i> กำหนดการ เทอม 1/2569
+                        </h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">เปิดภาคเรียน</span><span class="font-semibold text-green-600">29 มิ.ย. 69</span></div>
+                            <div class="flex justify-between items-center pb-2 border-b border-orange-100"><span class="text-slate-500">ปิดภาคเรียน</span><span class="font-semibold text-slate-800">7 พ.ย. 69</span></div>
+                        </div>
+                    </div>
+                    <!-- ปุ่มเปิดตารางสอบ -->
+                    <button id="btn-view-exams" class="mt-3 w-full py-2 bg-orange-500/10 text-orange-600 hover:bg-orange-500 hover:text-white rounded-lg text-xs font-bold transition-colors">
+                        <i class="fa-solid fa-file-pen mr-1"></i> ดูตารางสอบกลางภาค/ปลายภาค
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timetable Content -->
+            <div id="main-container" class="animate-fade-in">
+                <div id="grid-view" class="timetable-wrapper">
+                    <div id="timetable-grid" class="timetable-grid">
+                        <div id="real-time-indicator" class="hidden"></div>
+                    </div>
+                </div>
+                <div id="list-view" class="hidden max-w-3xl mx-auto"></div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-[#1a1a1a] text-white pt-10 pb-6 mt-10 border-t-4 border-orange-500">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 bg-orange-500 rounded text-white flex items-center justify-center font-bold text-xl">K</div>
+                            <h3 class="text-lg font-bold">วิศวกรรมคอมพิวเตอร์</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            ตารางเรียนภาคการศึกษาที่ 1 ปีการศึกษา 2569<br>
+                            สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง
+                        </p>
+                    </div>
+                    <div class="text-sm">
+                        <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Quick Links</h4>
+                        <ul class="space-y-2 text-gray-400">
+                            <li><a href="https://reg.kmitl.ac.th" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-globe text-orange-500 mr-2"></i>reg.kmitl.ac.th</a></li>
+                            <li><a href="https://classroom.google.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-solid fa-chalkboard-user text-orange-500 mr-2"></i>Google Classroom</a></li>
+                            <li><a href="https://teams.microsoft.com" target="_blank" class="hover:text-white transition-colors"><i class="fa-brands fa-microsoft text-orange-500 mr-2"></i>Microsoft Teams</a></li>
+                            <li><a href="https://reg.kmitl.ac.th/education/exam_schedule" target="_blank" class="hover:text-white transition-colors"><i class="fa-regular fa-calendar-check text-orange-500 mr-2"></i>ตารางสอบ</a></li>
+                        </ul>
+                    </div>
+                    <div class="text-sm">
+                        <h4 class="font-bold text-orange-500 mb-4 uppercase tracking-wider">Developer</h4>
+                        <div class="flex flex-col space-y-2 text-gray-400">
+                            <p>จัดทำโดย: นศ. ปริญญาตรี Section 1 & 2</p>
+                            <div class="flex space-x-4 mt-2">
+                                <a href="https://github.com/wasuratsomdet9009" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-orange-500 hover:text-white transition-all"><i class="fa-brands fa-github"></i></a>
+                                <a href="https://www.instagram.com/raiwa_gu_wasurat/" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-pink-600 hover:text-white transition-all"><i class="fa-brands fa-instagram"></i></a>
+                                <a href="https://www.linkedin.com/in/wasurat-somdet-b0a444336/" target="_blank" class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-800 pt-6 text-center text-xs text-gray-500">
+                    &copy; 2026 KMITL Computer Engineering Student. All rights reserved.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Exam Schedule Modal -->
+    <div id="exam-modal" class="modal-overlay">
+        <div class="modal-box p-0 overflow-hidden">
+            <div class="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-file-signature text-orange-500 mr-2"></i>ตารางสอบ 1/2569</h3>
+                <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-orange-500 text-white px-4 py-2 font-bold text-sm">สอบกลางภาค (Midterm)</div>
+                    <div class="p-4 bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center">
+                                <span class="text-xs">ส.ค.</span>
+                                <span class="font-bold">17</span>
+                            </div>
+                            <div class="text-slate-500"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex flex-col justify-center items-center">
+                                <span class="text-xs">ส.ค.</span>
+                                <span class="font-bold">23</span>
+                            </div>
+                            <div class="ml-4 text-sm font-medium text-slate-700">จันทร์ 17 ส.ค. 2569<br><span class="text-xs text-slate-500">ถึง อาทิตย์ 23 ส.ค. 2569</span></div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-3">*ไม่เว้นวันเสาร์และอาทิตย์ (ยกเว้นวันหยุดนักขัตฤกษ์และชดเชย)</p>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                    <div class="bg-red-500 text-white px-4 py-2 font-bold text-sm">สอบปลายภาค (Final)</div>
+                    <div class="p-4 bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center">
+                                <span class="text-xs">ต.ค.</span>
+                                <span class="font-bold">26</span>
+                            </div>
+                            <div class="text-slate-500"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex flex-col justify-center items-center">
+                                <span class="text-xs">พ.ย.</span>
+                                <span class="font-bold">06</span>
+                            </div>
+                            <div class="ml-4 text-sm font-medium text-slate-700">จันทร์ 26 ต.ค. 2569<br><span class="text-xs text-slate-500">ถึง ศุกร์ 6 พ.ย. 2569</span></div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-3">*เว้นวันหยุดนักขัตฤกษ์ และวันหยุดชดเชย</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Share Modal -->
     <div id="share-modal" class="modal-overlay">
@@ -578,13 +562,13 @@
                                      alt="KMITL Seal" class="h-24 w-24 object-contain">
                                 <div>
                                     <h2 class="text-3xl font-bold text-slate-800">ตารางเรียนวิศวกรรมคอมพิวเตอร์</h2>
-                                    <p class="text-xl text-slate-600 mt-1">ภาคการศึกษาที่ 2/2568 (Section 2)</p>
+                                    <p class="text-xl text-slate-600 mt-1">ภาคการศึกษาที่ 1/2569 (<span id="capture-sec-display">Section -</span>)</p>
                                 </div>
                             </div>
                             <div class="text-right flex items-center gap-4">
                                 <div>
                                     <p id="share-display-name" class="text-2xl font-bold text-orange-600">My Schedule</p>
-                                    <p class="text-base text-slate-400">KMITL Smart Schedule</p>
+                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">--------</span></p>
                                 </div>
                             </div>
                         </div>
@@ -597,9 +581,9 @@
                             <div id="capture-footer-content">
                                 <strong class="text-orange-500 text-lg block mb-1" style="font-size: 1.1rem;">กำหนดการสำคัญ:</strong>
                                 <div class="flex flex-wrap gap-x-8 gap-y-1 text-base font-medium text-slate-700 mt-1 date-list">
-                                    <span class="flex items-center whitespace-nowrap"><i class="fa-regular fa-calendar-check mr-2 text-orange-500"></i> เปิดเทอม: 24 พ.ย. 68</span>
-                                    <span class="flex items-center whitespace-nowrap"><i class="fa-solid fa-pencil mr-2 text-orange-500"></i> สอบกลางภาค: 19-25 ม.ค. 69</span>
-                                    <span class="flex items-center whitespace-nowrap"><i class="fa-solid fa-file-pen mr-2 text-orange-500"></i> สอบปลายภาค: 16-27 มี.ค. 69</span>
+                                    <span class="flex items-center whitespace-nowrap"><i class="fa-regular fa-calendar-check mr-2 text-orange-500"></i> เปิดเทอม: 29 มิ.ย. 69</span>
+                                    <span class="flex items-center whitespace-nowrap"><i class="fa-solid fa-pencil mr-2 text-orange-500"></i> สอบกลางภาค: 17 ส.ค. - 23 ส.ค. 69</span>
+                                    <span class="flex items-center whitespace-nowrap"><i class="fa-solid fa-file-pen mr-2 text-orange-500"></i> สอบปลายภาค: 26 ต.ค. - 6 พ.ย. 69</span>
                                 </div>
                             </div>
                             
@@ -632,10 +616,17 @@
     <div id="settings-modal" class="modal-overlay">
         <div class="modal-box">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-orange-500 mr-2"></i>ตั้งค่า</h3>
+                <h3 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-sliders text-orange-500 mr-2"></i>ตั้งค่าและการเชื่อมต่อ</h3>
                 <button class="modal-close text-slate-400 hover:text-red-500 text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="space-y-4">
+                
+                <!-- แสดงสถานะ Online/Offline -->
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <span class="text-sm font-medium text-slate-700">สถานะเครือข่าย</span>
+                    <span id="network-status" class="px-2 py-1 rounded text-xs font-bold bg-green-100 text-green-600">Online</span>
+                </div>
+
                  <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <span class="text-sm font-medium text-slate-700">เตือนก่อนเรียน 15 นาที</span>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -643,9 +634,19 @@
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
                     </label>
                 </div>
+                
+                <!-- ปุ่มเชื่อมกับ Github สำหรับนักพัฒนา -->
+                <a href="https://github.com/wasuratsomdet9009/time_table_kmitl" target="_blank" class="w-full mt-2 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-github text-lg"></i> For Dev (ร่วมกันพัฒนาโค้ด)
+                </a>
+
+                <!-- ปุ่ม Logout และล้างข้อมูล -->
+                <button id="btn-logout" class="w-full mt-2 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบและล้างข้อมูล
+                </button>
             </div>
             <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400">Version 3.5 (Max Clarity)</p>
+                <p class="text-xs text-slate-400">Version 7.0 (Details & Network Status)</p>
             </div>
         </div>
     </div>
@@ -653,237 +654,316 @@
     <!-- Class Detail Modal -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-box p-0 overflow-hidden">
-            <div id="modal-header-bg" class="h-32 bg-cover bg-center relative">
-                <div class="absolute inset-0 bg-black/40"></div>
+            <div id="modal-header-bg" class="h-32 bg-cover bg-center relative bg-slate-800">
+                <div class="absolute inset-0 bg-black/50"></div>
                 <button class="modal-close absolute top-4 right-4 text-white hover:text-orange-500 text-2xl transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
                 <div class="absolute bottom-4 left-6 text-white z-10">
-                    <span id="modal-code" class="bg-orange-500 text-xs font-bold px-2 py-1 rounded mb-1 inline-block">CODE</span>
-                    <h3 id="modal-title" class="text-xl font-bold leading-tight">Course Name</h3>
+                    <span id="modal-code" class="bg-orange-500 text-xs font-bold px-2 py-1 rounded mb-1 inline-block shadow">CODE</span>
+                    <h3 id="modal-title" class="text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
                 </div>
             </div>
             <div class="p-6">
-                <div class="flex items-center gap-4 text-sm text-slate-600 mb-4 border-b border-slate-100 pb-4">
+                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600 mb-4 border-b border-slate-100 pb-4">
                     <div class="flex items-center gap-2"><i class="fa-regular fa-clock text-orange-500"></i> <span id="modal-time">Time</span></div>
                     <div class="flex items-center gap-2"><i class="fa-solid fa-location-dot text-orange-500"></i> <span id="modal-room-tag">Room</span></div>
                 </div>
                 
                 <div class="space-y-4">
                     <div>
-                        <h4 class="text-sm font-bold text-slate-800 mb-1">ตึกที่เรียน</h4>
-                        <p id="modal-instructor" class="text-sm text-slate-600">Building Name</p>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-chalkboard-user text-orange-500 mr-1"></i> อาจารย์ผู้สอน</h4>
+                        <p id="modal-instructor" class="text-sm text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">Instructor Name</p>
                     </div>
                     <div>
-                        <h4 class="text-sm font-bold text-slate-800 mb-1">รายละเอียดวิชา</h4>
-                        <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed">Description...</p>
-                    </div>
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-800 mb-1">หัวข้อที่เรียน</h4>
-                        <ul id="modal-topics" class="list-disc list-inside text-sm text-slate-600 marker:text-orange-500">
-                            <!-- Topics injected here -->
-                        </ul>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1"><i class="fa-solid fa-circle-info text-orange-500 mr-1"></i> รายละเอียดวิชา</h4>
+                        <p id="modal-desc" class="text-sm text-slate-600 leading-relaxed text-justify bg-slate-50 p-3 rounded-lg border border-slate-100">ข้อมูลการเรียนการสอน</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // --- Data ---
-        const rawSchedule = [
-             { day: 1, start: '09:00', end: '12:00', name: 'THAI LANGUAGE FOR CREATIVITY', code: 'GE-Thai', section: '901 (n)', room: 'D-401', instructor: 'อาคารพระเทพฯ', color: '#0d9488', description: 'การใช้ภาษาไทยเพื่อการสร้างสรรค์ การสื่อสารและการนำเสนออย่างมีศิลปะ', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973&auto=format&fit=crop', topics: ['การเขียนเชิงสร้างสรรค์', 'วาทศิลป์', 'การนำเสนอผลงาน'] },
-             { day: 2, start: '09:00', end: '11:00', name: 'TEAM-PROJECT 1', code: 'TP-001', section: '304 (U)', room: 'IE2205', instructor: 'ครุศาสตร์ฯ (IE)', color: '#e11d48', description: 'การทำงานเป็นทีม การจัดการโครงการเบื้องต้น และการแก้ปัญหาร่วมกัน', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop', topics: ['Team Building', 'Project Management', 'Problem Solving'] },
-             { day: 2, start: '13:00', end: '17:00', name: 'COMPUTER NETWORKS', code: 'IE3312', section: '3(n), 4(U)', room: 'IE3312', instructor: 'ครุศาสตร์ฯ (IE)', color: '#0284c7', description: 'หลักการสื่อสารข้อมูล เครือข่ายคอมพิวเตอร์ โปรโตคอล', image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop', topics: ['OSI Model', 'TCP/IP', 'Routing & Switching'] },
-             { day: 3, start: '13:00', end: '16:00', name: 'DIGITAL CITIZEN', code: 'GE-Digi', section: '301 (n)', room: 'D-504', instructor: 'อาคารพระเทพฯ', color: '#4f46e5', description: 'การเป็นพลเมืองดิจิทัล ความฉลาดทางดิจิทัล', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop', topics: ['Digital Literacy', 'Cyber Security', 'PDPA'] },
-             { day: 4, start: '08:00', end: '12:00', name: 'SOFTWARE DESIGN AND DEV 1', code: 'IE 1601', section: '3(n), 4(U)', room: 'IE 1601', instructor: 'อาคารนวัตกรรมฯ', color: '#c026d3', description: 'พื้นฐานวิศวกรรมซอฟต์แวร์ การวิเคราะห์และการออกแบบระบบ', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2070&auto=format&fit=crop', topics: ['SDLC', 'UML', 'Software Architecture'] },
-             { day: 4, start: '13:00', end: '17:00', name: 'DIGITAL DEVICES & CIRCUITS', code: 'IE2212', section: '3(n), 4(U)', room: 'IE2212', instructor: 'ครุศาสตร์ฯ (IE)', color: '#db2777', description: 'วงจรดิจิทัลพื้นฐาน ลอจิกเกต ระบบตัวเลข', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop', topics: ['Logic Gates', 'Boolean Algebra', 'Circuits'] },
-             { day: 5, start: '08:00', end: '12:00', name: 'LANGUAGE FOR COMMUNICATION', code: 'IE1304', section: '7(n), 8(U)', room: 'IE1304', instructor: 'อาคารนวัตกรรมฯ', color: '#65a30d', description: 'ทักษะการสื่อสารสำหรับครู การพูดในที่สาธารณะ', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=2070&auto=format&fit=crop', topics: ['Public Speaking', 'Communication Skills'] },
-             { day: 5, start: '13:00', end: '17:00', name: 'TECH INNOVATION FOR LEARNING', code: 'IE1301', section: '7(n), 8(U)', room: 'IE1301', instructor: 'อาคารนวัตกรรมฯ', color: '#ca8a04', description: 'นวัตกรรมและเทคโนโลยีเพื่อการเรียนรู้ สื่อการสอนสมัยใหม่', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2028&auto=format&fit=crop', topics: ['EdTech', 'AI in Education', 'Multimedia'] }
+    <!-- Firebase SDK Imports & Application Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 1. DATA CONFIGURATION (FULL DESCRIPTIONS INCLUDED)
+        // ==========================================
+
+        const electivesData = [
+            { code: '90642033', name: 'LAW FOR NEW GENERATION', room: 'D-109', inst: 'ผศ. ดร. ใยแก้ว', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=400&auto=format&fit=crop', description: 'ศึกษากฎหมายและวิเคราะห์ข้อเท็จจริงที่เกิดขึ้นในสังคม บทบาทหน้าที่และสิทธิเสรีภาพในการแสดงความคิดเห็นในที่สาธารณะ การดูหมิ่นหรือหมิ่นประมาทผู้อื่น การใช้สื่อสังคมออนไลน์ภายใต้กรอบของกฎหมาย' },
+            { code: '90642038', name: 'OCCUPATIONAL SAFETY AND HEALTH', room: 'D-509', inst: 'ดร. ชัยวัฒน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1541888081695-dd7f3b4975db?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้และตระหนักถึงการควบคุมอันตรายในสถานที่ทำงานซึ่งประกอบไปด้วย สารเคมี การควบคุมมลภาวะทางเสียงและการได้ยิน ความร้อนและการแผ่รังสี' },
+            { code: '90642061', name: 'WORLD OF INSECTS', room: 'D-510', inst: 'ดร. จรงค์ศักดิ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534044577884-25bfeb1c11a5?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหลากหลายทางชีวภาพ แมลง วิวัฒนาการ ผลกระทบ รวมถึงประสบการณ์ด้านแมลง โบราณคดี นิติวิทยาศาสตร์ และเทคโนโลยีหุ่นยนต์แบบจำลองแมลง' },
+            { code: '90642063', name: 'HOLISTIC HEALTH DEVELOPMENT', room: 'D-110', inst: 'ดร. วรัญญา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความสำคัญของการรักษาสุขภาพกายและสุขภาพจิต องค์ประกอบของการพัฒนาสุขภาพที่ดี ปัจจัยที่มีผลต่อการปรับตัวเพื่อการอยู่ร่วมกับผู้อื่น' },
+            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ทฤษฎี)', room: 'C-103', inst: 'อ. ณรัฐ, รศ.ดร.รวิภัทร', start: '08:00', end: '10:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาหลักเกณฑ์การถ่ายภาพเพื่อให้เห็นความงามของภาพที่ถ่าย การใช้อุปกรณ์และเทคนิคต่างๆ การวิจารณ์รูปถ่าย' },
+            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ปฏิบัติ)', room: 'C-103', inst: 'อ. ณรัฐ, รศ.ดร.รวิภัทร', start: '10:00', end: '12:00', color: '#059669', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ปฏิบัติการใช้อุปกรณ์และเทคนิคต่างๆ ในกระบวนการถ่ายภาพเพื่อให้ได้รูปถ่ายที่มีคุณค่า' },
+            { code: '90642116', name: 'SMART CITY AND CITY INNOVATION', room: 'D-501', inst: 'รศ. ดร. ประพัทธ์พงษ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้แนวคิด การวางผัง ออกแบบและบริหารจัดการเมืองอัจฉริยะ รวมทั้งฝึกทักษะการออกแบบและพัฒนานวัตกรรมเมืองอย่างยั่งยืน' },
+            { code: '90642137', name: 'SERIES IN DAILY LIFE', room: 'D-305', inst: 'อ. วิภาดา, รศ.ดร.รวิภัทร', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเนื้อหา แนวคิด และคุณธรรมจริยธรรมที่สะท้อนผ่านเรื่องราวของละครชุดไทยและต่างประเทศ การประยุกต์ใช้ประโยชน์จากสื่อละครในชีวิตประจำวัน' },
+            { code: '90642138', name: 'MEDITATION FOR LIFE DEV', room: 'C-101', inst: 'ศ. ดร. สุนีรัตน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมาย จุดประสงค์ ขั้นตอนการทำสมาธิ ลักษณะของการบริกรรม การนำสมาธิไปใช้ในชีวิตประจำวัน การเรียนและการงาน' },
+            { code: '90642142', name: 'PSYCHOLOGY IN COMMUNICATION', room: 'D-401', inst: 'ดร. บุณฑริก', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้ทักษะในการสื่อสารอย่างมีประสิทธิภาพ ความเข้าใจและการนำเอาความรู้ด้านจิตวิทยามาปรับปรุงกระบวนการสื่อสารให้สัมฤทธิ์ผล' },
+            { code: '90642152', name: 'JOY OF SHARING', room: 'D-503', inst: 'อ. ชัยฤทธิ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาองค์ประกอบของจิตอาสา ความหมาย ประโยชน์ การทำงานร่วมกับชุมชน การจัดการปัญหาสาธารณะและเสริมสร้างคุณภาพชุมชน' },
+            { code: '90642153', name: 'UNDERSTANDING HUMAN BEHAVIOR', room: 'D-403', inst: 'อ. วัฒนชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้พื้นฐานพฤติกรรมทางชีววิทยา ความคิด แรงจูงใจ อารมณ์ ทฤษฎีจิตวิเคราะห์ ทฤษฎีการเรียนรู้ และพฤติกรรมบำบัด' },
+            { code: '90642156', name: 'FENG SHUI (ฮวงจุ้ย)', room: 'ไม่ระบุ', inst: 'อ. ธาตรี, อ. ปรามุข', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1526685816914-1e0e564bd7ea?q=80&w=400&auto=format&fit=crop', description: 'ศึกษา ความหมาย และหลักการของฮวงจุ้ย ที่สามารถนำมาประยุกต์ใช้ในชีวิตประจำวัน หรือนำไปประยุกต์ใช้กับการอยู่ร่วมกับผู้อื่นอย่างมีความสุข' },
+            { code: '90642168', name: 'TOPICS IN MEDICINAL PLANTS', room: 'D-511', inst: 'ผศ.ดร. วิรามศรี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=400&auto=format&fit=crop', description: 'พืชสมุนไพรเพื่อสุขภาพและความงาม การตลาด การผลิตสมุนไพร การแปรรูปผลิตภัณฑ์อย่างง่าย อาหารและเครื่องดื่มจากพืชสมุนไพร' },
+            { code: '90642208', name: 'FROM DEV TO THE MOON', room: 'ไม่ระบุ', inst: 'อ. ณัฏฐ์กฤศ', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400&auto=format&fit=crop', description: 'โครงสร้างการทำงานในบริษัทผู้พัฒนาโปรแกรม การวิเคราะห์ต้นทุน การเขียนโค้ด อัลกอริทึม การจัดระเบียบ การสื่อสารภายในบริษัท' },
+            { code: '90642217', name: 'DESIGN THINKING FOR SUSTAINABILITY', room: 'C-104', inst: 'อ. จิรภัทร์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop', description: 'กระบวนการคิดเชิงออกแบบเพื่อนำไปสู่การแก้ปัญหาที่ยั่งยืน วิเคราะห์ปัญหาอย่างเป็นระบบ การพัฒนาต้นแบบเพื่อทดสอบแนวคิด เชื่อมโยงกับ SDGs' },
+            { code: '90643012', name: 'TEAMWORK', room: 'D-504', inst: 'ดร. สุรชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมายของการสร้างทีมงาน แผนการสื่อสารในทีม การเป็นผู้นำและผู้ตามที่ดี การบริหารความขัดแย้งในทีม ทักษะสร้างทีมที่มีประสิทธิผล' },
+            { code: '90643020', name: 'INNOVATIVE ENTREPRENEURS', room: 'D-402', inst: 'อ. สุพรรณี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400&auto=format&fit=crop', description: 'แนวคิดเกี่ยวกับการเป็นผู้ประกอบการเชิงสร้างสรรค์ ใช้เทคโนโลยีและนวัตกรรมเป็นเครื่องมือสู่การเป็นผู้ประกอบการที่มีทักษะเชิงประยุกต์' },
+            { code: '90643026', name: 'INVESTMENT PLANNING', room: 'D-411', inst: 'อ. ภาณุวัฒน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาประเภทของการลงทุน ทฤษฎีการเงินที่ใช้เพื่อการลงทุน การบริหารความเสี่ยง หลักการวิเคราะห์และการคำนวณหาความคุ้มค่าในการลงทุน' }
         ];
 
-        // Calculate Active Days (Include Mon-Fri by default, check Sat-Sun)
-        const activeDaySet = new Set(rawSchedule.map(s => s.day));
-        const standardWeek = [1, 2, 3, 4, 5];
-        // Only add Sat (6) or Sun (0) if they exist in raw data
-        const weekendDays = Array.from(activeDaySet).filter(d => d === 0 || d === 6);
-        const displayDays = [...new Set([...standardWeek, ...weekendDays])].sort((a,b) => a-b);
+        const baseScheduleConfig = {
+            sec1: [
+                { day: 2, start: '08:00', end: '12:00', name: 'MEASUREMENT AND EVALUATION', code: '03206111', room: 'IE1308', instructor: 'ดร. น้ำเพชร นาสารีย์', color: '#0d9488', description: 'หลักการ แนวคิดและแนวปฏิบัติในการวัดและประเมินผลการเรียนรู้ จุดประสงค์การเรียนรู้ การออกแบบทดสอบ การประเมินตามสภาพจริง การให้คะแนนเพื่อพัฒนาผู้เรียน', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop' },
+                { day: 2, start: '13:00', end: '17:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ, รศ.ดร. อมรชัย', color: '#4f46e5', description: 'ศึกษาและปฏิบัติการสร้างสื่อดิจิตอลเพื่อการเรียนรู้ ประเภทสไลด์ประกอบการสอน วิดีทัศน์ นำเสนอข้อมูลที่เหมาะสม และการสร้างสื่อด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '08:00', end: '12:00', name: 'SOFTWARE DESIGN AND DEV 2', code: '03376124', room: 'IE3311', instructor: 'ผศ.ดร. ไพบูลย์, ผศ. สุระชัย', color: '#db2777', description: 'การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดตามการพัฒนาโปรแกรมเชิงวัตถุ การพัฒนาโปรแกรมเชิงคอมโพเนนต์ การควบคุมเวอร์ชัน และ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '13:00', end: '17:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ, ผศ. อำพล', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
+                { day: 5, start: '13:00', end: '17:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล, อ. ปิยะ', color: '#0284c7', description: 'สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล การเขียนโปรแกรม การนำเฟิร์มแวร์เข้าสู่ไมโครคอนโทรลเลอร์ และประยุกต์ใช้ในโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
+            ],
+            sec2: [
+                { day: 2, start: '13:00', end: '17:00', name: 'MEASUREMENT AND EVALUATION', code: '03206111', room: 'IE1308', instructor: 'ดร. น้ำเพชร นาสารีย์', color: '#0d9488', description: 'หลักการ แนวคิดและแนวปฏิบัติในการวัดและประเมินผลการเรียนรู้ จุดประสงค์การเรียนรู้ การออกแบบทดสอบ การประเมินตามสภาพจริง การให้คะแนนเพื่อพัฒนาผู้เรียน', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop' },
+                { day: 2, start: '08:00', end: '12:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ, รศ.ดร. อมรชัย', color: '#4f46e5', description: 'ศึกษาและปฏิบัติการสร้างสื่อดิจิตอลเพื่อการเรียนรู้ ประเภทสไลด์ประกอบการสอน วิดีทัศน์ นำเสนอข้อมูลที่เหมาะสม และการสร้างสื่อด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN AND DEV 2', code: '03376124', room: 'IE3311', instructor: 'ผศ.ดร. ไพบูลย์, ผศ. สุระชัย', color: '#db2777', description: 'การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดตามการพัฒนาโปรแกรมเชิงวัตถุ การพัฒนาโปรแกรมเชิงคอมโพเนนต์ การควบคุมเวอร์ชัน และ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
+                { day: 4, start: '08:00', end: '12:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ, ผศ. อำพล', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
+                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล, อ. ปิยะ', color: '#0284c7', description: 'สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล การเขียนโปรแกรม การนำเฟิร์มแวร์เข้าสู่ไมโครคอนโทรลเลอร์ และประยุกต์ใช้ในโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
+            ]
+        };
 
-        const schedule = [...rawSchedule];
-        // Add lunch for displayed weekdays
-        displayDays.forEach(d => {
-             if (d >= 1 && d <= 5) {
-                 schedule.push({ day: d, start: '12:00', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#e2e8f0', room: 'โรงอาหาร', code: 'LUNCH', image: '', description: 'พักผ่อนตามอัธยาศัย' });
-             }
-        });
+        const englishClass = {
+            day: 1, start: '13:00', end: '16:00', name: 'INTERCULTURAL COMM. SKILLS IN ENGLISH 1', code: '90641009', room: 'รอประกาศ', instructor: 'คณะศิลปศาสตร์', color: '#3b82f6', description: 'การพัฒนาความสามารถในการสื่อสารระหว่างวัฒนธรรมผ่านการฝึกฝนทักษะการสื่อสารภาษาอังกฤษ ฟัง อ่าน เขียน และการแสดงความคิดเห็น', image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=400&auto=format&fit=crop'
+        };
 
+        let schedule = [];
+        let displayDays = [1, 2, 3, 4, 5];
+        let currentUserData = null;
+        
         const daysTH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
-        const startHour = 7;
+        const startHour = 7; // คาบแรกเริ่มนับที่ 07:00
         const endHour = 18;
 
-        const gridView = document.getElementById('grid-view');
-        const listView = document.getElementById('list-view');
-        const timeIndicator = document.getElementById('real-time-indicator');
-        const settingsModal = document.getElementById('settings-modal');
-        const classModal = document.getElementById('class-modal');
-        const shareModal = document.getElementById('share-modal');
+        // ==========================================
+        // 2. FIREBASE INITIALIZATION (RULES APPLIED)
+        // ==========================================
+        // ใช้ Config จากผู้ใช้แทน __firebase_config เพื่อให้ทำงานได้บนโปรเจกต์ของผู้ใช้จริง
+        const firebaseConfigUser = {
+          apiKey: "AIzaSyCp5LCR0h0DPp5cm-kBYXOWuYuzal5fKyI",
+          authDomain: "time-table-kmitl.firebaseapp.com",
+          projectId: "time-table-kmitl",
+          storageBucket: "time-table-kmitl.firebasestorage.app",
+          messagingSenderId: "718090840750",
+          appId: "1:718090840750:web:8f5a2182e856c49bd8db3f",
+          measurementId: "G-XB0B6LJ34P"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kmitl-schedule-app';
+        let app, auth, db, user;
 
-        function init() {
-            renderGrid();
-            renderList();
-            initAnalogClock(); 
-            updateClock();
-            setInterval(updateClock, 1000);
+        async function initFirebase() {
+            try {
+                // พยายามใช้ config ของ user ที่กำหนดมาให้
+                app = initializeApp(firebaseConfigUser);
+            } catch(e) {
+                console.error("Firebase init fallback");
+                app = initializeApp({ projectId: "demo-project" });
+            }
             
-            const safeAddListener = (id, event, handler) => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener(event, handler);
-            };
-
-            safeAddListener('view-grid', 'click', () => switchView('grid'));
-            safeAddListener('view-list', 'click', () => switchView('list'));
-            safeAddListener('settings-btn', 'click', () => openModal(settingsModal));
-            safeAddListener('share-schedule-btn', 'click', openShareModal);
-            
-            safeAddListener('export-calendar-main-btn', 'click', generateICS);
-            
-            document.querySelectorAll('.modal-close').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    closeModal(e.target.closest('.modal-overlay'));
-                });
-            });
-            document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                overlay.addEventListener('click', (e) => {
-                    if (e.target === overlay) closeModal(overlay);
-                });
-            });
-
-            safeAddListener('share-name-input', 'input', (e) => {
-                const val = e.target.value;
-                document.getElementById('share-display-name').textContent = val ? val : 'My Schedule';
-            });
-            safeAddListener('do-download-btn', 'click', () => captureSchedule('download'));
-            safeAddListener('do-share-btn', 'click', () => captureSchedule('share'));
-
-            switchView('grid');
-        }
-
-        function openShareModal() {
-            const mainGrid = document.getElementById('timetable-grid');
-            const previewContainer = document.getElementById('share-grid-container');
-            previewContainer.innerHTML = ''; 
-            
-            const clone = mainGrid.cloneNode(true);
-            const indicator = clone.querySelector('#real-time-indicator');
-            if(indicator) indicator.remove();
-            
-            clone.style.height = '100%';
-            clone.style.minWidth = '100%';
-            clone.style.overflow = 'visible';
-            
-            // Clone doesn't copy dynamic grid-template-rows from JS style attribute perfectly sometimes
-            // Re-apply dynamic rows logic to clone
-            clone.style.gridTemplateRows = `50px repeat(${displayDays.length}, 1fr)`;
-
-            previewContainer.appendChild(clone);
-            
-            fitPreviewToWrapper();
-            window.addEventListener('resize', fitPreviewToWrapper); 
-            
-            openModal(shareModal);
-        }
-
-        function fitPreviewToWrapper() {
-            const wrapper = document.getElementById('capture-preview-wrapper');
-            const target = document.getElementById('capture-target');
-            if(!wrapper || !target) return;
-
-            const wrapperWidth = wrapper.offsetWidth;
-            const targetWidth = 1400; // Match CSS width
-            
-            let scale = Math.min(wrapperWidth / targetWidth, 1);
-            // Subtle padding
-            scale = scale * 0.96; 
-
-            target.style.transform = `scale(${scale})`;
-            // Update height wrapper to match scaled content + padding
-            wrapper.style.height = `${(950 * scale) + 20}px`; 
-        }
-
-        async function captureSchedule(action) {
-            const originalTarget = document.getElementById('capture-target');
-            const btn = action === 'download' ? document.getElementById('do-download-btn') : document.getElementById('do-share-btn');
-            
-            const originalText = btn.innerHTML;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...`;
-            btn.disabled = true;
-
-            // Create a clone to capture off-screen/overlay without UI constraints
-            const clone = originalTarget.cloneNode(true);
-            
-            // Setup container for the clone
-            const container = document.createElement('div');
-            container.style.position = 'fixed';
-            container.style.top = '0';
-            container.style.left = '0';
-            container.style.width = '1400px'; // Force full width
-            container.style.height = '950px'; // Force full height
-            container.style.zIndex = '-9999'; // Hide behind
-            container.style.overflow = 'visible'; // Ensure no clipping
-            container.style.transform = 'none'; // No pre-scaling
-            
-            // Reset clone styles just in case
-            clone.style.transform = 'scale(1)';
-            clone.style.transformOrigin = 'top left';
-            clone.style.width = '100%';
-            clone.style.height = '100%';
-            clone.style.boxShadow = 'none'; // Remove shadow for clean capture
-            
-            container.appendChild(clone);
-            document.body.appendChild(container);
+            auth = getAuth(app);
+            db = getFirestore(app);
 
             try {
-                // Capture
-                const canvas = await html2canvas(clone, {
-                    scale: 3, 
-                    useCORS: true,
-                    width: 1400,
-                    height: 950,
-                    windowWidth: 1400,
-                    windowHeight: 950,
-                    scrollX: 0,
-                    scrollY: 0,
-                    backgroundColor: '#ffffff'
-                });
-                
-                if (action === 'download') {
-                    const link = document.createElement('a');
-                    link.download = 'my-kmitl-schedule.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                } else if (action === 'share') {
-                    canvas.toBlob(async (blob) => {
-                        const file = new File([blob], "schedule.png", { type: "image/png" });
-                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                            try {
-                                await navigator.share({
-                                    files: [file],
-                                    title: 'ตารางเรียนของฉัน',
-                                    text: 'นี่คือตารางเรียนวิศวะคอมพิวเตอร์ของฉัน'
-                                });
-                            } catch (err) {
-                                if (err.name !== 'AbortError') alert("เกิดข้อผิดพลาดในการแชร์");
-                            }
-                        } else {
-                            alert("อุปกรณ์ของคุณไม่รองรับการแชร์ไฟล์โดยตรง กรุณาใช้ปุ่มบันทึกรูปภาพแทน");
-                        }
-                    });
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
-            } catch (err) {
-                console.error(err);
-                alert("เกิดข้อผิดพลาดในการสร้างรูปภาพ");
+            } catch (error) {
+                console.error("Auth error:", error);
+            }
+
+            onAuthStateChanged(auth, (currentUser) => {
+                if(currentUser) {
+                    user = currentUser;
+                    loadUserProfile();
+                }
+            });
+        }
+
+        // ==========================================
+        // 3. LOGIC & RENDER FUNCTIONS
+        // ==========================================
+        
+        function updateNetworkStatus() {
+            const statusEl = document.getElementById('network-status');
+            if(navigator.onLine) {
+                statusEl.textContent = 'Online (เชื่อมต่อแล้ว)';
+                statusEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600 border border-green-200';
+            } else {
+                statusEl.textContent = 'Offline (ขาดการเชื่อมต่อ)';
+                statusEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600 border border-red-200';
+            }
+        }
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        function populateElectivesDropdown() {
+            const select = document.getElementById('input-elective');
+            electivesData.forEach((el, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${el.code} ${el.name} (${el.start}-${el.end})`;
+                select.appendChild(option);
+            });
+        }
+
+        async function loadUserProfile() {
+            if(!user) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    currentUserData = docSnap.data();
+                    buildAndRenderSchedule();
+                    showApp();
+                } else {
+                    showSetup();
+                }
+            } catch (error) {
+                console.error("Error loading profile:", error);
+                showSetup();
             } finally {
-                document.body.removeChild(container);
-                btn.innerHTML = originalText;
+                document.getElementById('global-loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('global-loader').style.display = 'none', 500);
+            }
+        }
+
+        async function saveUserProfile(e) {
+            e.preventDefault();
+            if(!user) return;
+
+            const btn = document.getElementById('btn-save-profile');
+            const ogText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const studentId = document.getElementById('input-student-id').value;
+            const section = document.querySelector('input[name="section_choice"]:checked').value;
+            const englishChoice = document.querySelector('input[name="english_choice"]:checked').value;
+            const electiveIndex = document.getElementById('input-elective').value;
+
+            const profileData = {
+                studentId,
+                section,
+                wantsEnglish: englishChoice === 'yes',
+                electiveIndex: electiveIndex !== 'none' ? parseInt(electiveIndex) : null,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
+                await setDoc(docRef, profileData);
+                
+                currentUserData = profileData;
+                buildAndRenderSchedule();
+                showApp();
+            } catch (error) {
+                console.error("Error saving profile:", error);
+                alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่");
+            } finally {
+                btn.innerHTML = ogText;
                 btn.disabled = false;
+            }
+        }
+
+        async function logoutAndClearData() {
+            if(confirm('ต้องการออกจากระบบและลบข้อมูลการตั้งค่าของคุณใช่หรือไม่?')) {
+                if(user) {
+                    try {
+                        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
+                        await deleteDoc(docRef);
+                    } catch(e) { console.error("Could not delete doc", e); }
+                }
+                currentUserData = null;
+                localStorage.removeItem('hasSeenOnboarding');
+                closeModal(document.getElementById('settings-modal'));
+                showSetup();
+            }
+        }
+
+        function checkOnboarding() {
+            if (!localStorage.getItem('hasSeenOnboarding')) {
+                document.getElementById('onboarding-overlay').classList.remove('hidden');
+                document.getElementById('onboarding-overlay').classList.add('visible');
+            }
+        }
+
+        function buildAndRenderSchedule() {
+            if(!currentUserData) return;
+
+            document.getElementById('display-student-id').textContent = currentUserData.studentId;
+            document.getElementById('display-sec').textContent = `Sec ${currentUserData.section}`;
+
+            schedule = [...baseScheduleConfig[`sec${currentUserData.section}`]];
+
+            [1, 2, 3, 4, 5].forEach(d => {
+                schedule.push({ day: d, start: '12:00', end: '13:00', name: 'พักกลางวัน', type: 'break', color: '#e2e8f0', room: 'โรงอาหาร', code: 'LUNCH', description: 'พักผ่อนตามอัธยาศัย', instructor: '-', image: '' });
+            });
+
+            if(currentUserData.wantsEnglish) {
+                schedule.push(englishClass);
+            }
+
+            if(currentUserData.electiveIndex !== null) {
+                const el = electivesData[currentUserData.electiveIndex];
+                schedule.push({
+                    day: 1,
+                    start: el.start, end: el.end,
+                    name: el.name, code: el.code, room: el.room, instructor: el.inst,
+                    color: el.color, description: el.description, image: el.image
+                });
+            }
+
+            renderGrid();
+            renderList();
+        }
+
+        function showSetup() {
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('flex');
+            document.getElementById('setup-container').classList.remove('hidden');
+            document.getElementById('setup-container').classList.add('flex');
+            
+            if(currentUserData) {
+                document.getElementById('input-student-id').value = currentUserData.studentId;
+                document.querySelector(`input[name="section_choice"][value="${currentUserData.section}"]`).checked = true;
+                document.querySelector(`input[name="english_choice"][value="${currentUserData.wantsEnglish ? 'yes' : 'no'}"]`).checked = true;
+                document.getElementById('input-elective').value = currentUserData.electiveIndex !== null ? currentUserData.electiveIndex : 'none';
+            }
+        }
+
+        function showApp() {
+            document.getElementById('setup-container').classList.add('hidden');
+            document.getElementById('setup-container').classList.remove('flex');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('app-container').classList.add('flex');
+            checkOnboarding();
+        }
+
+        function switchView(view) {
+            const grid = document.getElementById('grid-view');
+            const list = document.getElementById('list-view');
+            const btnGrid = document.getElementById('view-grid');
+            const btnList = document.getElementById('view-list');
+            
+            if (view === 'grid') {
+                grid.classList.remove('hidden'); list.classList.add('hidden');
+                btnGrid.classList.replace('bg-white', 'bg-orange-500'); btnGrid.classList.replace('text-orange-600', 'text-white');
+                btnList.classList.replace('bg-orange-500', 'bg-white'); btnList.classList.remove('text-white');
+            } else {
+                grid.classList.add('hidden'); list.classList.remove('hidden');
+                btnList.classList.add('bg-orange-500', 'text-white');
+                btnGrid.classList.replace('bg-orange-500', 'bg-white'); btnGrid.classList.replace('text-white', 'text-orange-600');
             }
         }
 
@@ -892,65 +972,25 @@
             return h * 60 + m;
         }
 
-        function switchView(view) {
-            const btnGrid = document.getElementById('view-grid');
-            const btnList = document.getElementById('view-list');
-            
-            if (view === 'grid') {
-                gridView.classList.remove('hidden');
-                listView.classList.add('hidden');
-                btnGrid.classList.replace('bg-white', 'bg-orange-500');
-                btnGrid.classList.replace('text-orange-600', 'text-white');
-                btnList.classList.replace('bg-orange-500', 'bg-white');
-                btnList.classList.remove('text-white');
-            } else {
-                gridView.classList.add('hidden');
-                listView.classList.remove('hidden');
-                btnList.classList.add('bg-orange-500', 'text-white');
-                btnGrid.classList.replace('bg-orange-500', 'bg-white');
-                btnGrid.classList.replace('text-white', 'text-orange-600');
-            }
-        }
-
-        function openModal(modal) {
-            modal.classList.add('visible');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(modal) {
-            modal.classList.remove('visible');
-            document.body.style.overflow = 'auto';
-            if(modal.id === 'share-modal') {
-                window.removeEventListener('resize', fitPreviewToWrapper);
-            }
-        }
-
         function showClassDetail(cls) {
             if (cls.type === 'break') return;
-            
-            const titleEl = document.getElementById('modal-title');
-            if (!titleEl) return; // Safety check
-            
-            titleEl.textContent = cls.name;
+            document.getElementById('modal-title').textContent = cls.name;
             document.getElementById('modal-code').textContent = cls.code;
             document.getElementById('modal-time').textContent = `${cls.start} - ${cls.end} (${daysTH[cls.day]})`;
             document.getElementById('modal-room-tag').textContent = cls.room;
             document.getElementById('modal-instructor').textContent = cls.instructor;
-            document.getElementById('modal-desc').textContent = cls.description;
+            document.getElementById('modal-desc').textContent = cls.description || '-';
             
             const bg = document.getElementById('modal-header-bg');
-            bg.style.backgroundImage = `url('${cls.image}')`;
-            
-            const topicsList = document.getElementById('modal-topics');
-            topicsList.innerHTML = '';
-            if (cls.topics) {
-                cls.topics.forEach(t => {
-                    const li = document.createElement('li');
-                    li.textContent = t;
-                    topicsList.appendChild(li);
-                });
+            if(cls.image) {
+                bg.style.backgroundImage = `url('${cls.image}')`;
+            } else {
+                bg.style.backgroundImage = 'none';
             }
-            openModal(classModal);
+            
+            const modal = document.getElementById('class-modal');
+            modal.classList.add('visible');
+            document.body.style.overflow = 'hidden';
         }
 
         function renderGrid() {
@@ -959,13 +999,14 @@
                 if (c.id !== 'real-time-indicator') grid.removeChild(c);
             });
 
-            // Dynamic Rows for Main View
-            grid.style.gridTemplateRows = `50px repeat(${displayDays.length}, minmax(110px, auto))`;
+            grid.style.gridTemplateRows = `60px repeat(${displayDays.length}, minmax(110px, auto))`;
 
-            for (let h = startHour; h <= endHour; h++) {
+            // แก้ไขส่วนหัวของเวลา (ช่วงเวลาและคาบที่)
+            for (let h = startHour; h < endHour; h++) {
                 const div = document.createElement('div');
-                div.className = 'grid-header sticky top-0 z-20 bg-[#fff7ed] border-b border-orange-200';
-                div.textContent = `${String(h).padStart(2, '0')}:00`;
+                div.className = 'grid-header sticky top-0 z-20 bg-[#fff7ed] border-b border-orange-200 flex flex-col justify-center py-1 leading-tight';
+                div.innerHTML = `<span class="text-[0.8rem] font-bold">${String(h).padStart(2, '0')}:00-${String(h+1).padStart(2, '0')}:00</span>
+                                 <span class="text-[0.6rem] text-slate-500 mt-0.5">คาบที่ ${h - startHour + 1}</span>`;
                 div.style.gridRow = 1;
                 div.style.gridColumn = h - startHour + 2;
                 grid.appendChild(div);
@@ -980,7 +1021,7 @@
                 dayHeader.style.gridColumn = 1;
                 grid.appendChild(dayHeader);
 
-                for (let col = 2; col <= (endHour - startHour + 2); col++) {
+                for (let col = 2; col <= (endHour - startHour + 1); col++) {
                     const cell = document.createElement('div');
                     cell.className = 'grid-cell';
                     cell.style.gridRow = row;
@@ -1004,22 +1045,20 @@
                     el.style.gridRow = visualRowIndex;
                     el.style.gridColumn = `${startCol} / ${endCol}`;
                     el.style.backgroundColor = cls.type === 'break' ? '#cbd5e1' : cls.color;
-                    
-                    if (cls.type !== 'break') {
-                        el.style.backgroundImage = `linear-gradient(to right, ${cls.color}dd, ${cls.color}99), url(${cls.image})`;
-                        el.style.backgroundSize = 'cover';
+
+                    if (cls.type !== 'break' && cls.image) {
+                        el.style.backgroundImage = `url('${cls.image}')`;
                     }
 
-                    const timeRange = `${cls.start} - ${cls.end}`;
-                    
+                    // เพิ่มผู้สอนเข้าไปในการ์ดโดยตรง
                     el.innerHTML = `
                         <div class="flex justify-between items-start">
-                            <span class="font-bold truncate">${cls.name}</span>
+                            <span class="font-bold truncate drop-shadow-md">${cls.name}</span>
                             ${cls.type === 'break' ? '<i class="fa-solid fa-utensils text-xs opacity-70"></i>' : ''}
                         </div>
-                        <div class="text-[10px] opacity-90 mt-0.5 font-medium">${timeRange}</div>
+                        <div class="text-[10px] opacity-90 mt-0.5 font-medium drop-shadow-sm line-clamp-1">${cls.start} - ${cls.end} | ${cls.instructor}</div>
                         <div class="flex justify-between items-end mt-auto pt-1">
-                            <span class="bg-black/20 px-1.5 rounded text-[10px] backdrop-blur-md border border-white/20 shadow-sm">${cls.room}</span>
+                            <span class="bg-black/40 px-1.5 rounded text-[10px] backdrop-blur-md border border-white/20 shadow-sm">${cls.room}</span>
                         </div>
                     `;
                     
@@ -1066,6 +1105,7 @@
                         </div>
                         <div class="flex-grow py-1">
                             <h4 class="font-bold text-slate-800 ${cls.type === 'break' ? 'text-slate-400' : ''} line-clamp-1">${cls.name}</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5"><i class="fa-solid fa-chalkboard-user mr-1"></i> ${cls.instructor}</p>
                             <div class="flex flex-wrap gap-2 mt-2">
                                 <span class="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500"><i class="fa-solid fa-location-dot mr-1"></i>${cls.room}</span>
                                 ${cls.type !== 'break' ? `<span class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded border border-orange-100">${cls.code}</span>` : ''}
@@ -1078,6 +1118,9 @@
             });
         }
 
+        // ==========================================
+        // 4. CLOCK & CAPTURE & EXPORT
+        // ==========================================
         function initAnalogClock() {
             const clockFace = document.getElementById('analog-clock');
             for (let i = 0; i < 12; i++) {
@@ -1109,30 +1152,34 @@
 
             const currentMin = now.getHours() * 60 + now.getMinutes();
             const currentDay = now.getDay();
+            const timeIndicator = document.getElementById('real-time-indicator');
             
             if (currentMin >= startHour * 60 && currentMin <= endHour * 60) {
                 const gridEl = document.getElementById('timetable-grid');
-                const headerWidth = 60; 
-                const totalWidth = gridEl.scrollWidth - headerWidth;
-                const percent = (currentMin - (startHour * 60)) / ((endHour - startHour) * 60);
-                const leftPos = headerWidth + (totalWidth * percent);
-                
-                timeIndicator.classList.remove('hidden');
-                timeIndicator.style.left = `${leftPos}px`;
-                
-                if (displayDays.includes(currentDay)) {
-                    const visualRow = displayDays.indexOf(currentDay) + 2;
-                    timeIndicator.style.gridRow = `${visualRow} / ${visualRow + 1}`;
-                } else {
-                    timeIndicator.classList.add('hidden');
+                if(gridEl) {
+                    const headerWidth = 65; 
+                    const totalWidth = gridEl.scrollWidth - headerWidth;
+                    const percent = (currentMin - (startHour * 60)) / ((endHour - startHour) * 60);
+                    const leftPos = headerWidth + (totalWidth * percent);
+                    
+                    timeIndicator.classList.remove('hidden');
+                    timeIndicator.style.left = `${leftPos}px`;
+                    
+                    // ให้เส้นสีแดงคลุมเฉพาะเวลาเรียนและ Row ของตัวเอง (ถ้าไม่ใช่ ก็แค่โชว์เส้นตรงแนวตั้งเฉยๆ)
+                    if (displayDays.includes(currentDay)) {
+                        const visualRow = displayDays.indexOf(currentDay) + 2;
+                        timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
+                    } else {
+                        timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
+                    }
                 }
             } else {
                 timeIndicator.classList.add('hidden');
             }
 
-            // Semester Dates Logic
-            const semesterStart = new Date(2025, 10, 24); 
-            const semesterEnd = new Date(2026, 2, 28);   
+            // Academic Calendar 1/2569 (June 29, 2026 - Nov 7, 2026)
+            const semesterStart = new Date(2026, 5, 29); // June 29 (เดือนเริ่มจาก 0)
+            const semesterEnd = new Date(2026, 10, 7);   // Nov 7 
             const isSemesterActive = now >= semesterStart && now <= semesterEnd;
             const statusDiv = document.getElementById('status-container');
 
@@ -1140,7 +1187,7 @@
                  if (now < semesterStart) {
                      statusDiv.innerHTML = `
                         <p class="text-xl font-bold text-orange-500"><i class="fa-solid fa-hourglass-start mr-2"></i>ยังไม่เปิดภาคเรียน</p>
-                        <p class="text-xs text-slate-300 mt-1 opacity-80">เปิดภาคเรียนวันที่ 24 พ.ย. 68</p>
+                        <p class="text-xs text-slate-300 mt-1 opacity-80">เปิดภาคเรียนวันที่ 29 มิ.ย. 69</p>
                      `;
                  } else {
                      statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-500"><i class="fa-solid fa-school-lock mr-2"></i>ปิดภาคเรียนแล้ว</p>`;
@@ -1185,63 +1232,199 @@
             });
         }
 
+        // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
         function generateICS() {
-            const startDate = new Date(2025, 10, 24);
-            const endDate = new Date(2026, 2, 15);
-            let icsContent = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//KMITL//CE Schedule 2568//TH","CALSCALE:GREGORIAN","METHOD:PUBLISH"];
-            const fmtDate = (date, timeStr) => {
-                const [h, m] = timeStr.split(':');
-                const y = date.getFullYear();
-                const mo = String(date.getMonth() + 1).padStart(2, '0');
-                const d = String(date.getDate()).padStart(2, '0');
-                return `${y}${mo}${d}T${h}${m}00`;
+            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการสอน) 
+            const startDate = new Date(2026, 5, 29); 
+            const endDate = new Date(2026, 9, 25); 
+            
+            let icsContent = [
+                "BEGIN:VCALENDAR",
+                "VERSION:2.0",
+                "PRODID:-//KMITL//CE Smart Schedule//TH",
+                "CALSCALE:GREGORIAN",
+                "METHOD:PUBLISH"
+            ];
+            
+            const formatUTC = (date, timeStr) => {
+                const newDate = new Date(date);
+                if (timeStr) {
+                    const [h, m] = timeStr.split(':').map(Number);
+                    newDate.setHours(h, m, 0, 0);
+                }
+                return newDate.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
             };
 
             let loopDate = new Date(startDate);
             while (loopDate <= endDate) {
-                const dayOfWeek = loopDate.getDay();
-                const classesToday = rawSchedule.filter(c => c.day === dayOfWeek);
-                classesToday.forEach(cls => {
-                    icsContent.push("BEGIN:VEVENT");
-                    icsContent.push(`UID:${cls.code}-${loopDate.getTime()}@kmitl.ac.th`);
-                    icsContent.push(`DTSTAMP:${fmtDate(new Date(), '00:00')}`);
-                    icsContent.push(`DTSTART:${fmtDate(loopDate, cls.start)}`);
-                    icsContent.push(`DTEND:${fmtDate(loopDate, cls.end)}`);
-                    icsContent.push(`SUMMARY:${cls.name}`);
-                    icsContent.push(`DESCRIPTION:${cls.code} - ${cls.description} | Instructor: ${cls.instructor}`);
-                    icsContent.push(`LOCATION:${cls.room}`);
-                    icsContent.push("STATUS:CONFIRMED");
-                    icsContent.push("END:VEVENT");
+                schedule.filter(c => c.day === loopDate.getDay() && c.type !== 'break').forEach(cls => {
+                    icsContent.push(
+                        "BEGIN:VEVENT",
+                        `UID:cls-${cls.code}-${loopDate.getTime()}@kmitl.ac.th`,
+                        `DTSTAMP:${formatUTC(new Date())}`,
+                        `DTSTART:${formatUTC(loopDate, cls.start)}`,
+                        `DTEND:${formatUTC(loopDate, cls.end)}`,
+                        `SUMMARY:${cls.name} (${cls.code})`,
+                        `DESCRIPTION:${cls.description} \\n\\nผู้สอน: ${cls.instructor} \\nห้องเรียน: ${cls.room}`,
+                        `LOCATION:${cls.room}`,
+                        "STATUS:CONFIRMED",
+                        "END:VEVENT"
+                    );
                 });
                 loopDate.setDate(loopDate.getDate() + 1);
             }
-            
-            icsContent.push("BEGIN:VEVENT");
-            icsContent.push(`UID:MIDTERM-2568@kmitl.ac.th`);
-            icsContent.push(`DTSTART;VALUE=DATE:20260119`);
-            icsContent.push(`DTEND;VALUE=DATE:20260126`);
-            icsContent.push(`SUMMARY:สอบกลางภาค (Midterm Exam)`);
-            icsContent.push("END:VEVENT");
 
-            icsContent.push("BEGIN:VEVENT");
-            icsContent.push(`UID:FINAL-2568@kmitl.ac.th`);
-            icsContent.push(`DTSTART;VALUE=DATE:20260316`);
-            icsContent.push(`DTEND;VALUE=DATE:20260328`);
-            icsContent.push(`SUMMARY:สอบปลายภาค (Final Exam)`);
-            icsContent.push("END:VEVENT");
+            // เพิ่มตารางสอบกลางภาค 1/2569 (17 ส.ค. - 23 ส.ค. 2569)
+            icsContent.push(
+                "BEGIN:VEVENT",
+                "UID:midterm-1-2569@kmitl.ac.th",
+                `DTSTAMP:${formatUTC(new Date())}`,
+                `DTSTART;VALUE=DATE:20260817`,
+                `DTEND;VALUE=DATE:20260824`, // Exclusive end date
+                "SUMMARY:สอบกลางภาค (Midterm Exam) 1/2569",
+                "DESCRIPTION:ช่วงเวลาการสอบกลางภาคตามประกาศปฏิทินการศึกษา",
+                "END:VEVENT"
+            );
+
+            // เพิ่มตารางสอบปลายภาค 1/2569 (26 ต.ค. - 6 พ.ย. 2569)
+            icsContent.push(
+                "BEGIN:VEVENT",
+                "UID:final-1-2569@kmitl.ac.th",
+                `DTSTAMP:${formatUTC(new Date())}`,
+                `DTSTART;VALUE=DATE:20261026`,
+                `DTEND;VALUE=DATE:20261107`, // Exclusive end date
+                "SUMMARY:สอบปลายภาค (Final Exam) 1/2569",
+                "DESCRIPTION:ช่วงเวลาการสอบปลายภาคตามประกาศปฏิทินการศึกษา",
+                "END:VEVENT"
+            );
 
             icsContent.push("END:VCALENDAR");
 
             const blob = new Blob([icsContent.join("\r\n")], { type: 'text/calendar;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.setAttribute('download', 'KMITL_Schedule_2568_2.ics');
+            const link = document.createElement('a'); link.href = window.URL.createObjectURL(blob);
+            link.setAttribute('download', 'KMITL_Smart_Schedule_1_2569.ics'); 
             document.body.appendChild(link);
-            link.click();
+            link.click(); 
             document.body.removeChild(link);
         }
 
-        init();
+        // --- Modals & Captures ---
+        function openModal(modal) {
+            modal.classList.add('visible');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.classList.remove('visible');
+            document.body.style.overflow = 'auto';
+            if(modal.id === 'share-modal') window.removeEventListener('resize', fitPreviewToWrapper);
+        }
+
+        function openShareModal() {
+            const mainGrid = document.getElementById('timetable-grid');
+            const previewContainer = document.getElementById('share-grid-container');
+            previewContainer.innerHTML = ''; 
+            
+            const clone = mainGrid.cloneNode(true);
+            const indicator = clone.querySelector('#real-time-indicator');
+            if(indicator) indicator.remove();
+            
+            clone.style.height = '100%'; clone.style.minWidth = '100%'; clone.style.overflow = 'visible';
+            clone.style.gridTemplateRows = `60px repeat(${displayDays.length}, 1fr)`;
+
+            previewContainer.appendChild(clone);
+            
+            document.getElementById('capture-sec-display').textContent = `Section ${currentUserData ? currentUserData.section : '-'}`;
+            document.getElementById('capture-id-display').textContent = currentUserData ? currentUserData.studentId : '--------';
+
+            fitPreviewToWrapper();
+            window.addEventListener('resize', fitPreviewToWrapper); 
+            openModal(document.getElementById('share-modal'));
+        }
+
+        function fitPreviewToWrapper() {
+            const wrapper = document.getElementById('capture-preview-wrapper');
+            const target = document.getElementById('capture-target');
+            if(!wrapper || !target) return;
+            let scale = Math.min(wrapper.offsetWidth / 1400, 1) * 0.96; 
+            target.style.transform = `scale(${scale})`;
+            wrapper.style.height = `${(950 * scale) + 20}px`; 
+        }
+
+        async function captureSchedule(action) {
+            const target = document.getElementById('capture-target');
+            const btn = action === 'download' ? document.getElementById('do-download-btn') : document.getElementById('do-share-btn');
+            
+            const ogText = btn.innerHTML;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...`;
+            btn.disabled = true;
+
+            const clone = target.cloneNode(true);
+            const container = document.createElement('div');
+            container.style.cssText = 'position:fixed;top:0;left:0;width:1400px;height:950px;z-index:-9999;overflow:visible;transform:none;';
+            clone.style.cssText = 'transform:scale(1);transform-origin:top left;width:100%;height:100%;box-shadow:none;';
+            container.appendChild(clone); document.body.appendChild(container);
+
+            try {
+                const canvas = await html2canvas(clone, { scale: 3, useCORS: true, width: 1400, height: 950, scrollX: 0, scrollY: 0, backgroundColor: '#ffffff' });
+                if (action === 'download') {
+                    const link = document.createElement('a'); link.download = 'my-schedule.png';
+                    link.href = canvas.toDataURL('image/png'); link.click();
+                } else {
+                    canvas.toBlob(async (blob) => {
+                        const file = new File([blob], "schedule.png", { type: "image/png" });
+                        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                            try { await navigator.share({ files: [file], title: 'ตารางเรียน' }); } catch (err) { }
+                        } else { alert("ไม่รองรับการแชร์โดยตรง กรุณาใช้ปุ่มบันทึกรูป"); }
+                    });
+                }
+            } catch (err) { alert("เกิดข้อผิดพลาด"); } finally {
+                document.body.removeChild(container); btn.innerHTML = ogText; btn.disabled = false;
+            }
+        }
+
+        // ==========================================
+        // 5. INITIALIZE APP
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            updateNetworkStatus(); // เช็คสถานะออนไลน์ตั้งแต่โหลดเสร็จ
+            populateElectivesDropdown();
+            initAnalogClock(); 
+            setInterval(updateClock, 1000);
+            initFirebase();
+
+            // Setup Listeners
+            document.getElementById('setup-form').addEventListener('submit', saveUserProfile);
+            document.getElementById('btn-edit-profile').addEventListener('click', showSetup);
+            document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
+            document.getElementById('view-list').addEventListener('click', () => switchView('list'));
+            document.getElementById('share-schedule-btn').addEventListener('click', openShareModal);
+            document.getElementById('export-calendar-main-btn').addEventListener('click', generateICS);
+            
+            document.getElementById('settings-btn').addEventListener('click', () => openModal(document.getElementById('settings-modal')));
+            document.getElementById('share-name-input').addEventListener('input', (e) => {
+                document.getElementById('share-display-name').textContent = e.target.value || 'My Schedule';
+            });
+            document.getElementById('do-download-btn').addEventListener('click', () => captureSchedule('download'));
+            document.getElementById('do-share-btn').addEventListener('click', () => captureSchedule('share'));
+            
+            // Exam Button
+            document.getElementById('btn-view-exams').addEventListener('click', () => openModal(document.getElementById('exam-modal')));
+            
+            // Logout
+            document.getElementById('btn-logout').addEventListener('click', logoutAndClearData);
+            
+            // Onboarding Close
+            document.getElementById('btn-close-onboarding').addEventListener('click', () => {
+                localStorage.setItem('hasSeenOnboarding', 'true');
+                closeModal(document.getElementById('onboarding-overlay'));
+            });
+
+            // Modals Close Logic
+            document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-overlay'))));
+            document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(overlay); }));
+        });
+
     </script>
 </body>
 </html>
