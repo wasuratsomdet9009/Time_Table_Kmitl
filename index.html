@@ -160,6 +160,113 @@
             pointer-events: none;
             border: 3px solid var(--kmitl-orange);
         }
+
+        /* Analog Clock Styles */
+        .analog-clock-container {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            background: white;
+            border: 2px solid var(--kmitl-orange);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .clock-face {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: var(--kmitl-orange);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .clock-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+            z-index: 5;
+        }
+        .hand-hour {
+            width: 3px;
+            height: 18px;
+            background: #1e293b;
+        }
+        .hand-minute {
+            width: 2px;
+            height: 24px;
+            background: #475569;
+        }
+        .hand-second {
+            width: 1px;
+            height: 26px;
+            background: #ef4444;
+        }
+        .clock-marker {
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            width: 1px;
+            height: 4px;
+            background: #cbd5e1;
+            transform-origin: bottom center;
+            bottom: 50%;
+        }
+        .marker-main {
+            width: 2px;
+            height: 6px;
+            background: var(--kmitl-orange);
+        }
+
+        /* Capture Styles */
+        #capture-preview-wrapper {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            background: #f1f5f9;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        #capture-target {
+            width: 1400px;
+            height: 950px;
+            background: white;
+            padding: 40px;
+            transform-origin: top left;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        #share-grid-container {
+            flex-grow: 1;
+            margin-bottom: 24px;
+            overflow: visible;
+        }
+        #capture-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+            margin-top: auto;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen relative">
@@ -324,7 +431,7 @@
     <!-- 2. MAIN APP -->
     <div id="app-container" class="hidden flex-col flex-grow">
         <!-- Navbar -->
-        <nav class="bg-white border-b border-orange-200 sticky top-0 z-45 shadow-sm">
+        <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center gap-3">
@@ -655,6 +762,29 @@
         </div>
     </div>
 
+    <!-- Custom Dialog & Toast UI -->
+    <div id="custom-confirm-modal" class="modal-overlay">
+        <div class="modal-box max-w-sm">
+            <h3 id="confirm-title" class="text-lg font-bold text-slate-800 mb-2">ยืนยัน</h3>
+            <p id="confirm-message" class="text-sm text-slate-600 mb-6">คุณแน่ใจหรือไม่ที่จะดำเนินการนี้?</p>
+            <div class="flex gap-3">
+                <button id="btn-confirm-cancel" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-sm transition-colors">ยกเลิก</button>
+                <button id="btn-confirm-ok" class="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm transition-colors shadow-md shadow-orange-500/20">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="modal-overlay">
+        <div class="modal-box max-w-sm text-center">
+            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-circle-info"></i>
+            </div>
+            <h3 id="alert-title" class="text-lg font-bold text-slate-800 mb-2">แจ้งเตือน</h3>
+            <p id="alert-message" class="text-sm text-slate-600 mb-6">ข้อความแจ้งเตือน</p>
+            <button id="btn-alert-ok" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg text-sm transition-colors">ตกลง</button>
+        </div>
+    </div>
+
     <!-- Firebase SDK Imports & Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -678,7 +808,7 @@
             { code: '90642142', name: 'PSYCHOLOGY IN COMMUNICATION (กลุ่ม 1)', room: 'D-401', inst: 'ดร. บุณฑริก', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=400&auto=format&fit=crop', description: 'อุปสรรคสำคัญของการสร้างสรรค์ศิลปะและการออกแบบประการหนึ่งนอกเหนือจากการสร้างสรรค์ผลงานคือ ความสามารถในการสื่อสารให้ผลงานเป็นที่เข้าใจและยอมรับ การทำงานร่วมกับผู้อื่นอย่างเข้าใจ รายวิชานี้ถูกออกแบบมาเพื่อให้ผู้เรียนเข้าใจและมีทักษะในการสื่อสารอย่างมีประสิทธิภาพ โดยผู้เรียนมีความเข้าใจและความสามารถในการนำเอาความรู้ด้านจิตวิทยามาปรับปรุงกระบวนการสื่อสารอย่างสัมฤทธิ์ผล' },
             { code: '90642142', name: 'PSYCHOLOGY IN COMMUNICATION (กลุ่ม 2)', room: 'D-502', inst: 'อ. ญาณิศา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้กระบวนการสื่อสาร ศิลปะการสร้างปฏิสัมพันธ์ที่ดีกับผู้อื่น โดยบูรณาการแนวคิดด้านจิตวิทยามาเป็นกลยุทธ์สำคัญ' },
             { code: '90642152', name: 'JOY OF SHARING', room: 'D-503', inst: 'อ. ชัยฤทธิ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาองค์ประกอบของจิตอาสา/จิตสาธารณะ ความหมาย รูปแบบของจิตอาสา/จิตสาธารณะ ประโยชน์ที่ได้รับ วิธีการทำงานร่วมกันกับชุมชน การจัดการปัญหาสาธารณะหรือเสริมสร้างคุณภาพของชุมชน องค์กรด้านจิตอาสา/จิตสาธารณะทั้งในและต่างประเทศ ฝึกการเป็นจิตอาสาและหรือจัดทำโครงการเพื่อพัฒนาจิตอาสา/ จิตสาธารณะ' },
-            { code: '90642153', name: 'UNDERSTANDING HUMAN BEHAVIOR', room: 'D-403', inst: 'อ. วัฒนชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้พื้นฐานพฤติกรรมทางชีววิทยา ความคิด แรงจูงใจ และอารมณ์ การพัฒนาสุขภาพจิตและบุคลิกภาพ ศึกษาทฤษฎีจิตวิเคราะห์ทฤษฎีการเรียนรู้ ทฤษฎีพฤติกรรม และพฤติกรรมบำบัด รวมถึงศึกษาความสัมพันธ์ระหว่างตนเอง ครอบครัวและสังคม ผลกระทบของความเชื่อและศาสนาที่มีต่อพฤติกรรม เรียนรู้วิธีการทำความเข้าใจสุขภาพและความเจ็บป่วยผ่านปัจจัยทางชีวภาพ จิตวิทยาและสังคม แนวคิดสุขภาพโลก' },
+            { code: '90642153', name: 'UNDERSTANDING HUMAN BEHAVIOR', room: 'D-403', inst: 'อ. วัตนชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้พื้นฐานพฤติกรรมทางชีววิทยา ความคิด แรงจูงใจ และอารมณ์ การพัฒนาสุขภาพจิตและบุคลิกภาพ ศึกษาทฤษฎีจิตวิเคราะห์ทฤษฎีการเรียนรู้ ทฤษฎีพฤติกรรม และพฤติกรรมบำบัด รวมถึงศึกษาความสัมพันธ์ระหว่างตนเอง ครอบครัวและสังคม ผลกระทบของความเชื่อและศาสนาที่มีต่อพฤติกรรม เรียนรู้วิธีการทำความเข้าใจสุขภาพและความเจ็บป่วยผ่านปัจจัยทางชีวภาพ จิตวิทยาและสังคม แนวคิดสุขภาพโลก' },
             { code: '90642156', name: 'FENG SHUI (ฮวงจุ้ย)', room: 'ไม่ระบุ', inst: 'อ. ธาตรี, อ. ปรามุข', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1526685816914-1e0e564bd7ea?q=80&w=400&auto=format&fit=crop', description: 'ศึกษา ความหมาย และหลักการของฮวงจุ้ย ที่สามารถนำมาประยุกต์ใช้ในชีวิตประจำวัน หรือนำไปประยุกต์ใช้กับการอยู่ร่วมกับผู้อื่นอย่างมีความสุข' },
             { code: '90642168', name: 'TOPICS IN MEDICINAL PLANTS', room: 'D-511', inst: 'ผศ.ดร. วิรามศรี, ผศ. ดร. ฐพงษ์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=400&auto=format&fit=crop', description: 'พืชสมุนไพรเพื่อสุขภาพและความงาม การตลาด การผลิตสมุนไพรที่มีความสำคัญอย่างง่าย การแปรรูปผลิตภัณฑ์อย่างง่าย อาหารและเครื่องดื่มจากพืชสมุนไพรเพื่อสุขภาพและความงาม' },
             { code: '90642208', name: 'FROM DEV TO THE MOON', room: 'ไม่ระบุ', inst: 'อ. ณัฏฐ์กฤศ', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400&auto=format&fit=crop', description: 'โครงสร้างการทำงานในบริษัทผู้พัฒนาโปรแกรม จากหน้าที่ผู้พัฒนาโปรแกรมไปจนถึงการบริหารบริษัท การเขียนโค้ด คำสั่งพื้นฐาน ชนิดของตัวแปร อัลกอริทึม การจัดโครงสร้างโปรแกรม การจัดเก็บ จัดระเบียบ และเผยแพร่โปรแกรม การสื่อสารและอธิบายโปรแกรม หน้าที่ต่างๆ ในบริษัทผู้พัฒนาโปรแกรม การวิเคราะห์ต้นทุนการจัดสร้างโปรแกรม การประเมินโครงการ' },
@@ -741,9 +871,103 @@
         const endHour = 18;
 
         // ==========================================
+        // UTILITY FUNCTIONS (RESOLVING REFERENCE ERRORS)
+        // ==========================================
+        function timeToMin(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(':');
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+
+        function showSetup() {
+            showSetupScreenDirectly();
+        }
+
+        // Safe Event Listener Attacher
+        function safeAddEventListener(id, event, callback) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener(event, callback);
+            }
+        }
+
+        // Custom Dialog helpers to replace alert/confirm in sandboxed environments
+        function customAlert(message, title = "แจ้งเตือน") {
+            return new Promise((resolve) => {
+                document.getElementById('alert-title').textContent = title;
+                document.getElementById('alert-message').textContent = message;
+                const modal = document.getElementById('custom-alert-modal');
+                modal.classList.add('visible');
+                
+                const btnOk = document.getElementById('btn-alert-ok');
+                const cleanUp = () => {
+                    modal.classList.remove('visible');
+                    btnOk.removeEventListener('click', onOk);
+                    resolve();
+                };
+                const onOk = () => cleanUp();
+                btnOk.addEventListener('click', onOk);
+            });
+        }
+
+        function customConfirm(message, title = "ยืนยันการทำรายการ") {
+            return new Promise((resolve) => {
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-message').textContent = message;
+                const modal = document.getElementById('custom-confirm-modal');
+                modal.classList.add('visible');
+                
+                const btnOk = document.getElementById('btn-confirm-ok');
+                const btnCancel = document.getElementById('btn-confirm-cancel');
+                
+                const cleanUp = (result) => {
+                    modal.classList.remove('visible');
+                    btnOk.removeEventListener('click', onOk);
+                    btnCancel.removeEventListener('click', onCancel);
+                    resolve(result);
+                };
+                
+                const onOk = () => cleanUp(true);
+                const onCancel = () => cleanUp(false);
+                
+                btnOk.addEventListener('click', onOk);
+                btnCancel.addEventListener('click', onCancel);
+            });
+        }
+
+        // Switch View Logic
+        function switchView(view) {
+            const gridView = document.getElementById('grid-view');
+            const listView = document.getElementById('list-view');
+            const btnGrid = document.getElementById('view-grid');
+            const btnList = document.getElementById('view-list');
+            
+            if (view === 'grid') {
+                if (gridView) gridView.classList.remove('hidden');
+                if (listView) listView.classList.add('hidden');
+                
+                if (btnGrid) {
+                    btnGrid.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center justify-center gap-2';
+                }
+                if (btnList) {
+                    btnList.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center justify-center gap-2';
+                }
+            } else {
+                if (gridView) gridView.classList.add('hidden');
+                if (listView) listView.classList.remove('hidden');
+                
+                if (btnGrid) {
+                    btnGrid.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-white/50 transition-all flex items-center justify-center gap-2';
+                }
+                if (btnList) {
+                    btnList.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium bg-white text-orange-600 shadow-sm transition-all flex items-center justify-center gap-2';
+                }
+            }
+        }
+
+        // ==========================================
         // 2. FIREBASE INITIALIZATION
         // ==========================================
-        // แก้ไขปัญหา GitHub Secrets Detected ด้วยการแยก String
         const firebaseConfigUser = {
           apiKey: "AIzaSyCp5LCR0h0DPp5cm" + "-kBYXOWuYuzal5fKyI",
           authDomain: "time-table-kmitl.firebaseapp.com",
@@ -790,7 +1014,7 @@
         // 3. LOGIC & RENDER FUNCTIONS
         // ==========================================
         
-        // ฟังก์ชันสลับหน้าจอที่เด็ดขาด เพื่อป้องกันหน้าจอรุ่นเหลื่อมและ scroll หากันได้
+        // ฟังก์ชันสลับหน้าจอเพื่อป้องกันหน้าจอรุ่นเหลื่อม
         function showScreen(screenId) {
             const screens = ['auth-container', 'setup-container', 'app-container'];
             screens.forEach(id => {
@@ -810,6 +1034,7 @@
 
         function updateNetworkStatus() {
             const statusEl = document.getElementById('network-status');
+            if (!statusEl) return;
             if(navigator.onLine) {
                 statusEl.textContent = 'Online (เชื่อมต่อแล้ว)';
                 statusEl.className = 'px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600 border border-green-200';
@@ -823,6 +1048,7 @@
 
         function populateElectivesDropdown() {
             const select = document.getElementById('input-elective');
+            if (!select) return;
             electivesData.forEach((el, index) => {
                 const option = document.createElement('option');
                 option.value = index;
@@ -862,12 +1088,17 @@
             setTimeout(() => document.getElementById('global-loader').style.display = 'none', 500);
         }
 
-        // ล็อกอินง่ายๆ ด้วย Student ID 8 หลัก (Rule 1 Strict Path)
+        // ล็อกอินด้วย Student ID 8 หลัก
         async function handleStudentIdLogin(e) {
             e.preventDefault();
             const studentId = document.getElementById('auth-student-id').value.trim();
             if(studentId.length !== 8) {
-                alert("กรุณากรอกรหัสนักศึกษาให้ครบ 8 หลัก");
+                await customAlert("กรุณากรอกรหัสนักศึกษาให้ครบ 8 หลัก", "ข้อมูลไม่ถูกต้อง");
+                return;
+            }
+
+            if (!user) {
+                await customAlert("ระบบกำลังเตรียมการเข้าสู่ระบบคลาวด์ โปรดรอสักครู่แล้วลองใหม่อีกครั้งครับ", "กำลังเริ่มต้นระบบ");
                 return;
             }
 
@@ -887,7 +1118,8 @@
                     checkOnboarding();
                 } else {
                     document.getElementById('global-loader').style.display = 'none';
-                    if(confirm("ไม่พบประวัติตารางเรียนของรหัสนี้ในคลาวด์ ต้องการเริ่มต้นตั้งค่าตารางเรียนใหม่ใช่หรือไม่?")) {
+                    const confirmResult = await customConfirm("ไม่พบประวัติตารางเรียนของรหัสนี้ในคลาวด์ ต้องการเริ่มต้นตั้งค่าตารางเรียนใหม่ใช่หรือไม่?", "เริ่มต้นใช้งานใหม่");
+                    if(confirmResult) {
                         document.getElementById('input-student-id').value = studentId;
                         showScreen('setup-container');
                     }
@@ -895,7 +1127,7 @@
             } catch (error) {
                 console.error("Error logging in:", error);
                 document.getElementById('global-loader').style.display = 'none';
-                alert("เกิดข้อผิดพลาดในการดึงข้อมูล โปรดตรวจสอบความเสถียรของอินเทอร์เน็ต");
+                await customAlert("เกิดข้อผิดพลาดในการดึงข้อมูล โปรดตรวจสอบความเสถียรของอินเทอร์เน็ต", "เกิดข้อผิดพลาด");
             }
         }
 
@@ -932,7 +1164,7 @@
                 checkOnboarding();
             } catch (error) {
                 console.error("Error saving profile:", error);
-                alert("ไม่สามารถบันทึกข้อมูลตารางเรียนได้ กรุณาลองใหม่อีกครั้ง");
+                await customAlert("ไม่สามารถบันทึกข้อมูลตารางเรียนได้ กรุณาลองใหม่อีกครั้ง", "บันทึกล้มเหลว");
             } finally {
                 btn.innerHTML = ogText;
                 btn.disabled = false;
@@ -940,7 +1172,8 @@
         }
 
         async function logoutAndClearData() {
-            if(confirm('ต้องการออกจากระบบและเปลี่ยนบัญชีเครื่องนี้ใช่หรือไม่?')) {
+            const confirmLogout = await customConfirm('ต้องการออกจากระบบและเปลี่ยนบัญชีเครื่องนี้ใช่หรือไม่?', 'ยืนยันการออกจากระบบ');
+            if(confirmLogout) {
                 localStorage.removeItem('saved_student_id');
                 localStorage.removeItem('hasSeenOnboarding');
                 currentUserData = null;
@@ -1043,26 +1276,28 @@
 
             if(currentUserData.wantsEnglish) {
                 schedule.push(englishClass);
-        function switchView(view) {
-            const grid = document.getElementById('grid-view');
-            const list = document.getElementById('list-view');
-            const btnGrid = document.getElementById('view-grid');
-            const btnList = document.getElementById('view-list');
-            
-            if (view === 'grid') {
-                grid.classList.remove('hidden'); list.classList.add('hidden');
-                btnGrid.classList.replace('bg-white', 'bg-orange-500'); btnGrid.classList.replace('text-orange-600', 'text-white');
-                btnList.classList.replace('bg-orange-500', 'bg-white'); btnList.classList.remove('text-white');
-            } else {
-                grid.classList.add('hidden'); list.classList.remove('hidden');
-                btnList.classList.add('bg-orange-500', 'text-white');
-                btnGrid.classList.replace('bg-orange-500', 'bg-white'); btnGrid.classList.replace('text-white', 'text-orange-600');
             }
+
+            if(currentUserData.electiveIndex !== null && currentUserData.electiveIndex !== undefined) {
+                const el = electivesData[currentUserData.electiveIndex];
+                if (el) {
+                    schedule.push({
+                        day: 1,
+                        start: el.start, end: el.end,
+                        name: el.name, code: el.code, room: el.room, instructor: el.inst,
+                        color: el.color, description: el.description, image: el.image
+                    });
+                }
+            }
+
+            renderGrid();
+            renderList();
+            renderExamSchedule(); // คำนวณตารางสอบตามโปรไฟล์ใหม่
         }
 
-        function timeToMin(time) {
-            const [h, m] = time.split(':').map(Number);
-            return h * 60 + m;
+        function showSetupScreenDirectly() {
+            document.getElementById('input-student-id').value = currentUserData ? currentUserData.studentId : '';
+            showScreen('setup-container');
         }
 
         function showClassDetail(cls) {
@@ -1154,6 +1389,7 @@
 
         function renderGrid() {
             const grid = document.getElementById('timetable-grid');
+            if (!grid) return;
             Array.from(grid.children).forEach(c => {
                 if (c.id !== 'real-time-indicator') grid.removeChild(c);
             });
@@ -1232,6 +1468,7 @@
 
         function renderList() {
             const container = document.getElementById('list-view');
+            if (!container) return;
             container.innerHTML = '';
             const grouped = {};
             schedule.forEach(cls => {
@@ -1282,6 +1519,7 @@
         // ==========================================
         function initAnalogClock() {
             const clockFace = document.getElementById('analog-clock');
+            if (!clockFace) return;
             for (let i = 0; i < 12; i++) {
                 const marker = document.createElement('div');
                 marker.className = `clock-marker ${i % 3 === 0 ? 'marker-main' : ''}`;
@@ -1294,9 +1532,13 @@
             const now = new Date();
             const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             
-            document.getElementById('current-date').textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
-            document.getElementById('clock-time').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-            document.getElementById('clock-sec').textContent = String(now.getSeconds()).padStart(2, '0');
+            const dateEl = document.getElementById('current-date');
+            const clockTimeEl = document.getElementById('clock-time');
+            const clockSecEl = document.getElementById('clock-sec');
+
+            if (dateEl) dateEl.textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear() + 543}`;
+            if (clockTimeEl) clockTimeEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            if (clockSecEl) clockSecEl.textContent = String(now.getSeconds()).padStart(2, '0');
 
             const seconds = now.getSeconds();
             const minutes = now.getMinutes();
@@ -1305,9 +1547,13 @@
             const minDeg = ((minutes / 60) * 360) + ((seconds/60)*6);
             const hourDeg = ((hours / 12) * 360) + ((minutes/60)*30);
 
-            document.getElementById('hand-second').style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
-            document.getElementById('hand-minute').style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
-            document.getElementById('hand-hour').style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+            const hSec = document.getElementById('hand-second');
+            const hMin = document.getElementById('hand-minute');
+            const hHour = document.getElementById('hand-hour');
+
+            if (hSec) hSec.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+            if (hMin) hMin.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+            if (hHour) hHour.style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
 
             const currentMin = now.getHours() * 60 + now.getMinutes();
             const currentDay = now.getDay();
@@ -1315,7 +1561,7 @@
             
             if (currentMin >= startHour * 60 && currentMin <= endHour * 60) {
                 const gridEl = document.getElementById('timetable-grid');
-                if(gridEl) {
+                if(gridEl && timeIndicator) {
                     const headerWidth = 65; 
                     const totalWidth = gridEl.scrollWidth - headerWidth;
                     const percent = (currentMin - (startHour * 60)) / ((endHour - startHour) * 60);
@@ -1324,15 +1570,13 @@
                     timeIndicator.classList.remove('hidden');
                     timeIndicator.style.left = `${leftPos}px`;
                     
-                    // ให้เส้นสีแดงคลุมเฉพาะเวลาเรียนและ Row ของตัวเอง (ถ้าไม่ใช่ ก็แค่โชว์เส้นตรงแนวตั้งเฉยๆ)
                     if (displayDays.includes(currentDay)) {
-                        const visualRow = displayDays.indexOf(currentDay) + 2;
                         timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
                     } else {
                         timeIndicator.style.gridRow = `2 / ${displayDays.length + 2}`; 
                     }
                 }
-            } else {
+            } else if (timeIndicator) {
                 timeIndicator.classList.add('hidden');
             }
 
@@ -1342,45 +1586,47 @@
             const isSemesterActive = now >= semesterStart && now <= semesterEnd;
             const statusDiv = document.getElementById('status-container');
 
-            if (!isSemesterActive) {
-                 if (now < semesterStart) {
-                     statusDiv.innerHTML = `
-                        <p class="text-xl font-bold text-orange-500"><i class="fa-solid fa-hourglass-start mr-2"></i>ยังไม่เปิดภาคเรียน</p>
-                        <p class="text-xs text-slate-300 mt-1 opacity-80">เปิดภาคเรียนวันที่ 29 มิ.ย. 69</p>
-                     `;
-                 } else {
-                     statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-500"><i class="fa-solid fa-school-lock mr-2"></i>ปิดภาคเรียนแล้ว</p>`;
-                 }
-                 document.querySelectorAll('.class-block').forEach(el => el.classList.remove('current'));
-                 return; 
-            }
-            
-            let activeClass = null;
-            let nextClass = null;
-            let minDiffNext = Infinity;
-
-            schedule.forEach(cls => {
-                if (cls.day === currentDay) {
-                    const s = timeToMin(cls.start);
-                    const e = timeToMin(cls.end);
-                    if (currentMin >= s && currentMin < e) { activeClass = cls; } 
-                    else if (s > currentMin && (s - currentMin) < minDiffNext) { nextClass = cls; minDiffNext = s - currentMin; }
+            if (statusDiv) {
+                if (!isSemesterActive) {
+                     if (now < semesterStart) {
+                         statusDiv.innerHTML = `
+                            <p class="text-xl font-bold text-orange-500"><i class="fa-solid fa-hourglass-start mr-2"></i>ยังไม่เปิดภาคเรียน</p>
+                            <p class="text-xs text-slate-300 mt-1 opacity-80">เปิดภาคเรียนวันที่ 29 มิ.ย. 69</p>
+                         `;
+                     } else {
+                         statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-500"><i class="fa-solid fa-school-lock mr-2"></i>ปิดภาคเรียนแล้ว</p>`;
+                     }
+                     document.querySelectorAll('.class-block').forEach(el => el.classList.remove('current'));
+                     return; 
                 }
-            });
+                
+                let activeClass = null;
+                let nextClass = null;
+                let minDiffNext = Infinity;
 
-            if (activeClass) {
-                statusDiv.innerHTML = `
-                    <p class="text-2xl font-bold text-white leading-tight">${activeClass.name}</p>
-                    <p class="text-sm text-orange-300 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${activeClass.room} | หมดเวลา ${activeClass.end}</p>
-                `;
-            } else if (nextClass) {
-                statusDiv.innerHTML = `
-                    <p class="text-lg text-slate-300">Next Class:</p>
-                    <p class="text-xl font-bold text-white">${nextClass.name}</p>
-                    <p class="text-xs text-orange-400 mt-1">เริ่มเรียนในอีก ${minDiffNext} นาที (${nextClass.start})</p>
-                `;
-            } else {
-                statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-400">ไม่มีการเรียนการสอนขณะนี้</p>`;
+                schedule.forEach(cls => {
+                    if (cls.day === currentDay) {
+                        const s = timeToMin(cls.start);
+                        const e = timeToMin(cls.end);
+                        if (currentMin >= s && currentMin < e) { activeClass = cls; } 
+                        else if (s > currentMin && (s - currentMin) < minDiffNext) { nextClass = cls; minDiffNext = s - currentMin; }
+                    }
+                });
+
+                if (activeClass) {
+                    statusDiv.innerHTML = `
+                        <p class="text-2xl font-bold text-white leading-tight">${activeClass.name}</p>
+                        <p class="text-sm text-orange-300 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${activeClass.room} | หมดเวลา ${activeClass.end}</p>
+                    `;
+                } else if (nextClass) {
+                    statusDiv.innerHTML = `
+                        <p class="text-lg text-slate-300">Next Class:</p>
+                        <p class="text-xl font-bold text-white">${nextClass.name}</p>
+                        <p class="text-xs text-orange-400 mt-1">เริ่มเรียนในอีก ${minDiffNext} นาที (${nextClass.start})</p>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `<p class="text-xl font-bold text-slate-400">ไม่มีการเรียนการสอนขณะนี้</p>`;
+                }
             }
 
             document.querySelectorAll('.class-block').forEach(el => {
@@ -1393,7 +1639,6 @@
 
         // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
         function generateICS() {
-            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการสอน) 
             const startDate = new Date(2026, 5, 29); 
             const endDate = new Date(2026, 9, 25); 
             const currentSecKey = currentUserData ? `sec${currentUserData.section}` : 'sec1';
@@ -1495,11 +1740,13 @@
 
         // --- Modals & Captures ---
         function openModal(modal) {
+            if (!modal) return;
             modal.classList.add('visible');
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modal) {
+            if (!modal) return;
             modal.classList.remove('visible');
             document.body.style.overflow = 'auto';
             if(modal.id === 'share-modal') window.removeEventListener('resize', fitPreviewToWrapper);
@@ -1508,6 +1755,7 @@
         function openShareModal() {
             const mainGrid = document.getElementById('timetable-grid');
             const previewContainer = document.getElementById('share-grid-container');
+            if (!mainGrid || !previewContainer) return;
             previewContainer.innerHTML = ''; 
             
             const clone = mainGrid.cloneNode(true);
@@ -1539,6 +1787,7 @@
         async function captureSchedule(action) {
             const target = document.getElementById('capture-target');
             const btn = action === 'download' ? document.getElementById('do-download-btn') : document.getElementById('do-share-btn');
+            if (!target || !btn) return;
             
             const ogText = btn.innerHTML;
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> กำลังสร้าง...`;
@@ -1560,11 +1809,17 @@
                         const file = new File([blob], "schedule.png", { type: "image/png" });
                         if (navigator.canShare && navigator.canShare({ files: [file] })) {
                             try { await navigator.share({ files: [file], title: 'ตารางเรียน' }); } catch (err) { }
-                        } else { alert("ไม่รองรับการแชร์โดยตรง กรุณาใช้ปุ่มบันทึกรูป"); }
+                        } else { 
+                            await customAlert("ไม่รองรับการแชร์โดยตรงในระบบเบราว์เซอร์ของคุณ กรุณาใช้ปุ่มบันทึกรูปเพื่อดาวน์โหลดแทนครับ", "ไม่รองรับการแชร์โดยตรง"); 
+                        }
                     });
                 }
-            } catch (err) { alert("เกิดข้อผิดพลาด"); } finally {
-                document.body.removeChild(container); btn.innerHTML = ogText; btn.disabled = false;
+            } catch (err) { 
+                await customAlert("เกิดข้อผิดพลาดในการดึงและประมวลผลรูปภาพ กรุณาลองใหม่อีกครั้ง", "เกิดข้อผิดพลาด"); 
+            } finally {
+                if (container.parentNode) document.body.removeChild(container); 
+                btn.innerHTML = ogText; 
+                btn.disabled = false;
             }
         }
 
@@ -1578,31 +1833,37 @@
             setInterval(updateClock, 1000);
             initFirebase();
 
-            // Setup Listeners
-            document.getElementById('auth-form').addEventListener('submit', handleStudentIdLogin);
-            document.getElementById('setup-form').addEventListener('submit', saveUserProfile);
-            document.getElementById('btn-edit-profile').addEventListener('click', showSetupScreenDirectly);
-            document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
-            document.getElementById('view-list').addEventListener('click', () => switchView('list'));
-            document.getElementById('share-schedule-btn').addEventListener('click', openShareModal);
-            document.getElementById('export-calendar-main-btn').addEventListener('click', generateICS);
+            // Setup Listeners Safely
+            safeAddEventListener('auth-form', 'submit', handleStudentIdLogin);
+            safeAddEventListener('setup-form', 'submit', saveUserProfile);
+            safeAddEventListener('btn-edit-profile', 'click', showSetupScreenDirectly);
+            safeAddEventListener('view-grid', 'click', () => switchView('grid'));
+            safeAddEventListener('view-list', 'click', () => switchView('list'));
+            safeAddEventListener('share-schedule-btn', 'click', openShareModal);
+            safeAddEventListener('export-calendar-main-btn', 'click', generateICS);
             
-            document.getElementById('settings-btn').addEventListener('click', () => openModal(document.getElementById('settings-modal')));
-            document.getElementById('share-name-input').addEventListener('input', (e) => {
-                document.getElementById('share-display-name').textContent = e.target.value || 'My Schedule';
-            });
-            document.getElementById('do-download-btn').addEventListener('click', () => captureSchedule('download'));
-            document.getElementById('do-share-btn').addEventListener('click', () => captureSchedule('share'));
+            safeAddEventListener('settings-btn', 'click', () => openModal(document.getElementById('settings-modal')));
+            
+            const shareNameInput = document.getElementById('share-name-input');
+            if (shareNameInput) {
+                shareNameInput.addEventListener('input', (e) => {
+                    document.getElementById('share-display-name').textContent = e.target.value || 'My Schedule';
+                });
+            }
+            
+            safeAddEventListener('do-download-btn', 'click', () => captureSchedule('download'));
+            safeAddEventListener('do-share-btn', 'click', () => captureSchedule('share'));
             
             // Exam Button
-            document.getElementById('btn-view-exams').addEventListener('click', () => openModal(document.getElementById('exam-modal')));
+            safeAddEventListener('btn-view-exams', 'click', () => openModal(document.getElementById('exam-modal')));
             
             // Logout
-            document.getElementById('btn-logout').addEventListener('click', logoutAndClearData);
+            safeAddEventListener('btn-logout', 'click', logoutAndClearData);
             
             // Onboarding Control
-            document.getElementById('btn-next-coach').addEventListener('click', handleNextCoach);
-            document.getElementById('btn-skip-coach').addEventListener('click', () => {
+            safeAddEventListener('btn-close-onboarding', 'click', handleNextCoach);
+            safeAddEventListener('btn-next-coach', 'click', handleNextCoach);
+            safeAddEventListener('btn-skip-coach', 'click', () => {
                 localStorage.setItem('hasSeenOnboarding', 'true');
                 document.getElementById('onboarding-overlay').classList.add('hidden');
                 document.getElementById('onboarding-overlay').style.display = 'none';
