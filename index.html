@@ -154,13 +154,23 @@
             position: fixed; inset: 0; background: transparent; z-index: 9990; pointer-events: auto;
         }
         .coach-spotlight {
-            position: absolute;
+            position: fixed; /* ใช้ fixed เสมอเพื่อให้สอดรับกับพิกัด getBoundingClientRect ได้แม่นยำที่สุดบนมือถือ */
             box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
             border-radius: 12px;
-            transition: all 0.3s ease;
+            transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 9991;
             pointer-events: none;
             border: 3px solid var(--kmitl-orange);
+        }
+
+        /* Scroll-lock CSS class to lock mobile and desktop browsers completely */
+        .scroll-lock {
+            overflow: hidden !important;
+            touch-action: none !important;
+            -ms-touch-action: none !important;
+            height: 100% !important;
+            width: 100% !important;
+            position: fixed !important;
         }
 
         /* Analog Clock Styles */
@@ -280,7 +290,8 @@
     </div>
 
     <!-- ONBOARDING COACH MARKS (SPOTLIGHT walkthrough) -->
-    <div id="onboarding-overlay" class="hidden flex-col items-center justify-center">
+    <!-- นำคลาส flex-col items-center justify-center ออก เพื่อความมั่นคงสูงสุดในการแสดงผลแบบ Fixed บนอุปกรณ์มือถือ -->
+    <div id="onboarding-overlay" class="hidden fixed inset-0 z-[9990] pointer-events-auto">
         <!-- Spotlight focus container -->
         <div id="coach-spotlight" class="coach-spotlight"></div>
         
@@ -313,15 +324,23 @@
                 <p class="text-slate-500 text-sm mt-1">กรอกรหัสนักศึกษา 8 หลัก เพื่อเริ่มต้นใช้งาน</p>
             </div>
 
-            <!-- ข้อความชี้แจงสถานะระบบก่อนใช้งาน -->
-            <div class="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-xs text-orange-800 mb-5 leading-relaxed">
-                <p class="font-bold text-sm flex items-center gap-1.5 text-orange-900 mb-1">
-                    <i class="fa-solid fa-circle-info"></i> คำแนะนำและข้อชี้แจงก่อนใช้งาน:
+            <!-- ข้อความชี้แจงสถานะระบบก่อนใช้งาน (เด่นชัด สวยงาม ทันสมัย เพื่อป้องกันความสับสนสำหรับสาขาอื่น) -->
+            <div class="bg-amber-50 border-2 border-amber-500/30 rounded-2xl p-5 text-xs text-amber-900 mb-6 leading-relaxed shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i>
+                    </div>
+                    <span class="font-bold text-sm text-amber-950">คำแนะนำและข้อชี้แจงก่อนใช้งาน</span>
+                </div>
+                <p class="mb-2.5 text-slate-700 font-medium">
+                    ปัจจุบันตัวจัดตารางสอนอัจฉริยะนี้ <span class="text-orange-600 font-bold bg-orange-50 px-1 py-0.5 rounded">เปิดบริการรองรับเฉพาะผู้เรียนใน สาขาเทคโนโลยีคอมพิวเตอร์</span> (ครุศาสตร์วิศวกรรมคอมพิวเตอร์) เท่านั้น นักศึกษาสาขาอื่นจะไม่พบประวัติตารางเรียนในฐานข้อมูลของหน้านี้
                 </p>
-                <p class="mb-1.5">ปัจจุบันตัวระบุตารางนี้เปิดบริการรองรับเฉพาะผู้เรียนใน <span class="font-bold text-orange-900">สาขาเทคโนโลยีคอมพิวเตอร์</span> (ครุศาสตร์วิศวกรรมคอมพิวเตอร์) เท่านั้น</p>
-                <p class="font-semibold text-orange-900 flex items-center gap-1">
-                    <i class="fa-solid fa-wand-magic-sparkles text-orange-600"></i> โปรดติดตามเร็ว ๆ นี้! จะมีการพัฒนา Chrome Extension ออกมาอำนวยความสะดวกในอนาคตอันใกล้!
-                </p>
+                <div class="border-t border-amber-200/60 my-2 pt-2 flex items-start gap-2">
+                    <i class="fa-solid fa-rocket text-amber-600 mt-0.5 animate-bounce"></i>
+                    <p class="text-amber-900 font-semibold">
+                        โปรดติดตามเร็ว ๆ นี้! เรากำลังพัฒนา <span class="underline decoration-wavy decoration-orange-500">Chrome Extension</span> เพื่อเพิ่มขีดความสามารถและขยายไปยังสาขาอื่น ๆ ในอนาคตอันใกล้!
+                    </p>
+                </div>
             </div>
 
             <!-- Login Form -->
@@ -948,6 +967,26 @@
             });
         }
 
+        // Scroll Lock Helper functions
+        function lockScroll() {
+            document.body.classList.add('scroll-lock');
+            document.documentElement.classList.add('scroll-lock');
+            window.addEventListener('touchmove', preventDefaultTouch, { passive: false });
+        }
+
+        function unlockScroll() {
+            document.body.classList.remove('scroll-lock');
+            document.documentElement.classList.remove('scroll-lock');
+            window.removeEventListener('touchmove', preventDefaultTouch);
+        }
+
+        function preventDefaultTouch(e) {
+            // Allow sliding/scrolling ONLY inside the onboarding guide card itself if overflowed
+            if (!e.target.closest('#coach-card')) {
+                e.preventDefault();
+            }
+        }
+
         // Switch View Logic
         function switchView(view) {
             const gridView = document.getElementById('grid-view');
@@ -1229,48 +1268,108 @@
             if (!localStorage.getItem('hasSeenOnboarding')) {
                 coachStep = 0;
                 document.getElementById('onboarding-overlay').classList.remove('hidden');
-                document.getElementById('onboarding-overlay').style.display = 'flex';
+                document.getElementById('onboarding-overlay').style.display = 'block'; // สลับการแสดงผลเป็น block เพื่อการคำนวณพิกัดที่แม่นยำ
+                lockScroll(); // ล็อกการเลื่อนหน้าจอด่านแรก
                 renderCoachStep();
             }
         }
 
         function renderCoachStep() {
             const step = coachSteps[coachStep];
-            const targetEl = document.getElementById(step.targetId);
+            let targetId = step.targetId;
+            
+            // ป้องกัน Spotlight กว้างเกินหน้าจอมือถือ (1,250px) จากความกว้างของ Grid จริง
+            // โดยการเปลี่ยนมา Highlight ที่ตัว Wrapper แทนเมื่อใช้งานบนมือถือหรือจอขนาดเล็ก
+            if (targetId === 'timetable-grid' && window.innerWidth < 1024) {
+                targetId = 'grid-view';
+            }
+
+            const targetEl = document.getElementById(targetId);
             const spotlight = document.getElementById('coach-spotlight');
             const card = document.getElementById('coach-card');
             
+            if (!spotlight || !card) return;
+
             document.getElementById('coach-step-num').textContent = coachStep + 1;
             document.getElementById('coach-title').textContent = step.title;
             document.getElementById('coach-text').textContent = step.text;
             document.getElementById('coach-btn-text').textContent = coachStep === coachSteps.length - 1 ? "เสร็จสิ้น" : "ถัดไป";
 
+            // รีเซ็ตการตั้งค่าสไตล์เดิมเพื่อป้องกันบั๊กแสดงผลเบี้ยวค้างข้ามเฟส
+            card.style.top = '';
+            card.style.bottom = '';
+            card.style.left = '';
+            card.style.right = '';
+            card.style.transform = '';
+            card.style.position = '';
+            card.style.width = '';
+            card.style.maxWidth = '';
+
             if (targetEl) {
-                const rect = targetEl.getBoundingClientRect();
-                const scrollY = window.scrollY;
-                const scrollX = window.scrollX;
+                // เลื่อน Element เป้าหมายมาให้อยู่ตรงกลางแบบ Smooth
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
                 
-                spotlight.style.display = 'block';
-                spotlight.style.width = `${rect.width + 12}px`;
-                spotlight.style.height = `${rect.height + 12}px`;
-                spotlight.style.top = `${rect.top + scrollY - 6}px`;
-                spotlight.style.left = `${rect.left + scrollX - 6}px`;
-                
-                // จัดวางตำแหน่งข้อความอธิบายให้พอดีหน้าจอมือถือไม่ล้นขอบ
-                if (rect.bottom + 250 < window.innerHeight) {
-                    card.style.top = `${rect.bottom + scrollY + 16}px`;
-                    card.style.bottom = 'auto';
-                } else {
-                    card.style.bottom = `${window.innerHeight - rect.top - scrollY + 16}px`;
-                    card.style.top = 'auto';
-                }
-                card.style.left = '50%';
-                card.style.transform = 'translateX(-50%)';
+                // รอให้หน้าจอเลื่อนจนนิ่ง (400ms) จากนั้นจึงทำการคำนวณตำแหน่ง Spotlight เพื่อความแม่นยำสูงสุด
+                setTimeout(() => {
+                    const rect = targetEl.getBoundingClientRect();
+                    
+                    // ปรับค่าพิกัด Spotlight (แบบ Fixed อิงตาม Viewport เพื่อไม่ให้เบี้ยวตอนเลื่อนหน้าจอ)
+                    spotlight.style.display = 'block';
+                    spotlight.style.position = 'fixed';
+                    spotlight.style.width = `${rect.width + 12}px`;
+                    spotlight.style.height = `${rect.height + 12}px`;
+                    spotlight.style.top = `${rect.top - 6}px`;
+                    spotlight.style.left = `${rect.left - 6}px`;
+                    
+                    if (window.innerWidth < 768) {
+                        // รูปแบบสำหรับมือถือ: จัดวางตำแหน่ง fixed ป้องกันหน้าจอเลื่อนหรือหลุดขอบ
+                        card.style.position = 'fixed';
+                        card.style.left = '16px';
+                        card.style.right = '16px';
+                        card.style.width = 'auto';
+                        card.style.maxWidth = 'none';
+                        card.style.transform = 'none';
+                        card.style.zIndex = '9995';
+                        
+                        // ปรับตำแหน่งกล่องข้อความให้อยู่ด้านบนหรือล่าง ขึ้นอยู่กับตำแหน่งของแนวแสง Spotlight
+                        if (rect.top > window.innerHeight / 2) {
+                            card.style.top = '16px';
+                            card.style.bottom = 'auto';
+                        } else {
+                            card.style.bottom = '16px';
+                            card.style.top = 'auto';
+                        }
+                    } else {
+                        // รูปแบบสำหรับคอมพิวเตอร์: วางตามตำแหน่งจริงของแนวองค์ประกอบแบบ Absolute
+                        const scrollY = window.scrollY;
+                        const scrollX = window.scrollX;
+                        card.style.position = 'absolute';
+                        card.style.width = '340px';
+                        card.style.maxWidth = '340px';
+                        card.style.right = 'auto';
+                        card.style.zIndex = '9995';
+                        
+                        if (rect.bottom + 260 < window.innerHeight) {
+                            card.style.top = `${rect.bottom + scrollY + 16}px`;
+                            card.style.bottom = 'auto';
+                        } else {
+                            card.style.bottom = `${window.innerHeight - rect.top - scrollY + 16}px`;
+                            card.style.top = 'auto';
+                        }
+                        card.style.left = `${rect.left + scrollX + (rect.width / 2)}px`;
+                        card.style.transform = 'translateX(-50%)';
+                    }
+                }, 400);
             } else {
+                // กรณีไม่พบ Element เป้าหมายใน DOM
                 spotlight.style.display = 'none';
+                card.style.position = 'fixed';
                 card.style.top = '50%';
                 card.style.left = '50%';
                 card.style.transform = 'translate(-50%, -50%)';
+                card.style.width = 'calc(100% - 32px)';
+                card.style.maxWidth = '380px';
+                card.style.zIndex = '9995';
             }
         }
 
@@ -1282,6 +1381,7 @@
                 localStorage.setItem('hasSeenOnboarding', 'true');
                 document.getElementById('onboarding-overlay').classList.add('hidden');
                 document.getElementById('onboarding-overlay').style.display = 'none';
+                unlockScroll(); // คืนระบบเลื่อนหน้าจอกลับมาตามปกติเมื่อเรียนรู้เสร็จสิ้น
             }
         }
 
@@ -1689,7 +1789,6 @@
                 // ตรวจสอบว่า loopDate อยู่ในสัปดาห์สอบกลางภาค หรือปลายภาคหรือไม่
                 // สอบกลางภาค: 17 ส.ค. 2569 - 23 ส.ค. 2569 (สัปดาห์สอบกลางภาค)
                 // สอบปลายภาค: 26 ต.ค. 2569 - 8 พ.ย. 2569 (สัปดาห์สอบปลายภาค)
-                // (เดือนใน JS เริ่มนับจาก 0: ส.ค. คือเดือน 7, ต.ค. คือเดือน 9, พ.ย. คือเดือน 10)
                 const isMidtermWeek = (loopDate >= new Date(2026, 7, 17) && loopDate <= new Date(2026, 7, 23));
                 const isFinalWeek = (loopDate >= new Date(2026, 9, 26) && loopDate <= new Date(2026, 10, 8));
 
@@ -1903,6 +2002,15 @@
                 localStorage.setItem('hasSeenOnboarding', 'true');
                 document.getElementById('onboarding-overlay').classList.add('hidden');
                 document.getElementById('onboarding-overlay').style.display = 'none';
+                unlockScroll(); // คลายล็อกการเลื่อนหน้าจอเมื่อกดข้าม
+            });
+
+            // Recalculate Spotlight Position dynamically on Window Resize
+            window.addEventListener('resize', () => {
+                const overlay = document.getElementById('onboarding-overlay');
+                if (overlay && !overlay.classList.contains('hidden')) {
+                    renderCoachStep();
+                }
             });
 
             // Modals Close Logic
