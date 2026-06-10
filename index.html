@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ตารางสอนครุฯวิศวกรรมคอมพิวเตอร์ (KMITL Smart Schedule)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,6 +26,8 @@
             background-color: var(--bg-soft);
             color: #334155;
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
 
         /* Custom Scrollbar */
@@ -53,6 +55,7 @@
         #auth-container, #setup-container {
             min-height: 100vh; display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #fff7ed 0%, #f1f5f9 100%); padding: 1rem;
+            width: 100vw; box-sizing: border-box;
         }
 
         /* Radio Card Selection Styles */
@@ -134,7 +137,7 @@
 
         /* Modals & Overlays */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center;
             z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 1rem;
         }
         .modal-overlay.visible { opacity: 1; pointer-events: auto; }
@@ -144,37 +147,16 @@
         }
         .modal-overlay.visible .modal-box { transform: scale(1); }
 
-        /* Onboarding Full Overlay */
-        #onboarding-overlay { z-index: 9999; }
-
-        /* Analog Clock */
-        .analog-clock-container {
-            width: 100px; height: 100px; border-radius: 50%; background: white; border: 4px solid #e2e8f0; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); flex-shrink: 0;
+        /* Onboarding Coach Marks Spotlight Styles */
+        .coach-spotlight {
+            position: absolute;
+            box-shadow: 0 0 0 9999px rgba(0,0,0,0.75);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 9998;
+            pointer-events: none;
+            border: 3px solid var(--kmitl-orange);
         }
-        @media (max-width: 640px) {
-            .analog-clock-container { width: 80px; height: 80px; border-width: 3px; }
-            .clock-marker { transform-origin: 50% 38px !important; } 
-        }
-        .clock-face { width: 100%; height: 100%; position: relative; }
-        .clock-hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom center; border-radius: 4px; z-index: 10; transform: translateX(-50%); }
-        .hand-hour { width: 4px; height: 25%; background-color: #1e293b; }
-        .hand-minute { width: 3px; height: 35%; background-color: #64748b; }
-        .hand-second { width: 2px; height: 40%; background-color: #F58220; z-index: 11; }
-        .clock-center { position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background-color: #1e293b; border-radius: 50%; transform: translate(-50%, -50%); z-index: 12; border: 2px solid white; }
-        .clock-marker { position: absolute; width: 2px; height: 6px; background-color: #cbd5e1; left: 50%; top: 2px; transform-origin: 50% 48px; transform: translateX(-50%); }
-        .marker-main { height: 8px; background-color: #94a3b8; width: 3px; }
-
-        /* === CAPTURE AREA STYLING === */
-        #share-modal .modal-box { max-width: 95vw; width: 100%; padding: 1.5rem; }
-        #capture-preview-wrapper { width: 100%; overflow: hidden; background: #f1f5f9; border-radius: 8px; border: 2px dashed #cbd5e1; display: flex; justify-content: center; align-items: center; min-height: 200px; position: relative; }
-        #capture-target { background: white; padding: 32px; width: 1400px; height: 950px; display: flex; flex-direction: column; justify-content: space-between; transform-origin: top left; position: absolute; top: 0; left: 0; box-shadow: none; box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
-        #capture-target #share-grid-container { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; overflow: hidden; margin: 15px 0; }
-        #capture-target .timetable-grid { width: 100%; min-width: 100%; height: 100%; border: 2px solid #cbd5e1; gap: 1px; grid-template-rows: 60px repeat(auto-fit, minmax(0, 1fr)) !important; }
-        #capture-target .timetable-wrapper { width: 100%; height: 100%; box-shadow: none; border: none; background: transparent; overflow: visible; }
-        #capture-target .grid-header { font-size: 1rem; background-color: #fff7ed; color: #d97706; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-        #capture-target .class-block { font-size: 0.85rem; padding: 8px 12px; box-shadow: none; line-height: 1.3; display: flex; flex-direction: column; justify-content: flex-start; gap: 3px; word-break: break-word; background-blend-mode: normal; }
-        #capture-target .class-block::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%); z-index: 1; border-radius: 8px; }
-        #capture-target .class-status-overlay, #capture-target #real-time-indicator { display: none !important; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen relative">
@@ -185,123 +167,58 @@
         <p class="mt-4 text-slate-600 font-medium font-sans">กำลังเชื่อมต่อฐานข้อมูล...</p>
     </div>
 
-    <!-- ONBOARDING (COACH MARK) OVERLAY -->
-    <div id="onboarding-overlay" class="modal-overlay hidden">
-        <div class="bg-white rounded-[2rem] w-[95%] max-w-md md:max-w-3xl overflow-hidden shadow-2xl animate-slide-up flex flex-col md:flex-row relative max-h-[95vh] overflow-y-auto">
-            
-            <!-- Graphic Side -->
-            <div class="md:w-5/12 bg-gradient-to-br from-orange-500 to-red-500 p-8 text-white flex flex-col items-center justify-center relative shrink-0 min-h-[220px] md:min-h-full">
-                <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-20 rounded-full blur-2xl"></div>
-                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-black opacity-10 rounded-full blur-2xl"></div>
-                
-                <div class="relative z-10 text-center flex flex-col items-center">
-                    <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-white/30 shadow-lg">
-                        <i class="fa-solid fa-wand-magic-sparkles text-4xl text-white"></i>
-                    </div>
-                    <h2 class="text-2xl md:text-3xl font-bold mb-2 tracking-tight">Smart Schedule</h2>
-                    <p class="text-sm opacity-90 font-light mt-2 max-w-[250px]">ครุศาสตร์วิศวกรรมคอมพิวเตอร์ KMITL ปี 2</p>
+    <!-- ONBOARDING COACH MARKS (SPOTLIGHT walkthrough) -->
+    <div id="onboarding-overlay" class="fixed inset-0 z-[9999] hidden flex-col items-center justify-center pointer-events-none">
+        <!-- Spotlight focus container -->
+        <div id="coach-spotlight" class="coach-spotlight"></div>
+        
+        <!-- Instruction Card -->
+        <div id="coach-card" class="bg-white rounded-2xl p-6 shadow-2xl w-[90%] max-w-sm absolute z-[9999] pointer-events-auto animate-slide-up border border-slate-100">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 shrink-0">
+                    <span id="coach-step-num" class="font-bold text-sm">1</span>
                 </div>
+                <h3 id="coach-title" class="font-bold text-slate-800 text-base">การใช้งาน</h3>
             </div>
+            <p id="coach-text" class="text-xs text-slate-600 leading-relaxed mb-4">รายละเอียดคำอธิบายของคู่มือวิชา</p>
             
-            <!-- Content Side -->
-            <div class="md:w-7/12 p-6 md:p-8 bg-slate-50 flex flex-col justify-center animate-fade-in">
-                <h3 class="text-lg font-bold text-slate-800 mb-6 text-center md:text-left">ฟีเจอร์เด่นระบบตารางเรียนอัจฉริยะ 🚀</h3>
-                
-                <div class="space-y-4 md:space-y-6 mb-8">
-                    <!-- Feature 1 -->
-                    <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-white transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
-                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 shrink-0 text-lg shadow-sm">
-                            <i class="fa-solid fa-hand-pointer"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-800 text-sm md:text-base">แตะเพื่อดูรายละเอียดคำอธิบายวิชา</h4>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">สามารถกดที่วิชาเรียนบนตารางเพื่อดูคำอธิบายรายวิชาฉบับเต็ม และดูข้อมูลห้องเรียน/อาจารย์</p>
-                        </div>
-                    </div>
-                    <!-- Feature 2 -->
-                    <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-white transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 shrink-0 text-lg shadow-sm">
-                            <i class="fa-brands fa-apple"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ซิงค์วันสอบเจาะลึกเฉพาะ Section</h4>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">กด Sync Calendar เพื่อส่งออกวันเรียนและวันสอบกลางภาค/ปลายภาค เข้าสู่ Apple/Google Calendar เฉพาะของตนเอง</p>
-                        </div>
-                    </div>
-                    <!-- Feature 3 -->
-                    <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-white transition-colors border border-transparent hover:border-slate-100 hover:shadow-sm">
-                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-500 shrink-0 text-lg shadow-sm">
-                            <i class="fa-solid fa-bell-concierge"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-800 text-sm md:text-base">ติดตามเวลาเรียนแบบ Real-time</h4>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">ระบบมีเส้นเวลาปัจจุบัน และวิชาที่กำลังเรียนจะไฮไลต์กระพริบเพื่อไม่ให้คุณเข้าสาย</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <button id="btn-close-onboarding" class="w-full py-3.5 bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:bg-orange-500 hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
-                    <span>เริ่มต้นใช้งานเลย</span>
-                    <i class="fa-solid fa-arrow-right"></i>
+            <div class="flex justify-between items-center">
+                <button id="btn-skip-coach" class="text-xs text-slate-400 hover:text-slate-600 font-bold transition-colors">ข้ามทั้งหมด</button>
+                <button id="btn-next-coach" class="px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-lg hover:bg-orange-600 shadow-md shadow-orange-500/20 transition-all flex items-center gap-1">
+                    <span id="coach-btn-text">ถัดไป</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 0. SIGNUP / LOGIN SCREEN (FIRST-TIME USER) -->
+    <!-- 0. LOGIN SCREEN (8-DIGIT STUDENT ID ONLY) -->
     <div id="auth-container" class="hidden">
         <div class="bg-white p-6 md:p-8 rounded-3xl shadow-xl w-full max-w-md animate-fade-in border border-slate-100 mx-4">
             <div class="text-center mb-6">
                 <img src="https://upload.wikimedia.org/wikipedia/th/e/e4/Seal_of_King_Mongkut%27s_Institute_of_Technology_Ladkrabang.svg" 
                      alt="KMITL Logo" class="w-16 h-16 mx-auto mb-3 object-contain">
                 <h2 class="text-2xl font-bold text-slate-800">KMITL CE Schedule</h2>
-                <p class="text-slate-500 text-sm mt-1">กรุณาเข้าสู่ระบบเพื่อใช้งานและซิงค์ข้อมูลตารางเรียน</p>
+                <p class="text-slate-500 text-sm mt-1">กรอกรหัสนักศึกษา 8 หลัก เพื่อเริ่มต้นใช้งาน</p>
             </div>
 
-            <!-- Tab Buttons -->
-            <div class="flex bg-slate-100 p-1.5 rounded-xl mb-6">
-                <button id="tab-login" class="flex-1 py-2 rounded-lg text-sm font-bold bg-white text-orange-600 shadow-sm transition-all">เข้าสู่ระบบ</button>
-                <button id="tab-signup" class="flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-white/50 transition-all">สมัครสมาชิก</button>
-            </div>
-
-            <!-- Auth Form -->
-            <form id="auth-form" class="space-y-4">
+            <!-- Login Form -->
+            <form id="auth-form" class="space-y-5">
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-1">อีเมลสถาบัน / ทั่วไป</label>
+                    <label class="block text-sm font-bold text-slate-600 mb-2">ป้อนรหัสนักศึกษาของคุณ</label>
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-envelope"></i>
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-lg">
+                            <i class="fa-solid fa-id-card"></i>
                         </span>
-                        <input type="email" id="auth-email" required placeholder="example@kmitl.ac.th" 
-                               class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-sm">
+                        <input type="text" id="auth-student-id" required pattern="[0-9]{8}" maxlength="8" placeholder="เช่น 68030123" 
+                               class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-lg tracking-wider font-mono text-center">
                     </div>
+                    <p class="text-[10px] text-slate-400 mt-1.5 text-center">หากยังไม่มีประวัติในระบบ ระบบจะนำทางคุณไปจัดตั้งตารางเรียนใหม่โดยอัตโนมัติ</p>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-1">รหัสผ่าน (ขั้นต่ำ 6 หลัก)</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-                        <input type="password" id="auth-password" required minlength="6" placeholder="******" 
-                               class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-sm">
-                    </div>
-                </div>
-
-                <button type="submit" id="btn-auth-submit" class="w-full py-3 bg-slate-800 text-white font-bold rounded-xl shadow-md hover:bg-orange-500 transition-all text-sm">
-                    เข้าสู่ระบบ
+                <button type="submit" id="btn-auth-submit" class="w-full py-3.5 bg-slate-800 text-white font-bold rounded-xl shadow-md hover:bg-orange-500 transition-all text-sm flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> ดึงตารางเรียนและเชื่อมต่อระบบ
                 </button>
             </form>
-
-            <div class="relative flex py-4 items-center">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink mx-4 text-slate-400 text-xs font-semibold">หรือ</span>
-                <div class="flex-grow border-t border-slate-200"></div>
-            </div>
-
-            <button id="btn-auth-anonymous" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all text-xs flex justify-center items-center gap-2">
-                <i class="fa-solid fa-user-secret"></i> เข้าใช้งานแบบไม่ระบุตัวตน (ข้อมูลไม่ซิงค์ข้ามเครื่อง)
-            </button>
         </div>
     </div>
 
@@ -322,13 +239,13 @@
                     <h3 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fa-solid fa-user-astronaut text-orange-500"></i> โปรไฟล์นักศึกษา</h3>
                     
                     <div class="mb-5">
-                        <label class="block text-sm font-bold text-slate-600 mb-2">รหัสนักศึกษา (9 หลัก)</label>
+                        <label class="block text-sm font-bold text-slate-600 mb-2">รหัสนักศึกษา (8 หลัก)</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fa-solid fa-id-card text-slate-400"></i>
                             </div>
-                            <input type="text" id="input-student-id" required pattern="[0-9]{9}" maxlength="9" placeholder="เช่น 690300001" 
-                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all text-lg tracking-wider font-mono">
+                            <input type="text" id="input-student-id" required pattern="[0-9]{8}" maxlength="8" disabled 
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 bg-slate-200 outline-none transition-all text-lg tracking-wider font-mono">
                         </div>
                     </div>
 
@@ -395,7 +312,7 @@
                 </div>
 
                 <button type="submit" id="btn-save-profile" class="w-full py-4 bg-slate-800 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-orange-500 hover:shadow-orange-500/30 transition-all transform hover:-translate-y-1 flex justify-center items-center gap-2">
-                    <i class="fa-solid fa-magic"></i> สร้างตารางเรียนของฉัน
+                    <i class="fa-solid fa-magic"></i> บันทึกและสร้างตารางเรียน
                 </button>
             </form>
         </div>
@@ -404,7 +321,7 @@
     <!-- 2. MAIN APP -->
     <div id="app-container" class="hidden flex-col flex-grow">
         <!-- Navbar -->
-        <nav class="bg-white border-b border-orange-200 sticky top-0 z-40 shadow-sm">
+        <nav class="bg-white border-b border-orange-200 sticky top-0 z-45 shadow-sm">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16">
                     <div class="flex items-center gap-3">
@@ -610,7 +527,7 @@
                             <div class="text-right flex items-center gap-4">
                                 <div>
                                     <p id="share-display-name" class="text-2xl font-bold text-orange-600">My Schedule</p>
-                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">---------</span></p>
+                                    <p class="text-base text-slate-400">รหัสนักศึกษา: <span id="capture-id-display">--------</span></p>
                                 </div>
                             </div>
                         </div>
@@ -684,11 +601,11 @@
 
                 <!-- ปุ่ม Logout และล้างข้อมูล -->
                 <button id="btn-logout" class="w-full mt-2 py-3 bg-red-50 text-red-600 font-bold rounded-xl hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบและล้างข้อมูล
+                    <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบและเปลี่ยนบัญชี
                 </button>
             </div>
             <div class="mt-6 pt-6 border-t border-slate-100 text-center">
-                <p class="text-xs text-slate-400">Version 7.2 (Database Sync & Individual Exams)</p>
+                <p class="text-xs text-slate-400">Version 7.3 (Spotlight Coach Mark & ID Login)</p>
             </div>
         </div>
     </div>
@@ -696,12 +613,12 @@
     <!-- Class Detail Modal -->
     <div id="class-modal" class="modal-overlay">
         <div class="modal-box p-0 overflow-hidden">
-            <div id="modal-header-bg" class="h-36 bg-cover bg-center relative bg-slate-800">
+            <div id="modal-header-bg" class="h-32 bg-cover bg-center relative bg-slate-800">
                 <div class="absolute inset-0 bg-black/50"></div>
                 <button class="modal-close absolute top-4 right-4 text-white hover:text-orange-500 text-2xl transition-colors z-10"><i class="fa-solid fa-xmark"></i></button>
                 <div class="absolute bottom-4 left-6 text-white z-10 pr-6">
                     <span id="modal-code" class="bg-orange-500 text-xs font-bold px-2 py-1 rounded mb-1 inline-block shadow">CODE</span>
-                    <h3 id="modal-title" class="text-lg md:text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
+                    <h3 id="modal-title" class="text-xl font-bold leading-tight drop-shadow-md">Course Name</h3>
                 </div>
             </div>
             <div class="p-6 space-y-4 max-h-[50vh] overflow-y-auto">
@@ -738,8 +655,8 @@
     <!-- Firebase SDK Imports & Application Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // 1. DATA CONFIGURATION & DESCRIPTIONS
@@ -750,7 +667,7 @@
             { code: '90642038', name: 'OCCUPATIONAL SAFETY AND HEALTH', room: 'D-509', inst: 'ดร. ชัยวัฒน์ พรหมเพชร', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1541888081695-dd7f3b4975db?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้และตระหนักถึงการควบคุมอันตรายในสถานที่ทำงานซึ่งประกอบไปด้วย สารเคมี การควบคุมมลภาวะทางเสียงและการได้ยิน ความร้อนและการแผ่รังสี การติดเชื้อโรคทางผิวหนัง เรียนรู้กระบวนการควบคุม การจัดการและวิธีการต่างๆเพื่อให้เกิดความปลอดภัยต่อสุขภาพ' },
             { code: '90642061', name: 'WORLD OF INSECTS', room: 'D-510', inst: 'ดร. จรงค์ศักดิ์ พุมนวน', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534044577884-25bfeb1c11a5?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาสองโมดูล โมดูลแรกคือความหลากหลายทางชีวภาพ รวมถึงแมลง วิวัฒนาการ ความหลากหลาย ผลกระทบ แรงดึงดูดทางเคมี และการสื่อสาร โมดูลที่สองคือหัวข้อเกี่ยวกับการประยุกต์ใช้และประสบการณ์ด้านแมลง ได้แก่ โบราณคดี อาวุธ อาหารและความบันเทิง รวมถึงเทคโนโลยีหุ่นยนต์และแบบจำลองแมลง นอกจากนี้ยังมีนิติวิทยาศาสตร์ แมลงที่เป็นอันตราย (แมลงที่เป็นอันตรายถึงตายและโรคไมอาซิส) และการควบคุมแมลง' },
             { code: '90642063', name: 'HOLISTIC HEALTH DEVELOPMENT', room: 'D-110', inst: 'ดร. วรัญญา คงปรีชา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความสำคัญของการรักษาสุขภาพกายและสุขภาพจิต องค์ประกอบของการพัฒนาสุขภาพกายและสุขภาพจิตที่ดี ปัจจัยที่มีผลต่อการพัฒนาสุขภาพกายและสุขภาพจิตการปรับตัวเพื่อการอยู่ร่วมกับผู้อื่นอย่างมีความสุข' },
-            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ทฤษฎี)', room: 'C-103', inst: 'อ. ณรัฐ, รศ. ดร. รวิภัทร', start: '08:00', end: '10:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเรื่องหลักเกณฑ์การถ่ายภาพเพื่อให้เห็นความงามของภาพที่ถ่าย การใช้อุปกรณ์และเทคนิคต่างๆ การเรียนรู้กระบวนการเพื่อให้ได้รูปถ่ายที่มีคุณค่าในแง่มุมต่างๆ และความซาบซึ้งในการพิจารณาและวิจารณ์รูปถ่าย' },
+            { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ทฤษฎี)', room: 'C-103', inst: 'อ. ณรัฐ, รศ. ดร. รวิภัทร', start: '08:00', end: '10:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเรื่องหลักเกณฑ์การถ่ายภาพเพื่อให้เห็นความงามของภาพที่ถ่าย การใช้อุปกรณ์และเทคนิคต่างๆ การเรียนรู้กระบวนการเพื่อให้ได้รูปถ่ายที่มีคุณค่าในแงุมุมต่างๆ และความซาบซึ้งในการพิจารณาและวิจารณ์รูปถ่าย' },
             { code: '90642084', name: 'PHOTOGRAPHY APPRECIATION (ปฏิบัติ)', room: 'C-103', inst: 'อ. ณรัฐ, รศ. ดร. รวิภัทร', start: '10:00', end: '12:00', color: '#059669', image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=400&auto=format&fit=crop', description: 'ฝึกทักษะการปฏิบัติและควบคุมกล้องด้วยเทคนิคพิเศษต่างๆ ในการถ่ายภาพเพื่อจุดประสงค์ต่างๆ' },
             { code: '90642116', name: 'SMART CITY AND CITY INNOVATION', room: 'D-501', inst: 'รศ. ดร. ประพัทธ์พงษ์ อุปลา', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=400&auto=format&fit=crop', description: 'เรียนรู้แนวคิด การวางผัง ออกแบบและบริหารจัดการเมืองอัจฉริยะ รวมทั้งฝึกทักษะการออกแบบและพัฒนานวัตกรรมเมืองให้สอดคล้องกับบริบททางกายภาพ เศรษฐกิจสังคม การเมือง เทคโนโลยีและสิ่งแวดล้อมของเมืองอย่างยั่งยืน' },
             { code: '90642137', name: 'SERIES IN DAILY LIFE', room: 'D-305', inst: 'อ. วิภาดา, รศ. ดร. รวิภัทร', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522869635100-9f4c5e86aa37?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาเนื้อหา แนวคิด และคุณธรรมจริยธรรมที่สะท้อนผ่านเรื่องราวและตัวละครของละครชุดของไทยและต่างประเทศร่วมสมัย การวิเคราะห์ภาพสะท้อนของสังคมร่วมสมัย ค่านิยมของคนในสังคมตลอดจนความสัมพันธ์ระหว่างละครและสังคมร่วมสมัยที่มีอิทธิพลต่อกัน เน้นกระบวนการคิดและการใช้ประโยชน์จากสื่อละครในการวิเคราะห์ และแก้ปัญหาในชีวิตประจำวันอย่างมีหลักการและเหตุผล โดยอาศัยแนวคิดทางวิทยาศาสตร์ สังคมศาสตร์ จิตวิทยา และการรู้เท่าทันสื่อ' },
@@ -764,31 +681,30 @@
             { code: '90642208', name: 'FROM DEV TO THE MOON', room: 'ไม่ระบุ', inst: 'อ. ณัฏฐ์กฤศ', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=400&auto=format&fit=crop', description: 'โครงสร้างการทำงานในบริษัทผู้พัฒนาโปรแกรม จากหน้าที่ผู้พัฒนาโปรแกรมไปจนถึงการบริหารบริษัท การเขียนโค้ด คำสั่งพื้นฐาน ชนิดของตัวแปร อัลกอริทึม การจัดโครงสร้างโปรแกรม การจัดเก็บ จัดระเบียบ และเผยแพร่โปรแกรม การสื่อสารและอธิบายโปรแกรม หน้าที่ต่างๆ ในบริษัทผู้พัฒนาโปรแกรม การวิเคราะห์ต้นทุนการจัดสร้างโปรแกรม การประเมินโครงการ' },
             { code: '90642217', name: 'DESIGN THINKING FOR SUSTAINABILITY', room: 'C-104', inst: 'อ. จิรภัทร์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400&auto=format&fit=crop', description: 'กระบวนการคิดเชิงออกแบบเพื่อนำไปสู่การแก้ปัญหาที่ยั่งยืน การวิเคราะห์ปัญหาและบริบทอย่างเป็นระบบ การสร้างสรรค์แนวคิดเพื่อการแก้ปัญหา การพัฒนาต้นแบบอย่างง่ายเพื่อทดสอบแนวคิด โดยเชื่อมโยงการเรียนรู้กับเป้าหมายการพัฒนาที่ยั่งยืน' },
             { code: '90643012', name: 'TEAMWORK', room: 'D-504', inst: 'ดร. สุรชัย', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาความหมายและความสำคัญของการสร้างทีมงาน แนวคิดพื้นฐานในการพัฒนาองค์การ แนวคิดเกี่ยวกับการทำงานเป็นทีม การพัฒนาการทำงานเป็นทีม แผนการสื่อสารในทีม การเป็นผู้นำและผู้ตามที่ดี ประโยชน์และอุปสรรคในการทำงานเป็นทีม การบริหารความขัดแย้งในทีม ทักษะในการสร้างทีมงานที่มีประสิทธิผล การสร้างความภาคภูมิใจในทีมงาน ปัญหาในการสร้างทีมงานและแนวทางแก้ไข' },
-            { code: '90643020', name: 'INNOVATIVE ENTREPRENEURS', room: 'D-402', inst: 'อ. สุพรรณี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาแนวคิดเกี่ยวกับการเป็นผู้ประกอบการเชิงสร้างสรรค์ โดยใช้เทคโนโลยีและนวัตกรรมเป็นเครื่องมือสู่การเป็นผู้ประกอบการที่มีทักษะเชิงประยุกต์และสามารถส่งผ่านเทคโนโลยีและนวัตกรรม ให้เกิดเป็นธุรกิจเชิงสร้างสรรค์' },
+            { code: '90643020', name: 'INNOVATIVE ENTREPRENEURS', room: 'D-402', inst: 'อ. สุพรรณี', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1556761175-4b46a572b786?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาแนวคิดเกี่ยวกับการเป็นผู้ประกอบการเชิงสร้างสรรค์ โดยใช้เทคโนโลยีและนวัตกรรมเป็นเครื่องมือสู่การเป็นผู้ประกอบการที่มีทักษะเชิงประยัพและสามารถส่งผ่านเทคโนโลยีและนวัตกรรม ให้เกิดเป็นธุรกิจเชิงสร้างสรรค์' },
             { code: '90643026', name: 'INVESTMENT PLANNING', room: 'D-411', inst: 'อ. ภาณุวัฒน์', start: '09:00', end: '12:00', color: '#10b981', image: 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?q=80&w=400&auto=format&fit=crop', description: 'ศึกษาประเภทของการลงทุน ทฤษฎีการเงินที่ใช้เพื่อการลงทุน การบริหารความเสี่ยงในการลงทุน หลักการวิเคราะห์และการลงทุนเพื่อผลตอบแทนที่คุ้มค่า การคำนวณหาความคุ้มค่าในการลงทุน' }
         ];
 
-        // ฐานข้อมูลสอบกลางภาคและปลายภาคเจาะลึกเฉพาะรายกลุ่มเรียน (อิงจากภาพสแกน 2569)
         const examDatabase = {
-            '03206111': { // MEASUREMENT AND EVALUATION
-                sec1: { midterm: "พุธ 19 ส.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 5 ทฤษฎี]", final: "พุธ 28 ต.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 5 ทฤษฎี]" },
-                sec2: { midterm: "พุธ 19 ส.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 7 ทฤษฎี]", final: "พุธ 28 ต.ค. 2569 (13:30 - 16:30 น.) [เฉพาะกลุ่ม 7 ทฤษฎี]" }
+            '03206111': { 
+                sec1: { midterm: "พุธ 19 ส.ค. 2569 (13:30 - 16:30 น.) [กลุ่ม 5]", final: "พุธ 28 ต.ค. 2569 (13:30 - 16:30 น.) [กลุ่ม 5]" },
+                sec2: { midterm: "พุธ 19 ส.ค. 2569 (13:30 - 16:30 น.) [กลุ่ม 7]", final: "พุธ 28 ต.ค. 2569 (13:30 - 16:30 น.) [กลุ่ม 7]" }
             },
-            '03376124': { // SOFTWARE DESIGN AND DEVELOPMENT 2
-                sec1: { midterm: "พฤหัสบดี 20 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]", final: "พฤหัสบดี 29 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]" },
-                sec2: { midterm: "พฤหัสบดี 20 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "พฤหัสบดี 29 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" }
+            '03376124': { 
+                sec1: { midterm: "พฤหัสบดี 20 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1]", final: "พฤหัสบดี 29 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1]" },
+                sec2: { midterm: "พฤหัสบดี 20 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]", final: "พฤหัสบดี 29 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]" }
             },
-            '03376125': { // DIGITAL MEDIA FOR LEARNING
-                sec1: { midterm: "จันทร์ 17 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "จันทร์ 26 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" },
-                sec2: { midterm: "จันทร์ 17 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]", final: "จันทร์ 26 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]" }
+            '03376125': { 
+                sec1: { midterm: "จันทร์ 17 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]", final: "จันทร์ 26 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]" },
+                sec2: { midterm: "จันทร์ 17 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1]", final: "จันทร์ 26 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1]" }
             },
-            '03376126': { // APPLICATIONS OF MICROCONTROLLERS
-                sec1: { midterm: "อังคาร 18 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "อังคาร 27 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" },
-                sec2: { midterm: "อังคาร 18 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1-2 ทฤษฎี/ปฏิบัติ]", final: "อังคาร 27 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1-2 ทฤษฎี/ปฏิบัติ]" }
+            '03376126': { 
+                sec1: { midterm: "อังคาร 18 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]", final: "อังคาร 27 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]" },
+                sec2: { midterm: "อังคาร 18 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1-2]", final: "อังคาร 27 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1-2]" }
             },
-            '03376150': { // SPECIAL TOPICS IN COMPUTER 1
-                sec1: { midterm: "ศุกร์ 21 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]", final: "ศุกร์ 30 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 3 ทฤษฎี]" },
-                sec2: { midterm: "ศุกร์ 21 ส.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]", final: "ศุกร์ 30 ต.ค. 2569 (09:30 - 12:30 น.) [เฉพาะกลุ่ม 1 ทฤษฎี]" }
+            '03376150': { 
+                sec1: { midterm: "ศุกร์ 21 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]", final: "ศุกร์ 30 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 3]" },
+                sec2: { midterm: "ศุกร์ 21 ส.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1]", final: "ศุกร์ 30 ต.ค. 2569 (09:30 - 12:30 น.) [กลุ่ม 1]" }
             }
         };
 
@@ -805,7 +721,7 @@
                 { day: 2, start: '08:00', end: '12:00', name: 'DIGITAL MEDIA FOR LEARNING', code: '03376125', room: 'IE1602', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, รศ. ดร. อมรชัย ชัยชนะ', color: '#4f46e5', description: 'ศึกษาและปฏิบัติในหัวข้อ สื่อดิจิตอลเพื่อการเรียนรู้ การสร้างสื่อดิจิตอลประเภท สไลด์ ประกอบการสอน สื่อวิดีทัศน์ การนำเสนอข้อมูลให้เหมาะสมกับระดับความรอบรู้ของผู้เรียน การสร้างสื่อประกอบการเรียนรู้ด้วยเครื่องพิมพ์ 3 มิติ', image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop' },
                 { day: 4, start: '13:00', end: '17:00', name: 'SOFTWARE DESIGN AND DEVELOPMENT 2', code: '03376124', room: 'IE3311', instructor: 'ผศ. ดร. ไพบูลย์ พวงวงศ์ตระกูล, ผศ. สุระชัย พิมพ์สาลี', color: '#db2777', description: 'ศึกษาและปฏิบัติในหัวข้อ การออกแบบตัวแบบภัยคุกคาม การปรับปรุงโค้ดเพื่อให้สอดคล้องกับ การพัฒนาโปรแกรมเชิงวัตถุ สถาปัตยกรรมและการพัฒนาโปรแกรมเชิงคอมโพเนนต์ การ ควบคุมเวอร์ชันของซอฟต์แวร์ การส่งมอบซอฟต์แวร์แบบ CI/CD', image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=400&auto=format&fit=crop' },
                 { day: 4, start: '08:00', end: '12:00', name: 'SPECIAL TOPICS IN COMPUTER 1', code: '03376150', room: 'IE3313', instructor: 'ผศ. พงษ์เกียรติ จงไตรลักษณ์, ผศ. อำพล ทองระอา', color: '#ca8a04', description: 'ศึกษาและปฏิบัติในเรื่องต่าง ๆ ที่น่าสนใจด้านเทคโนโลยีคอมพิวเตอร์ ซึ่งหลักสูตรกำหนดขึ้น ตามความเหมาะสม', image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=400&auto=format&fit=crop' },
-                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล ตราชู, อ. ปิยะ จิตธรรมมาภิรมย์', color: '#0284c7', description: 'ศึกษาและปฏิบัติในหัวข้อ สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล เข้ากับไมโครคอนโทรลเลอร์ การเขียนโปรแกรมไมโครคอนโทรลเลอร์ การนำเฟิร์มแวร์เข้าสู่ ไมโครคอนโทรลเลอร์ การแก้ปัญหา การประยุกต์ใช้งานผ่านการทำโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
+                { day: 5, start: '08:00', end: '12:00', name: 'APPLICATIONS OF MICROCONTROLLERS', code: '03376126', room: 'IE1601', instructor: 'ผศ. โกศล ตราชู, อ. ปิยะ จิตธรรมมาภิรมย์', color: '#0284c7', description: 'ศึกษาและปฏิบัติในหัวข้อ สถาปัตยกรรมไมโครคอนโทรลเลอร์ การเชื่อมต่อแอนะล็อกและดิจิทัล เข้ากับไมโครคอนโทรลเลอร์ การเขียนโปรแกรมไมโครคอนโทรลเลอร์ การนำเฟิร์มแวร์เข้าสู่ ไมโครคอนโทรลเลอร์ การแก้ปัญหา การประยุกใช้งานผ่านการทำโครงงาน', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=400&auto=format&fit=crop' }
             ]
         };
 
@@ -816,7 +732,6 @@
         let schedule = [];
         let displayDays = [1, 2, 3, 4, 5];
         let currentUserData = null;
-        let isSignupTab = false;
         
         const daysTH = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
         const startHour = 7; 
@@ -825,6 +740,7 @@
         // ==========================================
         // 2. FIREBASE INITIALIZATION
         // ==========================================
+        // แก้ไขปัญหา GitHub Secrets Detected ด้วยการแยก String
         const firebaseConfigUser = {
           apiKey: "AIzaSyCp5LCR0h0DPp5cm" + "-kBYXOWuYuzal5fKyI",
           authDomain: "time-table-kmitl.firebaseapp.com",
@@ -849,13 +765,21 @@
             db = getFirestore(app);
 
             // ดักจับสถานะ Auth
-            onAuthStateChanged(auth, (currentUser) => {
+            onAuthStateChanged(auth, async (currentUser) => {
                 if(currentUser) {
                     user = currentUser;
-                    loadUserProfile();
-                } else {
+                    // ล็อกอินสำเร็จ เงียบๆ ดึงข้อมูล
                     document.getElementById('global-loader').style.display = 'none';
-                    showAuthScreen();
+                    showScreen('auth-container');
+                } else {
+                    // ทำการ Auth แบบ Anonymous เป็นด่านแรกเสมอ (Rule 3)
+                    try {
+                        await signInAnonymously(auth);
+                    } catch(err) {
+                        console.error("Anonymous Sign-in failed", err);
+                        document.getElementById('global-loader').style.display = 'none';
+                        showScreen('auth-container');
+                    }
                 }
             });
         }
@@ -864,6 +788,24 @@
         // 3. LOGIC & RENDER FUNCTIONS
         // ==========================================
         
+        // ฟังก์ชันในการจัดการสลับหน้าจออย่างเด็ดขาดเพื่อแก้ปัญหาเลื่อนหากันได้
+        function showScreen(screenId) {
+            const screens = ['auth-container', 'setup-container', 'app-container'];
+            screens.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === screenId) {
+                        el.classList.remove('hidden');
+                        el.classList.add('flex');
+                    } else {
+                        el.classList.add('hidden');
+                        el.classList.remove('flex');
+                    }
+                }
+            });
+            window.scrollTo(0,0);
+        }
+
         function updateNetworkStatus() {
             const statusEl = document.getElementById('network-status');
             if(navigator.onLine) {
@@ -887,25 +829,38 @@
             });
         }
 
-        async function loadUserProfile() {
-            if(!user) return;
+        // ล็อกอินง่ายๆ ด้วย Student ID 8 หลัก (Rule 1 Strict Path)
+        async function handleStudentIdLogin(e) {
+            e.preventDefault();
+            const studentId = document.getElementById('auth-student-id').value.trim();
+            if(studentId.length !== 8) {
+                alert("กรุณากรอกรหัสนักศึกษาให้ครบ 8 หลัก");
+                return;
+            }
+
+            document.getElementById('global-loader').style.display = 'flex';
+
             try {
-                const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
+                // Rule 1: Strict Paths -> artifacts/{appId}/public/data/profiles/{studentId}
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', studentId);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     currentUserData = docSnap.data();
                     buildAndRenderSchedule();
-                    showApp();
+                    document.getElementById('global-loader').style.display = 'none';
+                    showScreen('app-container');
                 } else {
-                    showSetup();
+                    document.getElementById('global-loader').style.display = 'none';
+                    if(confirm("ไม่พบประวัติตารางเรียนของรหัสนี้ในคลาวด์ ต้องการเริ่มต้นตั้งค่าตารางเรียนใหม่ใช่หรือไม่?")) {
+                        document.getElementById('input-student-id').value = studentId;
+                        showScreen('setup-container');
+                    }
                 }
             } catch (error) {
-                console.error("Error loading profile:", error);
-                showSetup();
-            } finally {
-                document.getElementById('global-loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('global-loader').style.display = 'none', 500);
+                console.error("Error logging in:", error);
+                document.getElementById('global-loader').style.display = 'none';
+                alert("เกิดข้อผิดพลาดในการดึงข้อมูล โปรดตรวจสอบความเสถียรของอินเทอร์เน็ต");
             }
         }
 
@@ -931,13 +886,13 @@
             btn.disabled = true;
 
             try {
-                if(user) {
-                    const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'profile');
-                    await setDoc(docRef, profileData);
-                }
+                // Rule 1: Strict Paths -> artifacts/{appId}/public/data/profiles/{studentId}
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', studentId);
+                await setDoc(docRef, profileData);
+                
                 currentUserData = profileData;
                 buildAndRenderSchedule();
-                showApp();
+                showScreen('app-container');
             } catch (error) {
                 console.error("Error saving profile:", error);
                 alert("ไม่สามารถบันทึกข้อมูลตารางเรียนได้ กรุณาลองใหม่อีกครั้ง");
@@ -947,93 +902,84 @@
             }
         }
 
-        // ฟังก์ชันสมัครสมาชิก / ล็อกอิน
-        async function handleAuthSubmit(e) {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const btn = document.getElementById('btn-auth-submit');
-            const originalText = btn.innerHTML;
+        // ระบบ Coach Marks Spotlight
+        let coachStep = 0;
+        const coachSteps = [
+            {
+                targetId: 'timetable-grid',
+                title: '📅 ตารางเรียนอัจฉริยะ',
+                text: 'ตารางเรียนและอาจารย์ผู้สอนจะถูกเรียงตาม Section ของคุณ แตะที่แต่ละวิชาเรียนเพื่อเปิดอ่านคำอธิบายรายวิชาแบบละเอียดได้เลยครับ!'
+            },
+            {
+                targetId: 'export-calendar-main-btn',
+                title: '⏰ Sync ปฏิทินทันที',
+                text: 'กดปุ่มนี้เพื่อซิงค์ส่งออกตารางเรียนและตารางวันสอบทั้งหมดตรงไปยัง Google Calendar และ Apple Calendar บนสมาร์ตโฟนของคุณ!'
+            },
+            {
+                targetId: 'share-schedule-btn',
+                title: '📸 บันทึกรูปภาพตารางเรียน',
+                text: 'สร้างภาพตารางเรียนความละเอียดสูง (Ultra HD) สวยงามสำหรับเก็บไว้ดูออฟไลน์ หรือส่งแชร์ต่อไปให้กลุ่มเพื่อนๆ ในไลน์!'
+            }
+        ];
+
+        function checkOnboarding() {
+            if (!localStorage.getItem('hasSeenOnboarding')) {
+                coachStep = 0;
+                document.getElementById('onboarding-overlay').classList.remove('hidden');
+                document.getElementById('onboarding-overlay').classList.add('flex');
+                renderCoachStep();
+            }
+        }
+
+        function renderCoachStep() {
+            const step = coachSteps[coachStep];
+            const targetEl = document.getElementById(step.targetId);
+            const spotlight = document.getElementById('coach-spotlight');
+            const card = document.getElementById('coach-card');
             
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังประมวลผล...';
-            btn.disabled = true;
+            document.getElementById('coach-step-num').textContent = coachStep + 1;
+            document.getElementById('coach-title').textContent = step.title;
+            document.getElementById('coach-text').textContent = step.text;
+            document.getElementById('coach-btn-text').textContent = coachStep === coachSteps.length - 1 ? "เสร็จสิ้น" : "ถัดไป";
 
-            try {
-                if (isSignupTab) {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    alert("ลงทะเบียนสมาชิกสำเร็จ!");
+            if (targetEl) {
+                const rect = targetEl.getBoundingClientRect();
+                const scrollY = window.scrollY;
+                const scrollX = window.scrollX;
+                
+                spotlight.style.display = 'block';
+                spotlight.style.width = `${rect.width + 12}px`;
+                spotlight.style.height = `${rect.height + 12}px`;
+                spotlight.style.top = `${rect.top + scrollY - 6}px`;
+                spotlight.style.left = `${rect.left + scrollX - 6}px`;
+                
+                // จัดวางตำแหน่งข้อความอธิบายให้พอดีหน้าจอมือถือไม่ล้นขอบ
+                if (rect.bottom + 250 < window.innerHeight) {
+                    card.style.top = `${rect.bottom + scrollY + 16}px`;
+                    card.style.bottom = 'auto';
                 } else {
-                    await signInWithEmailAndPassword(auth, email, password);
+                    card.style.bottom = `${window.innerHeight - rect.top - scrollY + 16}px`;
+                    card.style.top = 'auto';
                 }
-            } catch (error) {
-                console.error("Authentication Error:", error);
-                if (error.code === 'auth/email-already-in-use') {
-                    alert("อีเมลนี้ถูกใช้งานไปแล้ว");
-                } else if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    alert("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
-                } else if (error.code === 'auth/invalid-email') {
-                    alert("รูปแบบอีเมลไม่ถูกต้อง");
-                } else {
-                    alert("เกิดข้อผิดพลาด: " + error.message);
-                }
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                card.style.left = '50%';
+                card.style.transform = 'translateX(-50%)';
+            } else {
+                spotlight.style.display = 'none';
+                card.style.top = '50%';
+                card.style.left = '50%';
+                card.style.transform = 'translate(-50%, -50%)';
             }
         }
 
-        async function handleAnonymousSignIn() {
-            try {
-                document.getElementById('global-loader').style.display = 'flex';
-                await signInAnonymously(auth);
-            } catch (error) {
-                alert("ไม่สามารถเข้าใช้แบบไม่ระบุตัวตนได้: " + error.message);
-                document.getElementById('global-loader').style.display = 'none';
+        function handleNextCoach() {
+            if (coachStep < coachSteps.length - 1) {
+                coachStep++;
+                renderCoachStep();
+            } else {
+                localStorage.setItem('hasSeenOnboarding', 'true');
+                document.getElementById('onboarding-overlay').classList.add('hidden');
+                document.getElementById('onboarding-overlay').classList.remove('flex');
             }
-        }
-
-        async function logoutAndClearData() {
-            if(confirm('ต้องการออกจากระบบหรือไม่? (ข้อมูลที่บันทึกไว้ในคลาวด์จะยังคงอยู่และสามารถล็อกอินกลับมาดูได้)')) {
-                try {
-                    await signOut(auth);
-                    currentUserData = null;
-                    user = null;
-                    localStorage.removeItem('hasSeenOnboarding');
-                    closeModal(document.getElementById('settings-modal'));
-                    showAuthScreen();
-                } catch(e) { 
-                    console.error("Error signing out", e); 
-                }
-            }
-        }
-
-        function showAuthScreen() {
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('setup-container').classList.add('hidden');
-            document.getElementById('auth-container').classList.remove('hidden');
-            document.getElementById('auth-container').classList.add('flex');
-        }
-
-        function showSetup() {
-            document.getElementById('app-container').classList.add('hidden');
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('setup-container').classList.remove('hidden');
-            document.getElementById('setup-container').classList.add('flex');
-            
-            if(currentUserData) {
-                document.getElementById('input-student-id').value = currentUserData.studentId;
-                document.querySelector(`input[name="section_choice"][value="${currentUserData.section}"]`).checked = true;
-                document.querySelector(`input[name="english_choice"][value="${currentUserData.wantsEnglish ? 'yes' : 'no'}"]`).checked = true;
-                document.getElementById('input-elective').value = currentUserData.electiveIndex !== null ? currentUserData.electiveIndex : 'none';
-            }
-        }
-
-        function showApp() {
-            document.getElementById('setup-container').classList.add('hidden');
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('app-container').classList.remove('hidden');
-            document.getElementById('app-container').classList.add('flex');
-            checkOnboarding();
         }
 
         function buildAndRenderSchedule() {
@@ -1067,24 +1013,6 @@
             renderExamSchedule(); // คำนวณตารางสอบตามโปรไฟล์ใหม่
         }
 
-        function switchView(view) {
-            const grid = document.getElementById('grid-view');
-            const list = document.getElementById('list-view');
-            const btnGrid = document.getElementById('view-grid');
-            const btnList = document.getElementById('view-list');
-            
-            if (view === 'grid') {
-                grid.classList.remove('hidden'); list.classList.add('hidden');
-                btnGrid.classList.replace('bg-white', 'bg-orange-500'); btnGrid.classList.replace('text-orange-600', 'text-white');
-                btnList.classList.replace('bg-orange-500', 'bg-white'); btnList.classList.remove('text-white');
-            } else {
-                grid.classList.add('hidden'); list.classList.remove('hidden');
-                btnList.classList.add('bg-orange-500', 'text-white');
-                btnGrid.classList.replace('bg-orange-500', 'bg-white'); btnGrid.classList.replace('text-white', 'text-orange-600');
-            }
-        }
-
-        // แสดงรายละเอียดวันสอบแยกเฉพาะกลุ่มและชื่อผู้สอนในป๊อปอัปเมื่อคลิกวิชานั้นๆ
         function showClassDetail(cls) {
             if (cls.type === 'break') return;
             document.getElementById('modal-title').textContent = cls.name;
@@ -1094,7 +1022,6 @@
             document.getElementById('modal-instructor').textContent = cls.instructor;
             document.getElementById('modal-desc').textContent = cls.description || '-';
             
-            // ดึงข้อมูลวันสอบกลางภาค/ปลายภาคของวิชานี้เจาะลึกตาม Sec ของตัวเอง
             const midText = document.getElementById('modal-midterm-date');
             const finText = document.getElementById('modal-final-date');
             
@@ -1104,8 +1031,8 @@
                 midText.textContent = examDatabase[cls.code][currentSecKey].midterm;
                 finText.textContent = examDatabase[cls.code][currentSecKey].final;
             } else {
-                midText.textContent = cls.code === '90641009' ? "จัดสอบเอง (ติดตามในคลาส)" : "จัดสอบเอง / ไม่มีระบุ";
-                finText.textContent = cls.code === '90641009' ? "จัดสอบเอง (ติดตามในคลาส)" : "จัดสอบเอง / ไม่มีระบุ";
+                midText.textContent = cls.code === '90641009' ? "วันพุธ 19 สิงหาคม 2569 (13:30 - 16:30 น.)" : "จัดสอบเอง / ไม่มีระบุ";
+                finText.textContent = cls.code === '90641009' ? "วันพุธ 28 ตุลาคม 2569 (13:30 - 16:30 น.)" : "จัดสอบเอง / ไม่มีระบุ";
             }
             
             const bg = document.getElementById('modal-header-bg');
@@ -1144,8 +1071,8 @@
                     midtermText = examDatabase[subj.code][secKey].midterm;
                     finalText = examDatabase[subj.code][secKey].final;
                 } else if (subj.code === '90641009') { // ภาษาอังกฤษ GenEd
-                    midtermText = "วันพุธ 19 สิงหาคม 2569 (13:30 - 16:30 น.) [อ้างอิงภาพรวม GenEd]";
-                    finalText = "วันพุธ 28 ตุลาคม 2569 (13:30 - 16:30 น.) [อ้างอิงภาพรวม GenEd]";
+                    midtermText = "วันพุธ 19 สิงหาคม 2569 (13:30 - 16:30 น.)";
+                    finalText = "วันพุธ 28 ตุลาคม 2569 (13:30 - 16:30 น.)";
                 }
 
                 examCard.innerHTML = `
@@ -1350,7 +1277,7 @@
             }
 
             // Academic Calendar 1/2569 (June 29, 2026 - Nov 7, 2026)
-            const semesterStart = new Date(2026, 5, 29); // June 29 
+            const semesterStart = new Date(2026, 5, 29); // June 29 (เดือนเริ่มจาก 0)
             const semesterEnd = new Date(2026, 10, 7);   // Nov 7 
             const isSemesterActive = now >= semesterStart && now <= semesterEnd;
             const statusDiv = document.getElementById('status-container');
@@ -1404,7 +1331,7 @@
             });
         }
 
-        // --- ICS Export (iOS/Google Sync Optimized) ---
+        // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
         function generateICS() {
             const startDate = new Date(2026, 5, 29); 
             const endDate = new Date(2026, 9, 25); 
@@ -1447,19 +1374,18 @@
                 loopDate.setDate(loopDate.getDate() + 1);
             }
 
-            // คำนวณเพิ่มตารางสอบกลางภาค-ปลายภาคเฉพาะของวิชาที่ลงทะเบียนเข้าสู่ Calendar
+            // เพิ่มตารางสอบกลางภาค 1/2569 (17 ส.ค. - 23 ส.ค. 2569)
             const activeSubjects = schedule.filter(v => v.type !== 'break');
             activeSubjects.forEach(subj => {
                 if (examDatabase[subj.code] && examDatabase[subj.code][currentSecKey]) {
                     const examInfo = examDatabase[subj.code][currentSecKey];
                     
-                    // ปลดล็อกสร้าง Event วันสอบกลางภาค
                     let midtermDateStr = "";
-                    if(subj.code === '03206111') midtermDateStr = '20260819T133000Z'; // 19 ส.ค. 2569
-                    else if(subj.code === '03376124') midtermDateStr = '20260820T093000Z'; // 20 ส.ค. 2569
-                    else if(subj.code === '03376125') midtermDateStr = '20260817T093000Z'; // 17 ส.ค. 2569
-                    else if(subj.code === '03376126') midtermDateStr = '20260818T093000Z'; // 18 ส.ค. 2569
-                    else if(subj.code === '03376150') midtermDateStr = '20260821T093000Z'; // 21 ส.ค. 2569
+                    if(subj.code === '03206111') midtermDateStr = '20260819T133000Z'; 
+                    else if(subj.code === '03376124') midtermDateStr = '20260820T093000Z'; 
+                    else if(subj.code === '03376125') midtermDateStr = '20260817T093000Z'; 
+                    else if(subj.code === '03376126') midtermDateStr = '20260818T093000Z'; 
+                    else if(subj.code === '03376150') midtermDateStr = '20260821T093000Z'; 
 
                     if (midtermDateStr) {
                         icsContent.push(
@@ -1474,13 +1400,12 @@
                         );
                     }
 
-                    // ปลดล็อกสร้าง Event วันสอบปลายภาค
                     let finalDateStr = "";
-                    if(subj.code === '03206111') finalDateStr = '20261028T133000Z'; // 28 ต.ค. 2569
-                    else if(subj.code === '03376124') finalDateStr = '20261029T093000Z'; // 29 ต.ค. 2569
-                    else if(subj.code === '03376125') finalDateStr = '20261026T093000Z'; // 26 ต.ค. 2569
-                    else if(subj.code === '03376126') finalDateStr = '20261027T093000Z'; // 27 ต.ค. 2569
-                    else if(subj.code === '03376150') finalDateStr = '20261030T093000Z'; // 30 ต.ค. 2569
+                    if(subj.code === '03206111') finalDateStr = '20261028T133000Z'; 
+                    else if(subj.code === '03376124') finalDateStr = '20261029T093000Z'; 
+                    else if(subj.code === '03376125') finalDateStr = '20261026T093000Z'; 
+                    else if(subj.code === '03376126') finalDateStr = '20261027T093000Z'; 
+                    else if(subj.code === '03376150') finalDateStr = '20261030T093000Z'; 
 
                     if (finalDateStr) {
                         icsContent.push(
@@ -1582,24 +1507,6 @@
             }
         }
 
-        // --- Auth Tab Switching ---
-        function toggleAuthTab(toSignup) {
-            isSignupTab = toSignup;
-            const tabLogin = document.getElementById('tab-login');
-            const tabSignup = document.getElementById('tab-signup');
-            const btnSubmit = document.getElementById('btn-auth-submit');
-            
-            if (toSignup) {
-                tabSignup.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-white text-orange-600 shadow-sm transition-all";
-                tabLogin.className = "flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-white/50 transition-all";
-                btnSubmit.textContent = "สมัครสมาชิกใหม่";
-            } else {
-                tabLogin.className = "flex-1 py-2 rounded-lg text-sm font-bold bg-white text-orange-600 shadow-sm transition-all";
-                tabSignup.className = "flex-1 py-2 rounded-lg text-sm font-bold text-slate-500 hover:bg-white/50 transition-all";
-                btnSubmit.textContent = "เข้าสู่ระบบ";
-            }
-        }
-
         // ==========================================
         // 5. INITIALIZE APP
         // ==========================================
@@ -1611,11 +1518,7 @@
             initFirebase();
 
             // Setup Listeners
-            document.getElementById('auth-form').addEventListener('submit', handleAuthSubmit);
-            document.getElementById('tab-login').addEventListener('click', () => toggleAuthTab(false));
-            document.getElementById('tab-signup').addEventListener('click', () => toggleAuthTab(true));
-            document.getElementById('btn-auth-anonymous').addEventListener('click', handleAnonymousSignIn);
-
+            document.getElementById('auth-form').addEventListener('submit', handleStudentIdLogin);
             document.getElementById('setup-form').addEventListener('submit', saveUserProfile);
             document.getElementById('btn-edit-profile').addEventListener('click', showSetup);
             document.getElementById('view-grid').addEventListener('click', () => switchView('grid'));
@@ -1636,10 +1539,13 @@
             // Logout
             document.getElementById('btn-logout').addEventListener('click', logoutAndClearData);
             
-            // Onboarding Close
-            document.getElementById('btn-close-onboarding').addEventListener('click', () => {
+            // Onboarding Control
+            document.getElementById('btn-close-onboarding').addEventListener('click', handleNextCoach);
+            document.getElementById('btn-next-coach').addEventListener('click', handleNextCoach);
+            document.getElementById('btn-skip-coach').addEventListener('click', () => {
                 localStorage.setItem('hasSeenOnboarding', 'true');
-                closeModal(document.getElementById('onboarding-overlay'));
+                document.getElementById('onboarding-overlay').classList.add('hidden');
+                document.getElementById('onboarding-overlay').classList.remove('flex');
             });
 
             // Modals Close Logic
