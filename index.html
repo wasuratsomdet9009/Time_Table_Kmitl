@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ตารางสอนครุฯวิศวกรรมคอมพิวเตอร์ (KMITL Smart Schedule)</title>
+    <title>ตารางเรียนครุฯวิศวกรรมคอมพิวเตอร์ (KMITL Smart Schedule)</title>
     <!-- Favicon -->
     <link rel="shortcut icon" href="https://wasuratsomdet9009.github.io/Time_Table_Kmitl/favicon.ico" type="image/x-icon">
     <!-- Tailwind CSS -->
@@ -1762,7 +1762,7 @@
 
         // --- ICS Export (iOS/Google Sync Optimized for Term 1/2569) ---
         function generateICS() {
-            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการสอน) 
+            // อ้างอิงเวลา ปฏิทินการศึกษา 1/2569 (June 29, 2026 - Oct 25, 2026 วันสุดท้ายของการเรียนการสอน) 
             const startDate = new Date(2026, 5, 29); 
             const endDate = new Date(2026, 9, 25); 
             const currentSecKey = currentUserData ? `sec${currentUserData.section}` : 'sec1';
